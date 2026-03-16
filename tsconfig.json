@@ -1,0 +1,7 @@
+{
+  "extends": "@effect-zero/tsconfig/react.json",
+  "compilerOptions": {
+    "types": ["node", "@cloudflare/workers-types"],
+    "noEmit": true
+  }
+}

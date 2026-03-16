@@ -1,0 +1,42 @@
+packages:
+  - examples/*
+  - infra/*
+  - packages/*
+  - tools/*
+
+catalog:
+  "@cloudflare/vite-plugin": 1.27.0
+  "@cloudflare/workers-types": ^4.20260313.1
+  "@rocicorp/zero": 0.26.1
+  "@tanstack/react-router": 1.166.7
+  "@tanstack/react-start": 1.166.7
+  "@tanstack/router-cli": 1.166.7
+  "@types/node": ^24
+  "@vitejs/plugin-react": ^5.1.4
+  alchemy: 0.87.0
+  drizzle-kit: 0.31.1
+  drizzle-orm: 0.44.1
+  drizzle-zero: 0.17.4
+  postgres: 3.4.7
+  react: 19.2.3
+  react-dom: 19.2.3
+  tsdown: ^0.21.2
+  typescript: ^5
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vite-plus: latest
+  vite-tsconfig-paths: ^6.1.1
+  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  wrangler: ^4.72.0
+  zod: ^4.1.5
+
+catalogMode: prefer
+overrides:
+  vite: "catalog:"
+  vitest: "catalog:"
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: "*"
+    vitest: "*"

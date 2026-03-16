@@ -1,0 +1,7 @@
+{
+  "extends": "@effect-zero/tsconfig/react.json",
+  "compilerOptions": {
+    "types": ["vite/client", "@cloudflare/workers-types"]
+  },
+  "include": ["alchemy.run.ts", "env.d.ts", "app", "vite.config.ts"]
+}

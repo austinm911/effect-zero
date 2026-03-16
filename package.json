@@ -1,0 +1,37 @@
+{
+  "name": "effect-zero",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench:api": "pnpm exec tsx benchmarks/run-api-benchmarks.mjs",
+    "bench:api:quick": "pnpm exec tsx benchmarks/run-api-benchmarks.mjs --samples 1",
+    "build": "vp run build -r",
+    "check": "vp check",
+    "dev": "pnpm --filter @effect-zero/example-ztunes dev",
+    "dev:all": "pnpm run dev:db && pnpm --parallel dev:zero dev dev:api",
+    "dev:api": "pnpm --filter @effect-zero/example-api dev",
+    "dev:db": "pnpm --filter @effect-zero/alchemy dev && pnpm --filter @effect-zero/example-data db:push",
+    "dev:zero": "scripts/zero-cache-dev.sh",
+    "postinstall": "node tools/fix-drizzle-v4-beta.mjs",
+    "ready": "vp fmt && vp lint && vp run test -r && vp run build -r",
+    "seed:ztunes": "node tools/load-ztunes-seed.mjs",
+    "test": "vp run test -r",
+    "verify:client-entrypoints": "node tools/check-client-entrypoints.mjs",
+    "verify:api": "pnpm exec tsx tools/verify-api-targets.mjs",
+    "verify:api:package": "VERIFY_API_BASE_URL=http://effect-zero-api.localhost:1355 pnpm exec tsx tools/verify-api-targets.mjs --target control,v3-drizzle,v3-pg,v3-postgresjs,v4-drizzle,v4-pg,v4-postgresjs",
+    "verify:mutation-stress": "pnpm exec tsx tools/verify-mutation-stress.mjs",
+    "verify:mutation-stress:package": "VERIFY_API_BASE_URL=http://effect-zero-api.localhost:1355 pnpm exec tsx tools/verify-mutation-stress.mjs --target control,v3-drizzle,v3-pg,v3-postgresjs,v4-drizzle,v4-pg,v4-postgresjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
+    "@effect-zero/tsconfig": "workspace:*",
+    "tsx": "^4.20.5",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

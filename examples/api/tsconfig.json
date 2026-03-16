@@ -1,0 +1,4 @@
+{
+  "extends": "@effect-zero/tsconfig/node.json",
+  "include": ["src"]
+}

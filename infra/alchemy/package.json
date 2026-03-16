@@ -1,0 +1,23 @@
+{
+  "name": "@effect-zero/alchemy",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./stack": "./alchemy.run.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "pnpm exec alchemy dev --app alchemy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "alchemy": "catalog:"
+  },
+  "devDependencies": {
+    "@effect-zero/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

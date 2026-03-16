@@ -1,0 +1,33 @@
+{
+  "name": "@effect-zero/example-api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runnable Node harness for effect-zero runtime and adapter verification.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "bash ../../scripts/example-api-dev.sh",
+    "start": "pnpm exec tsx src/server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@effect-zero/example-data": "workspace:*",
+    "@effect-zero/test-utils": "workspace:*",
+    "@effect-zero/v3": "workspace:*",
+    "@effect-zero/v4": "workspace:*",
+    "@rocicorp/zero": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "3.19.19",
+    "effect-v4": "npm:effect@4.0.0-beta.31",
+    "hono": "^4.8.3",
+    "pg": "8.20.0",
+    "postgres": "catalog:"
+  },
+  "devDependencies": {
+    "@effect-zero/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "tsx": "^4.20.5",
+    "typescript": "catalog:"
+  }
+}

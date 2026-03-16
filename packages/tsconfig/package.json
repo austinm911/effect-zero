@@ -1,0 +1,12 @@
+{
+  "name": "@effect-zero/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base.json": "./base.json",
+    "./library.json": "./library.json",
+    "./react.json": "./react.json",
+    "./node.json": "./node.json"
+  }
+}
