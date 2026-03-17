@@ -25,6 +25,10 @@ pnpm release:version -- packages/effect-zero-v4 prerelease --preid beta
 pnpm publish:package -- packages/effect-zero-v3
 pnpm publish:package -- packages/effect-zero-v4
 pnpm publish:package -- packages/effect-zero-v4 --tag beta
+
+pnpm publish:v3
+pnpm publish:v4
+pnpm publish:v4:beta
 ```
 
 `release:version` only updates the target package version and prints the next steps. It does not commit, tag, or publish automatically.
@@ -37,7 +41,7 @@ pnpm release:check
 git add packages/effect-zero-v3/package.json
 git commit -m "release(v3): cut 0.x.y"
 git tag effect-zero-v3@0.x.y
-pnpm publish:package -- packages/effect-zero-v3
+pnpm publish:v3
 ```
 
 For experimental v4 work:
@@ -48,5 +52,5 @@ pnpm release:check
 git add packages/effect-zero-v4/package.json
 git commit -m "release(v4): cut 0.x.y-beta.z"
 git tag effect-zero-v4@0.x.y-beta.z
-pnpm publish:package -- packages/effect-zero-v4 --tag beta
+pnpm publish:v4:beta
 ```
