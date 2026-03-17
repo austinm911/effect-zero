@@ -3,6 +3,7 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
+  realpathSync,
   readFileSync,
   rmSync,
   symlinkSync,
@@ -12,17 +13,16 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const effectV4PackageRoot = path.join(repoRoot, "packages/effect-zero-v4");
+const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 
-const requireFromV4 = createRequire(path.join(effectV4PackageRoot, "package.json"));
+const requireFromV4 = createRequire(path.join(packageRoot, "package.json"));
 
 let driverPath;
 
 try {
   driverPath = requireFromV4.resolve("drizzle-orm/effect-postgres/driver");
 } catch {
-  console.log("[fix-drizzle-v4-beta] drizzle-orm/effect-postgres is not installed yet");
+  console.log("[effect-zero/v4 postinstall] drizzle-orm/effect-postgres is not installed");
   process.exit(0);
 }
 
@@ -36,6 +36,7 @@ const effectModulePath = path.join(effectPackageRoot, "dist/Effect.js");
 const effectServiceCompatModulePath = path.join(effectPackageRoot, "dist/ServiceCompat.js");
 const effectableModulePath = path.join(effectPackageRoot, "dist/Effectable.js");
 const schemaModulePath = path.join(effectPackageRoot, "dist/Schema.js");
+const drizzleDriverModulePath = path.join(drizzlePackageRoot, "effect-postgres/driver.js");
 const drizzleSessionModulePath = path.join(drizzlePackageRoot, "effect-postgres/session.js");
 const drizzlePgCoreSessionModulePath = path.join(drizzlePackageRoot, "pg-core/effect/session.js");
 
@@ -45,10 +46,11 @@ ensureEffectServiceCompatShim(effectServiceCompatModulePath);
 ensureEffectServiceShim(effectModulePath);
 ensureEffectableShim(effectableModulePath);
 ensureTaggedErrorShim(schemaModulePath);
+ensureSqlPgAliasImport(drizzleDriverModulePath);
 ensurePatchedDrizzlePgCoreSession(drizzlePgCoreSessionModulePath);
 ensurePatchedDrizzleSession(drizzleSessionModulePath);
 
-console.log("[fix-drizzle-v4-beta] prepared v4 Drizzle beta runtime", {
+console.log("[effect-zero/v4 postinstall] prepared patched Drizzle Effect v4 runtime", {
   drizzleNodeModules,
   effectLinkTarget,
   effectableModulePath,
@@ -59,6 +61,18 @@ function ensureDirectory(directoryPath) {
 }
 
 function replaceLink(linkPath, targetPath) {
+  const resolvedTargetPath = path.resolve(path.dirname(linkPath), targetPath);
+
+  if (resolvedTargetPath === linkPath) {
+    return;
+  }
+
+  try {
+    if (existsSync(linkPath) && realpathSync(linkPath) === resolvedTargetPath) {
+      return;
+    }
+  } catch {}
+
   try {
     const existing = lstatSync(linkPath);
 
@@ -212,6 +226,18 @@ function ensureTaggedErrorShim(modulePath) {
     ].join("\n"),
     "utf8",
   );
+}
+
+function ensureSqlPgAliasImport(modulePath) {
+  const currentSource = readFileSync(modulePath, "utf8");
+  const nextSource = currentSource.replaceAll(
+    "@effect/sql-pg/PgClient",
+    "@effect-zero/sql-pg-v4/PgClient",
+  );
+
+  if (nextSource !== currentSource) {
+    writeFileSync(modulePath, nextSource, "utf8");
+  }
 }
 
 function ensurePatchedDrizzleSession(modulePath) {

@@ -13,7 +13,6 @@
     "dev:db": "pnpm --filter @effect-zero/alchemy dev && pnpm --filter @effect-zero/example-data db:push",
     "dev:stack": "vp run --workspace-root stack:dev",
     "dev:zero": "vp run --workspace-root stack:zero",
-    "postinstall": "node tools/fix-drizzle-v4-beta.mjs",
     "ready": "vp fmt && vp lint && vp run test -r && vp run build -r",
     "seed:ztunes": "node tools/load-ztunes-seed.mjs",
     "test": "vp run test -r",

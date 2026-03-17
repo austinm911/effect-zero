@@ -1,4 +1,4 @@
-import type { PgClientConfig } from "@effect/sql-pg/PgClient";
+import type { PgClientConfig } from "@effect-zero/sql-pg-v4/PgClient";
 import type { Schema as ZeroSchema } from "@rocicorp/zero";
 import type { ZQLDatabase } from "@rocicorp/zero/server";
 
