@@ -33,5 +33,6 @@ dist-ssr
 # Local runtime artifacts
 tmp/
 .osgrep
+.desloppify/
 benchmarks/results/api-*.json
 verification/results/mutation-stress/mutation-stress-*.json

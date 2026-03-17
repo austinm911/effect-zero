@@ -59,6 +59,10 @@ server overrides move to effect-zero.
   Effect v3.
 - Use [`@effect-zero/v4`](./packages/effect-zero-v4) if your app is on Effect
   v4 beta.
+- For the v4 Drizzle adapter specifically, read the
+  [`@effect-zero/v4` README](./packages/effect-zero-v4/README.md) for the
+  compatibility notes around [drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484)
+  and the optional install-time patch helper (`bun pm untrusted`, `pnpm approve-builds`, etc.).
 
 The server adapter API is intentionally the same across both lines. The main
 difference is the underlying Effect version and the service/layer style you
@@ -196,6 +200,18 @@ For repo-local examples, verification commands, and service bring-up, use:
 
 - [examples/README.md](./examples/README.md)
 - [AGENTS.md](./AGENTS.md)
+
+## Repo Cleanup
+
+Use Desloppify as the repo-local cleanup queue after correctness is green:
+
+```bash
+uv tool install --upgrade "desloppify[full]"
+pnpm desloppify:scan
+pnpm desloppify:next
+```
+
+`pnpm desloppify:scan` bootstraps the known excludes for local state, generated output, verification artifacts, and read-only upstream clones before scanning. Desloppify state lives under `.desloppify/` and is intentionally ignored.
 
 ## License
 
