@@ -391,7 +391,7 @@ async function importPatchedEffectPostgresModule() {
   } catch (error) {
     throw new Error(
       [
-        "@effect-zero/v4 drizzle support could not load the patched Drizzle Effect v4 runtime.",
+        "@awstin/effect-zero-v4 drizzle support could not load the patched Drizzle Effect v4 runtime.",
         "This adapter mirrors the compatibility changes from drizzle-orm PR #5484 at runtime.",
         `driverPath=${runtimePaths.drizzleDriverPath}`,
         `effectPackageRoot=${runtimePaths.effectPackageRoot}`,

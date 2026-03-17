@@ -6,7 +6,7 @@ import {
 
 export const adapter = {
   manifest: {
-    packageName: "@effect-zero/v3",
+    packageName: "@awstin/effect-zero-v3",
     effectLine: "v3",
     effectVersion: "3.19.19",
     zeroVersion: "0.26.1",

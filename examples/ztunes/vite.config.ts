@@ -22,7 +22,7 @@ export default defineConfig({
       srcDirectory: "app",
       importProtection: {
         client: {
-          specifiers: ["postgres", "effect", "@effect-zero/v3", "@effect-zero/v4"],
+          specifiers: ["postgres", "effect", "@awstin/effect-zero-v3", "@awstin/effect-zero-v4"],
         },
       },
     }),

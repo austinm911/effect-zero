@@ -12,11 +12,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@awstin/effect-zero-v3": "workspace:*",
+    "@awstin/effect-zero-v4": "workspace:*",
     "@effect-zero/alchemy": "workspace:*",
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
-    "@effect-zero/v3": "workspace:*",
-    "@effect-zero/v4": "workspace:*",
     "@rocicorp/zero": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",

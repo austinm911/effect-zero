@@ -36,7 +36,7 @@ The control exists so we can answer:
 
 Purpose:
 
-- build the publishable `@effect-zero/v3` package
+- build the publishable `@awstin/effect-zero-v3` package
 - test a real Zero `DBConnection` backed by Drizzle's Effect Postgres integration
 
 Implementation requirement:
@@ -71,7 +71,7 @@ Expected comparison points:
 
 Purpose:
 
-- build the publishable `@effect-zero/v4` package
+- build the publishable `@awstin/effect-zero-v4` package
 - test a real Zero `DBConnection` backed by the Effect v4 Drizzle work
 
 Implementation requirement:

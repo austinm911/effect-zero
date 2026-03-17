@@ -7,25 +7,25 @@ authoritative server mutation path without changing your browser-safe mutators.
 
 ## Packages
 
-| Package                                        | Effect | Status |
-| ---------------------------------------------- | ------ | ------ |
-| [`@effect-zero/v3`](./packages/effect-zero-v3) | v3     | stable |
-| [`@effect-zero/v4`](./packages/effect-zero-v4) | v4     | beta   |
+| Package                                               | Effect | Status |
+| ----------------------------------------------------- | ------ | ------ |
+| [`@awstin/effect-zero-v3`](./packages/effect-zero-v3) | v3     | stable |
+| [`@awstin/effect-zero-v4`](./packages/effect-zero-v4) | v4     | beta   |
 
 Install one line only:
 
 ```bash
-pnpm add @effect-zero/v3
+pnpm add @awstin/effect-zero-v3
 # or
-pnpm add @effect-zero/v4
+pnpm add @awstin/effect-zero-v4
 
-npm install @effect-zero/v3
+npm install @awstin/effect-zero-v3
 # or
-npm install @effect-zero/v4
+npm install @awstin/effect-zero-v4
 
-bun add @effect-zero/v3
+bun add @awstin/effect-zero-v3
 # or
-bun add @effect-zero/v4
+bun add @awstin/effect-zero-v4
 ```
 
 Choose peer deps that match your adapter:
@@ -63,12 +63,12 @@ server overrides move to effect-zero.
 
 ## Choose A Package
 
-- Use [`@effect-zero/v3`](./packages/effect-zero-v3) if your app already uses
+- Use [`@awstin/effect-zero-v3`](./packages/effect-zero-v3) if your app already uses
   Effect v3.
-- Use [`@effect-zero/v4`](./packages/effect-zero-v4) if your app is on Effect
+- Use [`@awstin/effect-zero-v4`](./packages/effect-zero-v4) if your app is on Effect
   v4 beta.
 - For the v4 Drizzle adapter specifically, read the
-  [`@effect-zero/v4` README](./packages/effect-zero-v4/README.md) for the
+  [`@awstin/effect-zero-v4` README](./packages/effect-zero-v4/README.md) for the
   compatibility notes around [drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484)
   and the optional install-time patch helper (`bun pm untrusted`, `pnpm approve-builds`, etc.).
 
@@ -76,7 +76,7 @@ The server adapter API is intentionally the same across both lines. The main
 difference is the underlying Effect version and the service/layer style you
 provide to `executeEffect(...)`.
 
-The minimal example below uses `@effect-zero/v3` with the Drizzle lane because
+The minimal example below uses `@awstin/effect-zero-v3` with the Drizzle lane because
 that is the shortest end-to-end path. Swap the package import to `v4` if your
 app is already on Effect v4.
 
@@ -118,7 +118,7 @@ export const add = defineMutator(argsSchema, async ({ tx, ctx, args }) => {
 Server override:
 
 ```ts
-import { extendServerMutator } from "@effect-zero/v3/server";
+import { extendServerMutator } from "@awstin/effect-zero-v3/server";
 import { Effect } from "effect";
 
 export const addServer = extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
@@ -136,8 +136,8 @@ Mutate route:
 
 ```ts
 import { handleMutateRequest } from "@rocicorp/zero/server";
-import { createServerMutatorHandler } from "@effect-zero/v3/server";
-import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
+import { createServerMutatorHandler } from "@awstin/effect-zero-v3/server";
+import { createZeroDbProvider } from "@awstin/effect-zero-v3/server/adapters/drizzle";
 
 const provider = await createZeroDbProvider({
   connectionString: process.env.DATABASE_URL!,
@@ -198,8 +198,8 @@ schema representation.
 
 ## Read Next
 
-- [`@effect-zero/v3` package docs](./packages/effect-zero-v3/README.md)
-- [`@effect-zero/v4` package docs](./packages/effect-zero-v4/README.md)
+- [`@awstin/effect-zero-v3` package docs](./packages/effect-zero-v3/README.md)
+- [`@awstin/effect-zero-v4` package docs](./packages/effect-zero-v4/README.md)
 - [examples overview](./examples/README.md)
 
 ## Maintainer Docs

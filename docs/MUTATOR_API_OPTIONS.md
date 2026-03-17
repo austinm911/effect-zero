@@ -128,9 +128,9 @@ If we force every mutator into class 2, DX gets bad quickly.
 
 Each publishable package should expose:
 
-- `@effect-zero/v3/shared`
-- `@effect-zero/v3/client`
-- `@effect-zero/v3/server`
+- `@awstin/effect-zero-v3/shared`
+- `@awstin/effect-zero-v3/client`
+- `@awstin/effect-zero-v3/server`
 
 and the same for v4.
 

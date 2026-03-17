@@ -2,10 +2,10 @@
 
 This repo publishes two npm packages:
 
-- `@effect-zero/v3`
-- `@effect-zero/v4`
+- `@awstin/effect-zero-v3`
+- `@awstin/effect-zero-v4`
 
-Keep releases on `0.x` for now. Avoid majors until the API is stable. Prefer beta prereleases for experimental `@effect-zero/v4` changes.
+Keep releases on `0.x` for now. Avoid majors until the API is stable. Prefer beta prereleases for experimental `@awstin/effect-zero-v4` changes.
 
 Keep one root [CHANGELOG.md](/Users/am/Coding/2026/effect-zero/CHANGELOG.md). Do not maintain
 separate changelog files inside each package directory.

@@ -1,20 +1,20 @@
-# @effect-zero/v4
+# @awstin/effect-zero-v4
 
 Effect v4 adapter for [Zero](https://zero.rocicorp.dev) server mutators.
 
 > **Effect v4 is in beta.** This package tracks `effect@4.0.0-beta.*`.
-> For the stable line, use [`@effect-zero/v3`](../effect-zero-v3).
+> For the stable line, use [`@awstin/effect-zero-v3`](../effect-zero-v3).
 
-The API surface is identical to `@effect-zero/v3` — same functions, same file
+The API surface is identical to `@awstin/effect-zero-v3` — same functions, same file
 layout, same patterns. This README covers only what differs. See the
 [v3 README](../effect-zero-v3/README.md) for full documentation.
 
 ## Install
 
 ```bash
-pnpm add @effect-zero/v4 @rocicorp/zero effect@4.0.0-beta
-npm install @effect-zero/v4 @rocicorp/zero effect@4.0.0-beta
-bun add @effect-zero/v4 @rocicorp/zero effect@4.0.0-beta
+pnpm add @awstin/effect-zero-v4 @rocicorp/zero effect@4.0.0-beta
+npm install @awstin/effect-zero-v4 @rocicorp/zero effect@4.0.0-beta
+bun add @awstin/effect-zero-v4 @rocicorp/zero effect@4.0.0-beta
 ```
 
 Then install the peer dependency for your chosen adapter:
@@ -41,21 +41,21 @@ work covers:
 - updating Effect error/export compatibility points
 - fixing the compiled Effect Postgres session/runtime bindings
 
-`@effect-zero/v4` applies equivalent compatibility patches automatically inside
+`@awstin/effect-zero-v4` applies equivalent compatibility patches automatically inside
 the Drizzle adapter before it loads `drizzle-orm/effect-postgres`, so consumers
 do not need to trust dependency `postinstall` scripts or install the PR build
 manually. This is the behavior tested for `npm`, `pnpm`, and `bun`.
 
 If you want to pre-patch an install manually, the package still ships
-`node_modules/@effect-zero/v4/postinstall.mjs`, but it is not required for
+`node_modules/@awstin/effect-zero-v4/postinstall.mjs`, but it is not required for
 normal usage.
 
 If your environment prefers install-time patching, or blocks runtime mutation
 inside `node_modules`, make sure the helper is allowed to run:
 
-- `bun`: run `bun pm untrusted` and trust `@effect-zero/v4`, or run `node node_modules/@effect-zero/v4/postinstall.mjs` yourself after install
-- `pnpm`: run `pnpm approve-builds` if you configure build-script approval, or run `node node_modules/@effect-zero/v4/postinstall.mjs` yourself after install
-- `npm`: do not use `--ignore-scripts` if you want lifecycle hooks to run automatically, or run `node node_modules/@effect-zero/v4/postinstall.mjs` yourself after install
+- `bun`: run `bun pm untrusted` and trust `@awstin/effect-zero-v4`, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
+- `pnpm`: run `pnpm approve-builds` if you configure build-script approval, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
+- `npm`: do not use `--ignore-scripts` if you want lifecycle hooks to run automatically, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
 
 The important requirement is simple: if you rely on the shipped helper, ensure
 it actually runs.
@@ -70,19 +70,19 @@ local patch layer and depend on the upstream release directly.
 Replace `v3` with `v4` in all imports:
 
 ```ts
-import { extendServerMutator, createServerMutatorHandler } from "@effect-zero/v4/server";
-import { createZeroDbProvider } from "@effect-zero/v4/server/adapters/drizzle";
+import { extendServerMutator, createServerMutatorHandler } from "@awstin/effect-zero-v4/server";
+import { createZeroDbProvider } from "@awstin/effect-zero-v4/server/adapters/drizzle";
 ```
 
 All entrypoints mirror v3:
 
-| Import                                       | Peer dep      | What                                                                            |
-| -------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
-| `@effect-zero/v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@effect-zero/v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                |
-| `@effect-zero/v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
-| `@effect-zero/v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                              |
-| `@effect-zero/v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                          |
+| Import                                              | Peer dep      | What                                                                            |
+| --------------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| `@awstin/effect-zero-v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
+| `@awstin/effect-zero-v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                |
+| `@awstin/effect-zero-v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
+| `@awstin/effect-zero-v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                              |
+| `@awstin/effect-zero-v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                          |
 
 ## Effect v4 Service Pattern
 

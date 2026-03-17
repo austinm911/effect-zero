@@ -4,8 +4,8 @@ All notable changes to this repo are tracked here.
 
 This repo publishes two packages from one source tree:
 
-- `@effect-zero/v3`
-- `@effect-zero/v4`
+- `@awstin/effect-zero-v3`
+- `@awstin/effect-zero-v4`
 
 Entries are grouped by package so shared repo work can still be described in one place without
 maintaining separate changelog files in each package directory.
@@ -18,12 +18,12 @@ maintaining separate changelog files in each package directory.
 - Add a release workflow for package-specific version bumps and publish commands.
 - Add repo-local Desloppify setup and queue helpers.
 
-### `@effect-zero/v3`
+### `@awstin/effect-zero-v3`
 
 - Simplify manifest/test-utils scaffolding and remove identity wrapper helpers.
 - Clarify `extendServerMutator(...)` request-scope guard messaging.
 
-### `@effect-zero/v4`
+### `@awstin/effect-zero-v4`
 
 - Simplify manifest/test-utils scaffolding and remove identity wrapper helpers.
 - Clarify `extendServerMutator(...)` request-scope guard messaging.
@@ -36,14 +36,14 @@ maintaining separate changelog files in each package directory.
 - Quiet expected Zero bootstrap `NOTICE` spam in the example API logs.
 - Add current mutation-stress verification snapshots and scorecard artifact.
 
-## `@effect-zero/v3` 0.1.0 - 2026-03-16
+## `@awstin/effect-zero-v3` 0.1.0 - 2026-03-16
 
 - First public release of the Effect v3 adapter line.
 - Includes Drizzle, `pg`, and `postgres.js` server adapter support.
 - Supports caller-owned and package-owned database/provider setup paths.
 - Ships the shared server mutator helpers and request handlers used by the example harness.
 
-## `@effect-zero/v4` 0.1.0-beta.0 - 2026-03-16
+## `@awstin/effect-zero-v4` 0.1.0-beta.0 - 2026-03-16
 
 - First public beta release of the Effect v4 adapter line.
 - Includes Drizzle, `pg`, and `postgres.js` server adapter support.

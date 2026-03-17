@@ -11,22 +11,22 @@ import {
   musicFixtureApiTargetIds,
   type MusicFixtureApiTargetId,
 } from "@effect-zero/test-utils/api-fixtures";
-import { zeroEffectNodePg as zeroEffectV3NodePg } from "@effect-zero/v3/server/adapters/pg";
-import { zeroEffectPostgresJS as zeroEffectV3PostgresJS } from "@effect-zero/v3/server/adapters/postgresjs";
-import { createZeroDbProvider as createV3ZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
+import { zeroEffectNodePg as zeroEffectV3NodePg } from "@awstin/effect-zero-v3/server/adapters/pg";
+import { zeroEffectPostgresJS as zeroEffectV3PostgresJS } from "@awstin/effect-zero-v3/server/adapters/postgresjs";
+import { createZeroDbProvider as createV3ZeroDbProvider } from "@awstin/effect-zero-v3/server/adapters/drizzle";
 import {
   createRestMutatorHandler as createV3RestMutatorHandler,
   createServerMutatorHandler as createV3ServerMutatorHandler,
   extendServerMutator as extendV3ServerMutator,
-} from "@effect-zero/v3/server";
-import { zeroEffectNodePg as zeroEffectV4NodePg } from "@effect-zero/v4/server/adapters/pg";
-import { zeroEffectPostgresJS as zeroEffectV4PostgresJS } from "@effect-zero/v4/server/adapters/postgresjs";
-import { createZeroDbProvider as createV4ZeroDbProvider } from "@effect-zero/v4/server/adapters/drizzle";
+} from "@awstin/effect-zero-v3/server";
+import { zeroEffectNodePg as zeroEffectV4NodePg } from "@awstin/effect-zero-v4/server/adapters/pg";
+import { zeroEffectPostgresJS as zeroEffectV4PostgresJS } from "@awstin/effect-zero-v4/server/adapters/postgresjs";
+import { createZeroDbProvider as createV4ZeroDbProvider } from "@awstin/effect-zero-v4/server/adapters/drizzle";
 import {
   createRestMutatorHandler as createV4RestMutatorHandler,
   createServerMutatorHandler as createV4ServerMutatorHandler,
   extendServerMutator as extendV4ServerMutator,
-} from "@effect-zero/v4/server";
+} from "@awstin/effect-zero-v4/server";
 import {
   defineMutators,
   mustGetMutator,

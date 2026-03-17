@@ -12,8 +12,8 @@ It is written as if these assumptions had been foundational from the start:
 
 This is the target design for both publishable lines:
 
-- `@effect-zero/v3`
-- `@effect-zero/v4`
+- `@awstin/effect-zero-v3`
+- `@awstin/effect-zero-v4`
 
 ## Foundational Assumptions
 
@@ -45,18 +45,18 @@ The public package surface should separate client-safe and server-only imports.
 
 For v3:
 
-- `@effect-zero/v3/client`
-- `@effect-zero/v3/server`
+- `@awstin/effect-zero-v3/client`
+- `@awstin/effect-zero-v3/server`
 
 For v4:
 
-- `@effect-zero/v4/client`
-- `@effect-zero/v4/server`
+- `@awstin/effect-zero-v4/client`
+- `@awstin/effect-zero-v4/server`
 
 Optional later:
 
-- `@effect-zero/v3/testing`
-- `@effect-zero/v4/testing`
+- `@awstin/effect-zero-v3/testing`
+- `@awstin/effect-zero-v4/testing`
 
 Client entrypoints must be browser-safe. Server entrypoints may import:
 

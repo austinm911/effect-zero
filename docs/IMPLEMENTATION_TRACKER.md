@@ -2,8 +2,8 @@
 
 This file tracks the implementation path for the two publishable adapter lines:
 
-- `@effect-zero/v3`
-- `@effect-zero/v4`
+- `@awstin/effect-zero-v3`
+- `@awstin/effect-zero-v4`
 
 The goal is not just to compile. The goal is to prove that both packages can:
 
@@ -468,8 +468,8 @@ Recommended browser tool:
 
 ### Latest Verified Run: 2026-03-14
 
-- [x] `pnpm --filter @effect-zero/v3 test`
-- [x] `pnpm --filter @effect-zero/v4 test`
+- [x] `pnpm --filter @awstin/effect-zero-v3 test`
+- [x] `pnpm --filter @awstin/effect-zero-v4 test`
 - [x] `vp run test -r`
 - [x] `vp run build -r`
 - [x] `vp check --fix`

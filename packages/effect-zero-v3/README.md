@@ -1,4 +1,4 @@
-# @effect-zero/v3
+# @awstin/effect-zero-v3
 
 Effect v3 adapter for [Zero](https://zero.rocicorp.dev) server mutators.
 
@@ -8,9 +8,9 @@ workflows, and deferred post-commit effects without changing client code.
 ## Install
 
 ```bash
-pnpm add @effect-zero/v3 @rocicorp/zero effect
-npm install @effect-zero/v3 @rocicorp/zero effect
-bun add @effect-zero/v3 @rocicorp/zero effect
+pnpm add @awstin/effect-zero-v3 @rocicorp/zero effect
+npm install @awstin/effect-zero-v3 @rocicorp/zero effect
+bun add @awstin/effect-zero-v3 @rocicorp/zero effect
 ```
 
 Then install the peer dependency for your chosen adapter:
@@ -29,7 +29,7 @@ Then install the peer dependency for your chosen adapter:
 
 ```ts
 // 1. Wrap a mutator with a server override
-import { extendServerMutator } from "@effect-zero/v3/server";
+import { extendServerMutator } from "@awstin/effect-zero-v3/server";
 import { Effect } from "effect";
 import { add } from "./mutators/cart/add";
 
@@ -43,7 +43,7 @@ export const addServer = extendServerMutator(add, ({ runDefaultMutation, defer }
 
 ```ts
 // 2. Wire the handler in your mutate route
-import { createServerMutatorHandler } from "@effect-zero/v3/server";
+import { createServerMutatorHandler } from "@awstin/effect-zero-v3/server";
 
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
@@ -59,13 +59,13 @@ untouched.
 
 ## Entrypoints
 
-| Import                                       | Environment | What                                                                            |
-| -------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
-| `@effect-zero/v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@effect-zero/v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`        |
-| `@effect-zero/v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
-| `@effect-zero/v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                              |
-| `@effect-zero/v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                          |
+| Import                                              | Environment | What                                                                            |
+| --------------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `@awstin/effect-zero-v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
+| `@awstin/effect-zero-v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`        |
+| `@awstin/effect-zero-v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
+| `@awstin/effect-zero-v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                              |
+| `@awstin/effect-zero-v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                          |
 
 ## Adapters
 
@@ -120,7 +120,7 @@ Wrap any `defineMutator` to add server-only logic:
 
 ```ts
 // zero/mutators/cart/add.server.ts
-import { extendServerMutator } from "@effect-zero/v3/server";
+import { extendServerMutator } from "@awstin/effect-zero-v3/server";
 import { Effect } from "effect";
 import { add } from "./add";
 import { CartWorkflow } from "../../services/cart-workflow";
@@ -162,7 +162,7 @@ export const serverMutators = defineMutators(mutators, {
 
 ```ts
 // zero/db.server.ts
-import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
+import { createZeroDbProvider } from "@awstin/effect-zero-v3/server/adapters/drizzle";
 import { schema } from "./schema";
 import * as drizzleSchema from "../drizzle/schema";
 
@@ -203,7 +203,7 @@ return handleMutateRequest(
 **After (with effect-zero):**
 
 ```ts
-import { createServerMutatorHandler } from "@effect-zero/v3/server";
+import { createServerMutatorHandler } from "@awstin/effect-zero-v3/server";
 import { serverMutators } from "zero/mutators.server";
 import { provider } from "zero/db.server";
 
@@ -230,7 +230,7 @@ unchanged.
 For webhooks or CLI tools, expose mutators as a plain REST API:
 
 ```ts
-import { createRestMutatorHandler } from "@effect-zero/v3/server";
+import { createRestMutatorHandler } from "@awstin/effect-zero-v3/server";
 
 const restHandler = createRestMutatorHandler({
   mutators: serverMutators,
@@ -348,7 +348,7 @@ Creates an Effect-managed Postgres connection and returns a Zero-compatible
 `ZQLDatabase`.
 
 ```ts
-import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
+import { createZeroDbProvider } from "@awstin/effect-zero-v3/server/adapters/drizzle";
 
 const provider = await createZeroDbProvider({
   connectionString: "postgres://...",
@@ -444,7 +444,7 @@ executeEffect: ({ effect }) =>
 
 ## Migrating from Plain Zero
 
-1. `pnpm add @effect-zero/v3`
+1. `pnpm add @awstin/effect-zero-v3`
 2. Pick an adapter (`postgresjs`, `pg`, or `drizzle`)
 3. Create `mutators.server.ts` — re-export your existing mutators
 4. Swap inline `transact(...)` → `createServerMutatorHandler` in your mutate route

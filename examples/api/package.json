@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@awstin/effect-zero-v3": "workspace:*",
+    "@awstin/effect-zero-v4": "workspace:*",
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
-    "@effect-zero/v3": "workspace:*",
-    "@effect-zero/v4": "workspace:*",
     "@hono/node-server": "^1.19.5",
     "@rocicorp/zero": "catalog:",
     "drizzle-orm": "catalog:",
