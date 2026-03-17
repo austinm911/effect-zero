@@ -1,6 +1,6 @@
 # Promise Target
 
-Verify the Promise control target end to end at `http://effect-zero-ztunes.localhost:1355`.
+Verify the Promise control target end to end at `http://127.0.0.1:4310`.
 
 ## Assertions
 

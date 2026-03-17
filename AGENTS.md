@@ -46,8 +46,8 @@ pnpm install
 pnpm dev:db
 pnpm dev
 pnpm dev:api
+pnpm dev:stack
 pnpm dev:zero
-pnpm dev:all
 vp check --fix
 vp run test -r
 vp run build -r
@@ -58,7 +58,7 @@ pnpm verify:mutation-stress
 pnpm verify:mutation-stress:package
 ```
 
-`pnpm dev` is not enough by itself for DB-backed checks. Start `pnpm dev:db` as well.
+`pnpm dev` starts only the ztunes app. For DB-backed checks, start `pnpm dev:db` and then run `pnpm dev:api`, `pnpm dev:zero`, or `pnpm dev:stack` as needed.
 
 ## Common Pitfalls
 

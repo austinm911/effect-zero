@@ -1,6 +1,6 @@
 # Effect v4 Drizzle Target
 
-Verify the browser-visible `v4-drizzle` target end to end at `http://effect-zero-ztunes.localhost:1355`.
+Verify the browser-visible `v4-drizzle` target end to end at `http://127.0.0.1:4310`.
 
 ## Assertions
 

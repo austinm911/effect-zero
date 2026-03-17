@@ -8,9 +8,8 @@ Use this prompt when you want an agent to verify the runnable `examples/ztunes` 
 Use [$chrome-cdp](/Users/am/Coding/loadout/vendor/chrome-cdp-skill/skills/chrome-cdp/SKILL.md) to verify the `examples/ztunes` app in Chrome.
 
 Constraints:
-- Work against the Portless frontend URL at `http://effect-zero-ztunes.localhost:1355`.
-- Work against the Portless package harness URL at `http://effect-zero-api.localhost:1355`.
-- Do not use `localhost:3000` or assume an internal Vite or Node port. The only stable URLs are the Portless hostnames.
+- Work against the frontend URL at `http://localhost:4310`.
+- Work against the package harness URL at `http://localhost:4311`.
 - Browser smoke covers only these browser-visible targets:
   - `control` (`Promise`)
   - `v3-drizzle` (`Effect v3 (Drizzle)`)
@@ -29,10 +28,8 @@ Constraints:
 
 Workflow:
 1. Check whether the frontend and package harness are live:
-   - `portless list`
-   - `curl -I http://effect-zero-ztunes.localhost:1355`
-   - `curl -I http://effect-zero-api.localhost:1355`
-   - Record the upstream targets from `portless list` so it is obvious which internal Vite and Node ports are active.
+   - `curl -I http://localhost:4310`
+   - `curl -I http://localhost:4311`
 2. If the database or app processes are not live, start:
    - `pnpm dev:db`
    - `pnpm dev:api`
@@ -43,15 +40,14 @@ Workflow:
 4. Find the Chrome target:
    - `node /Users/am/.pi/agent/skills/chrome-cdp/scripts/cdp.mjs list`
 5. Navigate the chosen tab to the route under test:
-   - `node /Users/am/.pi/agent/skills/chrome-cdp/scripts/cdp.mjs nav <target> http://effect-zero-ztunes.localhost:1355`
+   - `node /Users/am/.pi/agent/skills/chrome-cdp/scripts/cdp.mjs nav <target> http://localhost:4310`
 6. Use each browser-target prompt from `examples/ztunes/testing/`:
    - `control-target.md`
    - `v3-drizzle-target.md`
    - `v4-drizzle-target.md`
 7. Report:
-   - the Portless upstream targets that served the frontend and package harness
-   - whether the frontend Portless route was already live
-   - whether the package harness Portless route was already live
+   - whether the frontend was already live
+   - whether the package harness was already live
    - whether the database stack had to be started
    - whether Zero Cache had to be started
    - whether the package harness had to be started

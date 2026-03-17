@@ -1,154 +1,131 @@
 # effect-zero
 
-Effect adapters for [Zero](https://zero.rocicorp.dev) server mutators and
-REST-style mutator APIs.
+Effect-backed server adapters for [Zero](https://zero.rocicorp.dev) mutators.
 
-Use [Effect](https://effect.website) services, workflows, and deferred post-commit
-side effects inside Zero's authoritative server mutation path, while keeping your
-client mutators unchanged and optionally exposing the same mutator registry over a
-traditional REST surface.
+Use Effect services, workflows, and deferred post-commit effects inside Zero's
+authoritative server mutation path without changing your browser-safe mutators.
 
-| Package                                        | Effect      | Status                                                                                                |
-| ---------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
-| [`@effect-zero/v3`](./packages/effect-zero-v3) | v3 (stable) | [![npm](https://img.shields.io/npm/v/@effect-zero/v3)](https://www.npmjs.com/package/@effect-zero/v3) |
-| [`@effect-zero/v4`](./packages/effect-zero-v4) | v4 (beta)   | [![npm](https://img.shields.io/npm/v/@effect-zero/v4)](https://www.npmjs.com/package/@effect-zero/v4) |
+## Packages
 
-## What This Does
+| Package | Effect | Status |
+| --- | --- | --- |
+| [`@effect-zero/v3`](./packages/effect-zero-v3) | v3 | stable |
+| [`@effect-zero/v4`](./packages/effect-zero-v4) | v4 | beta |
 
-In a standard Zero app (like [ztunes](https://github.com/rocicorp/ztunes)),
-server mutations look like this:
+Install one line only:
 
-```ts
-handleMutateRequest(
-  dbProvider,
-  async (transact) =>
-    transact(async (tx, name, args) => {
-      const mutator = mustGetMutator(mutators, name);
-      await mutator.fn({ tx, ctx, args });
-    }),
-  request,
-);
+```bash
+pnpm add @effect-zero/v3
+# or
+pnpm add @effect-zero/v4
 ```
 
-With effect-zero, you can extend individual mutators with Effect on the server
-while the rest keep working as plain Zero:
+Choose peer deps that match your adapter:
+
+```bash
+pnpm add @rocicorp/zero effect
+
+# Drizzle lane
+pnpm add drizzle-orm
+
+# node-postgres lane
+pnpm add pg
+
+# postgres.js lane
+pnpm add postgres
+```
+
+## What You Get
+
+- `extendServerMutator(...)`
+  Wrap a shared Zero mutator with server-only Effect logic.
+- `createServerMutatorHandler(...)`
+  Plug a mutator registry into `handleMutateRequest(...)`.
+- `createRestMutatorHandler(...)`
+  Run the same registry through ordinary REST endpoints.
+- `server/adapters/postgresjs`
+  Wrap `postgres.js`.
+- `server/adapters/pg`
+  Wrap `pg`.
+- `server/adapters/drizzle`
+  Wrap Effect Drizzle with either an owned connection or a caller-owned DB.
+
+The shared client mutator stays unchanged. Only the server route and optional
+server overrides move to effect-zero.
+
+## Choose A Package
+
+- Use [`@effect-zero/v3`](./packages/effect-zero-v3) if your app already uses
+  Effect v3.
+- Use [`@effect-zero/v4`](./packages/effect-zero-v4) if your app is on Effect
+  v4 beta.
+
+The server adapter API is intentionally the same across both lines. The main
+difference is the underlying Effect version and the service/layer style you
+provide to `executeEffect(...)`.
+
+The minimal example below uses `@effect-zero/v3` with the Drizzle lane because
+that is the shortest end-to-end path. Swap the package import to `v4` if your
+app is already on Effect v4.
+
+## Choose An Adapter
+
+| Adapter | Use when | Owned mode | Caller-owned mode |
+| --- | --- | --- | --- |
+| `postgresjs` | you already use `postgres.js` or want the plainest Zero-style path | `zeroEffectPostgresJS(schema, connectionString)` | `zeroEffectPostgresJS(schema, sql)` |
+| `pg` | you already use `pg` pools/clients | `zeroEffectNodePg(schema, connectionString)` | `zeroEffectNodePg(schema, poolOrClient)` |
+| `drizzle` | you want typed Drizzle access in server overrides | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` | `createZeroDbProvider({ db, zeroSchema })` or `zeroEffectDrizzle(schema, db)` |
+
+Ownership rule:
+
+- If you pass a connection string, the adapter creates and owns the client.
+- If you pass an existing DB/client, you own its lifecycle.
+
+That means:
+
+- owned mode: call `await provider.dispose()`
+- caller-owned mode: `provider.dispose()` is a no-op and you dispose your own
+  client/runtime yourself
+
+## Minimal Shape
+
+Shared mutator:
 
 ```ts
-// Server override — only for mutators that need it
-const addServer = extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
+import { defineMutator } from "@rocicorp/zero";
+
+export const add = defineMutator(argsSchema, async ({ tx, ctx, args }) => {
+  await tx.mutate.cartItem.insert({
+    userId: ctx.userId,
+    albumId: args.albumId,
+    addedAt: args.addedAt,
+  });
+});
+```
+
+Server override:
+
+```ts
+import { extendServerMutator } from "@effect-zero/v3/server";
+import { Effect } from "effect";
+
+export const addServer = extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
   Effect.gen(function* () {
-    yield* runDefaultMutation(); // run the shared mutator
-    const cart = yield* CartWorkflow; // use Effect services
+    yield* runDefaultMutation();
+
+    const cart = yield* CartWorkflow;
     yield* cart.recalculate(ctx.userId, args.albumId);
-    defer(analytics.track("cart.added", { userId: ctx.userId })); // post-commit
+    defer(analytics.track("cart.added", { userId: ctx.userId }));
   }),
 );
-
-// Plug into handleMutateRequest — same Zero function
-handleMutateRequest(provider.zql, handler, request);
 ```
 
-**Client code does not change.** The adapter only touches the server route.
-
-If you also want the optional REST pattern from [Zero REST docs](https://zero.rocicorp.dev/docs/rest),
-the same registry can be mounted for routes like `POST /api/mutators/cart/add`:
+Mutate route:
 
 ```ts
-import { createRestMutatorHandler } from "@effect-zero/v3/server";
-
-const restHandler = createRestMutatorHandler({
-  mutators: serverMutators,
-  getContext: () => ({ userId: session.user.id }),
-});
-
-await restHandler({
-  db: provider.zql,
-  mutation: {
-    name: "cart.add",
-    args: await request.json(),
-  },
-});
-```
-
-## Install
-
-```bash
-# Pick one:
-pnpm add @effect-zero/v3   # Effect 3.x
-pnpm add @effect-zero/v4   # Effect 4.x (beta)
-```
-
-Peer dependencies:
-
-```bash
-pnpm add @rocicorp/zero effect drizzle-orm
-```
-
-## Quick Start
-
-> Full walkthrough with file layout, patterns, and migration steps:
-> **[packages/effect-zero-v3/README.md](./packages/effect-zero-v3/README.md)** or
-> **[packages/effect-zero-v4/README.md](./packages/effect-zero-v4/README.md)**
-
-### 1. Define shared mutators (unchanged from plain Zero)
-
-```ts
-// zero/mutators.ts — browser-safe, no Effect dependency
-import { defineMutator, defineMutators } from "@rocicorp/zero";
-import { z } from "zod";
-
-export const add = defineMutator(
-  z.object({ albumId: z.string(), addedAt: z.number() }),
-  async ({ tx, ctx, args }) => {
-    if (!ctx) throw new Error("Not authenticated");
-    await tx.mutate.cartItem.insert({
-      userId: ctx.userId,
-      albumId: args.albumId,
-      addedAt: tx.location === "client" ? args.addedAt : Date.now(),
-    });
-  },
-);
-
-export const mutators = defineMutators({ cart: { add } });
-```
-
-### 2. Add a server override with Effect
-
-```ts
-// zero/mutators.server.ts — server-only
-import { extendServerMutator } from "@effect-zero/v3/server";
-import { defineMutators } from "@rocicorp/zero";
-import { Effect } from "effect";
-import { mutators, add } from "./mutators";
-
-const serverMutators = defineMutators(mutators, {
-  cart: {
-    add: extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
-      Effect.gen(function* () {
-        yield* runDefaultMutation();
-        // ... Effect services, workflows, post-commit effects
-      }),
-    ),
-  },
-});
-```
-
-### 3. Wire into your mutate route
-
-This mirrors the [ztunes](https://github.com/rocicorp/ztunes) pattern with
-[better-auth](https://www.better-auth.com) for session handling:
-
-```ts
-// app/routes/api/zero/mutate.ts
-import { json } from "@tanstack/react-start";
-import { createServerFileRoute } from "@tanstack/react-start/server";
 import { handleMutateRequest } from "@rocicorp/zero/server";
 import { createServerMutatorHandler } from "@effect-zero/v3/server";
 import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
-import { auth } from "auth/auth";
-import { serverMutators } from "zero/mutators.server";
-import { schema } from "zero/schema";
-import * as drizzleSchema from "drizzle/schema";
 
 const provider = await createZeroDbProvider({
   connectionString: process.env.DATABASE_URL!,
@@ -156,159 +133,69 @@ const provider = await createZeroDbProvider({
   zeroSchema: schema,
 });
 
+const handler = createServerMutatorHandler({
+  mutators: serverMutators,
+  getContext: () => ({ userId }),
+  executeEffect: ({ effect }) => Effect.runPromise(effect),
+});
+
+return await handleMutateRequest(provider.zql, handler, request);
+```
+
+## Production Notes
+
+### `runDefaultMutation()`
+
+Use `runDefaultMutation()` only when you want to compose server-only work around
+the shared browser-safe mutator.
+
+- composed override: call `runDefaultMutation()`, then add Effect logic
+- full replacement: do not call `runDefaultMutation()` at all
+
+### Cloudflare Workers
+
+Do not keep DB providers or TCP-backed clients in module scope on Workers.
+Create them inside the request handler and dispose them before the response
+returns.
+
+```ts
 export const ServerRoute = createServerFileRoute("/api/zero/mutate").methods({
   POST: async ({ request }) => {
-    const session = await auth.api.getSession({ headers: request.headers });
-
-    if (!session) {
-      return json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const handler = createServerMutatorHandler({
-      mutators: serverMutators,
-      getContext: () => ({ userId: session.user.id }),
+    const provider = await createZeroDbProvider({
+      connectionString: env.HYPERDRIVE.connectionString,
+      drizzleSchema,
+      zeroSchema: schema,
     });
 
-    return json(await handleMutateRequest(provider.zql, handler, request));
+    try {
+      return json(await handleMutateRequest(provider.zql, handler, request));
+    } finally {
+      await provider.dispose();
+    }
   },
 });
 ```
 
-## API
+### Drizzle Schema vs Zero Schema
 
-Both packages export the same API shape from three entrypoint groups:
+- `drizzleSchema` configures the Drizzle database and typed relations
+- `zeroSchema` configures Zero's `ZQLDatabase`
 
-### `/server` (Node.js only)
+You need both for the Drizzle lane because Drizzle and Zero each need their own
+schema representation.
 
-| Export                                | Description                                                                                                                       |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `createRestMutatorHandler(opts)`      | Runs ordinary REST-style mutator calls like `POST /api/mutators/cart/add` through the same request-scoped override machinery.     |
-| `createServerMutatorHandler(opts)`    | Dispatches mutations through your mutator registry with Effect execution and deferred post-commit effects.                        |
-| `extendServerMutator(base, override)` | Wraps a `defineMutator` with an Effect server override. Override receives `args`, `ctx`, `tx`, `runDefaultMutation()`, `defer()`. |
+## Read Next
 
-### `/server/adapters/*` (Node.js only)
+- [`@effect-zero/v3` package docs](./packages/effect-zero-v3/README.md)
+- [`@effect-zero/v4` package docs](./packages/effect-zero-v4/README.md)
+- [examples overview](./examples/README.md)
 
-| Export path                                 | Description                                                                                 |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `.../server/adapters/postgresjs`            | `zeroEffectPostgresJS(schema, sql)` for `postgres.js` callers.                             |
-| `.../server/adapters/pg`                    | `zeroEffectNodePg(schema, pool)` for `pg` callers.                                          |
-| `.../server/adapters/drizzle`               | `zeroEffectDrizzle(schema, db)`, `createZeroDbProvider(...)`, and `createDbConnection(...)` for Drizzle callers. |
+## Maintainer Docs
 
-### `/client` (browser-safe)
+For repo-local examples, verification commands, and service bring-up, use:
 
-Re-exports from `@rocicorp/zero` for convenience: `defineMutator`, `defineMutators`,
-`mustGetMutator`, etc. No Effect dependency.
-
-## Key Concepts
-
-### `extendServerMutator`
-
-Wraps a base `defineMutator` with a server-only override:
-
-```ts
-extendServerMutator(baseMutator, ({ args, ctx, tx, runDefaultMutation, defer }) => {
-  // Return void, Promise<void>, or Effect<void>
-});
-```
-
-| Parameter              | Description                                                               |
-| ---------------------- | ------------------------------------------------------------------------- |
-| `args`                 | Validated mutator args (typed from base mutator's Zod schema)             |
-| `ctx`                  | App context from `getContext` (userId, etc.)                              |
-| `tx`                   | Zero `ServerTransaction` — includes `tx.dbTransaction` for raw SQL        |
-| `runDefaultMutation()` | Runs the base mutator once in the server transaction. Optional. Max once. |
-| `defer(effect)`        | Registers an Effect to run after the DB transaction commits               |
-
-### `createServerMutatorHandler`
-
-Creates a handler function compatible with `handleMutateRequest`:
-
-```ts
-createServerMutatorHandler({
-  mutators: serverMutators,                    // from defineMutators(base, overrides)
-  getContext: (mutation) => ({ userId: "..." }),  // resolve auth context per mutation
-  executeEffect: ({ effect }) => ...,          // optional: provide Effect layers
-});
-```
-
-### `createZeroDbProvider`
-
-Replaces `zeroPostgresJS` with an Effect-managed connection pool backed by
-[`drizzle-orm/effect-postgres`](https://orm.drizzle.team/docs/connect-effect-postgres):
-
-```ts
-import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
-
-const provider = await createZeroDbProvider({
-  connectionString: "postgres://...",
-  drizzleSchema, // Drizzle table/relation definitions
-  zeroSchema: schema, // Zero schema (from drizzle-zero)
-  pgClientConfig: {
-    // optional @effect/sql-pg pool config
-    maxConnections: 64,
-  },
-});
-
-provider.zql; // → ZQLDatabase (pass to handleMutateRequest)
-provider.connection; // → EffectDbConnection (Drizzle-over-Effect)
-provider.dispose(); // → shuts down the pool
-```
-
-> On Cloudflare Workers, do not cache a DB provider or client in module scope.
-> Create the adapter inside the request handler and dispose it before returning.
-> Cloudflare's TCP socket API forbids sharing sockets across requests, and Hyperdrive
-> is designed for fast per-request client construction.
-
-> **Why both `drizzleSchema` and `zeroSchema`?** They serve different layers.
-> `drizzleSchema` (your Drizzle table definitions) configures the Effect-managed
-> Drizzle connection — it needs the tables and relations to build typed queries
-> and wire up `@effect/sql-pg`. `zeroSchema` (typically generated by
-> [`drizzle-zero`](https://github.com/nicholascelestin/drizzle-zero) from your
-> Drizzle schema) is what Zero's `ZQLDatabase` needs to execute ZQL queries and
-> validate mutations. Under the hood, `createZeroDbProvider` creates a
-> `ManagedRuntime` with `PgClient.layer`, builds a Drizzle instance via
-> `drizzle-orm/effect-postgres`, then wraps it in Zero's `ZQLDatabase` with your
-> Zero schema. The plain Zero equivalent `zeroPostgresJS(schema, sql)` only takes
-> the Zero schema because it uses raw `postgres.js` directly — no Drizzle layer.
-
-## Repo Structure
-
-```
-packages/
-  effect-zero-v3/     # Publishable — Effect v3 adapter
-  effect-zero-v4/     # Publishable — Effect v4 adapter
-  example-data/       # Shared Drizzle schema, Zero schema, and browser-safe mutators
-examples/
-  ztunes/             # TanStack Start browser smoke app for control, v3-drizzle, and v4-drizzle
-  api/                # Runnable Hono/Node harness for the full runtime × adapter matrix
-infra/
-  alchemy/            # Local Postgres managed by Alchemy
-```
-
-## Local Development
-
-```bash
-pnpm install
-pnpm dev:db        # start local Postgres + push schema
-pnpm dev:api       # start the package harness at http://effect-zero-api.localhost:1355
-pnpm dev           # start the ztunes browser app at http://effect-zero-ztunes.localhost:1355
-pnpm dev:zero      # start Zero Cache for the browser app
-```
-
-Open [http://effect-zero-ztunes.localhost:1355](http://effect-zero-ztunes.localhost:1355).
-
-## Verification
-
-```bash
-vp check --fix                       # lint + format
-vp run test -r                       # unit tests
-vp run build -r                      # build all packages
-pnpm verify:client-entrypoints       # no server imports in browser bundles
-pnpm verify:api                      # browser-visible targets against ztunes
-pnpm verify:api:package              # full runtime × adapter matrix against examples/api
-pnpm verify:mutation-stress          # browser-visible mutation ordering + replay checks
-pnpm verify:mutation-stress:package  # full runtime × adapter stress checks against examples/api
-```
+- [examples/README.md](./examples/README.md)
+- [AGENTS.md](./AGENTS.md)
 
 ## License
 

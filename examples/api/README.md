@@ -1,197 +1,88 @@
-# API Examples
+# API Harness Example
 
-This package is a docs-first reference for mounting `effect-zero` in server
-frameworks that are not TanStack Start.
+`examples/api` is the runnable package harness for the full runtime × adapter
+matrix.
 
-Use it when you want:
+## What It Covers
 
-- the standard Zero sync route for browser clients
-- an optional REST façade for webhooks, third-party integrations, or CLI tools
-- the same browser-safe mutator registry shared across both routes
+This harness exposes all runtime targets:
 
-This example does not ship app code. The runnable end-to-end example lives in
-[`/Users/am/Coding/2026/effect-zero/examples/ztunes`](/Users/am/Coding/2026/effect-zero/examples/ztunes).
+- `control`
+- `v3-drizzle`
+- `v3-pg`
+- `v3-postgresjs`
+- `v4-drizzle`
+- `v4-pg`
+- `v4-postgresjs`
 
-## The Split
+Use it when you want to verify adapter behavior without going through the
+browser app.
 
-Keep the mutator surface split by environment:
+`control` appears here intentionally as the baseline comparison target for
+direct harness verification, even though ztunes also has its own local
+`control` path.
 
-- `zero/mutators.ts`
-  browser-safe registry for `ZeroProvider`
-- `zero/mutators.server.ts`
-  server-only registry with `extendServerMutator(...)` overrides
+## Why It Exists
 
-Your browser code imports only `zero/mutators.ts`.
+`examples/ztunes` is intentionally smaller. It only exposes the browser-visible
+targets and focuses on UI behavior.
 
-Your server imports:
+`examples/api` owns:
 
-- `serverMutators` from `zero/mutators.server.ts`
-- `createZeroDbProvider(...)` from `@effect-zero/v*/server/adapters/drizzle`
-- `createServerMutatorHandler(...)`
-- `createRestMutatorHandler(...)`
+- the full runtime × adapter matrix
+- direct fixture routes
+- package verification endpoints
+- request-level inspection
+- non-browser TCP-sharing behavior
 
-## Shared Client Mutators
+## Local Run
 
-The client/shared mutators should still be the source of truth. In this repo,
-they are demonstrated in:
+After the shared setup in [examples/README.md](/Users/am/Coding/2026/effect-zero/examples/README.md), start:
 
-- [`@effect-zero/example-data/mutators`](/Users/am/Coding/2026/effect-zero/packages/example-data/src/mutators.ts)
-- [`examples/ztunes/app/zero/mutators.ts`](/Users/am/Coding/2026/effect-zero/examples/ztunes/app/zero/mutators.ts)
-
-That same browser-safe registry can be reused by:
-
-- Zero browser clients through `zero.mutate(...)`
-- Zero sync server routes through `handleMutateRequest(...)`
-- optional REST routes through `createRestMutatorHandler(...)`
-
-## Hono Example
-
-Effect v3:
-
-```ts
-import { Hono } from "hono";
-import { handleMutateRequest } from "@rocicorp/zero/server";
-import {
-  createRestMutatorHandler,
-  createServerMutatorHandler,
-} from "@effect-zero/v3/server";
-import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
-import { serverMutators } from "./zero/mutators.server";
-import * as drizzleSchema from "./drizzle/schema";
-import { schema as zeroSchema } from "./zero/schema";
-
-const provider = await createZeroDbProvider({
-  connectionString: process.env.DATABASE_URL!,
-  drizzleSchema,
-  zeroSchema,
-});
-
-const app = new Hono();
-
-app.post("/api/zero/mutate", async (c) => {
-  const session = await getSession(c.req.raw);
-
-  const handler = createServerMutatorHandler({
-    mutators: serverMutators,
-    getContext: () => ({ userId: session.user.id }),
-  });
-
-  const result = await handleMutateRequest(provider.zql, handler, c.req.raw);
-  return c.json(result);
-});
-
-app.post("/api/mutators/*", async (c) => {
-  const session = await getSession(c.req.raw);
-  const path = c.req.path.replace(/^\\/api\\/mutators\\//, "");
-  const name = path.split("/").filter(Boolean).join(".");
-  const args = (await c.req.json()) as import("@rocicorp/zero").ReadonlyJSONValue;
-
-  const restHandler = createRestMutatorHandler({
-    mutators: serverMutators,
-    getContext: () => ({ userId: session.user.id }),
-  });
-
-  await restHandler({
-    db: provider.zql,
-    mutation: {
-      args,
-      name,
-    },
-  });
-
-  return c.json({ ok: true });
-});
+```bash
+pnpm dev:api
 ```
 
-## Elysia Example
-
-Effect v4:
-
-```ts
-import { Elysia } from "elysia";
-import { handleMutateRequest } from "@rocicorp/zero/server";
-import {
-  createRestMutatorHandler,
-  createServerMutatorHandler,
-} from "@effect-zero/v4/server";
-import { createZeroDbProvider } from "@effect-zero/v4/server/adapters/drizzle";
-import { serverMutators } from "./zero/mutators.server";
-import * as drizzleSchema from "./drizzle/schema";
-import { schema as zeroSchema } from "./zero/schema";
-
-const provider = await createZeroDbProvider({
-  connectionString: process.env.DATABASE_URL!,
-  drizzleSchema,
-  zeroSchema,
-});
-
-export const app = new Elysia()
-  .post("/api/zero/mutate", async ({ request, set }) => {
-    const session = await getSession(request);
-
-    const handler = createServerMutatorHandler({
-      mutators: serverMutators,
-      getContext: () => ({ userId: session.user.id }),
-    });
-
-    const result = await handleMutateRequest(provider.zql, handler, request);
-    set.status = 200;
-    return result;
-  })
-  .post("/api/mutators/*", async ({ body, params, request }) => {
-    const session = await getSession(request);
-    const name = String(params["*"] ?? "")
-      .split("/")
-      .filter(Boolean)
-      .join(".");
-
-    const restHandler = createRestMutatorHandler({
-      mutators: serverMutators,
-      getContext: () => ({ userId: session.user.id }),
-    });
-
-    await restHandler({
-      db: provider.zql,
-      mutation: {
-        args: body as import("@rocicorp/zero").ReadonlyJSONValue,
-        name,
-      },
-    });
-
-    return { ok: true };
-  });
-```
-
-## Which Route Does What
-
-- `POST /api/zero/mutate`
-  Zero browser clients use this. It must call `handleMutateRequest(...)`.
-- `POST /api/mutators/cart/add`
-  This is optional. Use it for REST consumers that do not speak the Zero sync protocol.
-
-The REST route is not a replacement for the Zero sync mutate route. It is a thin
-API façade over the same mutator registry.
-
-## Recommended Consumer Layout
-
-For consumer apps, the clean layout is:
+The harness listens at:
 
 ```text
-zero/
-  schema.ts
-  queries.ts
-  mutators.ts
-  mutators.server.ts
-  mutators/
-    cart/
-      add.ts
-      add.server.ts
-      remove.ts
-      index.ts
+http://localhost:4311
 ```
 
-That keeps:
+This service is normally started on its own for harness verification. It is
+also the backend that ztunes proxies to when you switch to `v3-drizzle` or
+`v4-drizzle`.
 
-- browser imports clean
-- DB clients out of the frontend bundle
-- Zero sync and REST routes backed by the same mutator tree
+## Main Endpoints
+
+- `POST /api/target`
+  Set the active target cookie
+- `POST /api/demo/reset`
+  Reset fixture state
+- `GET /api/demo/state`
+  Read fixture state
+- `GET /api/demo/protocol-state`
+  Read protocol and authoring state
+- `POST /api/direct/cart/add`
+  Promise Drizzle baseline
+- `POST /api/direct/read`
+  Promise Drizzle read baseline
+- `POST /api/mutators/:scope/:name`
+  REST mutator surface
+- `POST /api/zero/mutate`
+  Zero mutate surface
+- `POST /api/zero/query`
+  Zero query transform surface
+- `POST /api/zql/read`
+  Adapter-backed read surface
+
+## Verification Commands
+
+From the workspace root:
+
+```bash
+pnpm verify:api:package
+pnpm verify:mutation-stress:package
+```
+
+Those commands target this harness directly.
