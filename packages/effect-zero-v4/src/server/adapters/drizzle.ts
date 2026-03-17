@@ -69,6 +69,14 @@ export interface CreateZeroDbProviderOptions<
   readonly zeroSchema: TZeroSchema;
 }
 
+export interface CreateZeroDbProviderFromDbOptions<
+  TZeroSchema extends ZeroSchema,
+  TDrizzle extends EffectV4DrizzleDatabase<any, any>,
+> {
+  readonly db: TDrizzle;
+  readonly zeroSchema: TZeroSchema;
+}
+
 export interface EffectV4DbProvider<
   TZeroSchema extends ZeroSchema,
   TDrizzle extends EffectV4DrizzleDatabase<any, any>,
@@ -238,7 +246,35 @@ export async function createZeroDbProvider<
   TZeroSchema extends ZeroSchema,
   TSchema extends Record<string, unknown>,
   TRelations extends AnyRelations = AnyRelations,
->(options: CreateZeroDbProviderOptions<TZeroSchema, TSchema, TRelations>) {
+>(
+  options: CreateZeroDbProviderOptions<TZeroSchema, TSchema, TRelations>,
+): Promise<EffectV4ZeroDbProvider<TZeroSchema, EffectV4DrizzleDatabase<TSchema, TRelations>>>;
+export async function createZeroDbProvider<
+  TZeroSchema extends ZeroSchema,
+  TDrizzle extends EffectV4DrizzleDatabase<any, any>,
+>(
+  options: CreateZeroDbProviderFromDbOptions<TZeroSchema, TDrizzle>,
+): Promise<EffectV4ZeroDbProvider<TZeroSchema, TDrizzle>>;
+export async function createZeroDbProvider<
+  TZeroSchema extends ZeroSchema,
+  TSchema extends Record<string, unknown>,
+  TRelations extends AnyRelations = AnyRelations,
+  TDrizzle extends EffectV4DrizzleDatabase<any, any> = EffectV4DrizzleDatabase<any, any>,
+>(
+  options:
+    | CreateZeroDbProviderOptions<TZeroSchema, TSchema, TRelations>
+    | CreateZeroDbProviderFromDbOptions<TZeroSchema, TDrizzle>,
+) {
+  if ("db" in options) {
+    const connection = new InlineEffectV4DbConnection(options.db);
+
+    return {
+      connection,
+      dispose: async () => {},
+      zql: zeroDrizzleEffectV4(options.zeroSchema, connection),
+    } satisfies EffectV4ZeroDbProvider<TZeroSchema, TDrizzle>;
+  }
+
   const connection = await createDbConnection({
     connectionString: options.connectionString,
     drizzleConfig: options.drizzleConfig,

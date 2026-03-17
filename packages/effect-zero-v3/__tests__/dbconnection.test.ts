@@ -201,6 +201,37 @@ describe("Effect v3 DBConnection", () => {
     }
   }, 20_000);
 
+  test("accepts a caller-owned Drizzle database in createZeroDbProvider", async () => {
+    testDatabase = await createTestDatabase({
+      databaseNamePrefix: "effect_zero_v3",
+    });
+    const seed = await testDatabase.seedBaseMusicRows();
+    const ownedConnection = await createDbConnection({
+      connectionString: testDatabase.connectionString,
+      drizzleSchema,
+    });
+
+    const provider = await createZeroDbProvider({
+      db: ownedConnection.drizzle,
+      zeroSchema,
+    });
+
+    try {
+      expect(provider.connection.drizzle).toBe(ownedConnection.drizzle);
+
+      await provider.dispose();
+
+      const result = await provider.zql.run(
+        zeroBuilder.artist.where("id", "=", seed.artist.id),
+      );
+
+      expect(result[0]?.id).toBe(seed.artist.id);
+      expect(result[0]?.name).toBe(seed.artist.name);
+    } finally {
+      await ownedConnection.dispose();
+    }
+  }, 20_000);
+
   test("runs handleQueryRequest for the shared artist query fixture", async () => {
     testDatabase = await createTestDatabase({
       databaseNamePrefix: "effect_zero_v3",

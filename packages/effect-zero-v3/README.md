@@ -11,19 +11,80 @@ server mutations — without changing any client code.
 pnpm add @effect-zero/v3
 ```
 
-Peer dependencies:
+Choose the peer deps that match your adapter:
 
 ```bash
-pnpm add @rocicorp/zero effect drizzle-orm
+pnpm add @rocicorp/zero effect
+
+# Drizzle lane
+pnpm add drizzle-orm
+
+# node-postgres lane
+pnpm add pg
+
+# postgres.js lane
+pnpm add postgres
 ```
 
 ## Entrypoints
 
-| Import                   | Environment  | Description                                                                 |
-| ------------------------ | ------------ | --------------------------------------------------------------------------- |
-| `@effect-zero/v3/server` | Node.js      | Zero sync handler, REST mutator handler, `extendServerMutator`               |
-| `@effect-zero/v3/client` | Browser-safe | Re-exports from `@rocicorp/zero` (`defineMutator`, `defineMutators`, etc.)  |
-| `@effect-zero/v3/server/adapters/*` | Node.js | Adapter factories for `postgres.js`, `pg`, and Drizzle-backed Zero providers |
+| Import | Environment | Description |
+| --- | --- | --- |
+| `@effect-zero/v3/server` | Server runtime | Zero sync handler, REST mutator handler, `extendServerMutator` |
+| `@effect-zero/v3/client` | Browser-safe | Re-exports from `@rocicorp/zero` (`defineMutator`, `defineMutators`, etc.) |
+| `@effect-zero/v3/server/adapters/*` | Server runtime | Adapter factories for `postgres.js`, `pg`, and Drizzle-backed Zero providers |
+
+## Choose An Adapter
+
+| Adapter | Use when | Owned mode | Caller-owned mode |
+| --- | --- | --- | --- |
+| `postgresjs` | you already use `postgres.js` or want the closest plain-Zero path | `zeroEffectPostgresJS(schema, connectionString)` | `zeroEffectPostgresJS(schema, sql)` |
+| `pg` | you already use `pg` pools/clients | `zeroEffectNodePg(schema, connectionString)` | `zeroEffectNodePg(schema, poolOrClient)` |
+| `drizzle` | you want typed Drizzle access in server overrides | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` | `createZeroDbProvider({ db, zeroSchema })` or `zeroEffectDrizzle(schema, db)` |
+
+Ownership rule:
+
+- If you pass a connection string, the adapter creates and owns the DB client.
+- If you pass an existing DB/client, you own its lifecycle.
+- In caller-owned mode, `provider.dispose()` is intentionally a no-op.
+
+## Deployment And Lifecycle
+
+### `runDefaultMutation()`
+
+Call `runDefaultMutation()` only when you want to compose server-only work
+around the shared browser-safe mutator.
+
+- composed override: call it, then add more server work
+- full replacement: do not call it at all
+
+### Long-Lived Node Processes
+
+For ordinary Node servers, package-owned providers can live in module scope and
+be reused across requests. Dispose them on process shutdown.
+
+### Cloudflare Workers
+
+Do not keep DB providers or TCP-backed clients in module scope on Workers.
+Create them inside the request handler and dispose them before the response
+returns.
+
+### Ownership Rules
+
+- `zeroEffectPostgresJS(schema, connectionString)` creates and owns the client
+- `zeroEffectPostgresJS(schema, sql)` wraps your existing client
+- `zeroEffectNodePg(schema, connectionString)` creates and owns the pool
+- `zeroEffectNodePg(schema, poolOrClient)` wraps your existing `pg` client/pool
+- `createZeroDbProvider({ connectionString, ... })` creates and owns the Effect
+  Drizzle runtime
+- `createZeroDbProvider({ db, ... })` and `zeroEffectDrizzle(schema, db)` wrap
+  your existing Effect Drizzle database
+
+Dispose rule:
+
+- package-owned mode: call `await provider.dispose()`
+- caller-owned mode: `provider.dispose()` is a no-op and you dispose your own
+  DB/client/runtime
 
 ---
 
@@ -214,8 +275,37 @@ export const provider = await createZeroDbProvider({
 process.on("SIGTERM", () => provider.dispose());
 ```
 
+If you already have an Effect Drizzle database, pass it directly instead:
+
+```ts
+const provider = await createZeroDbProvider({
+  db,
+  zeroSchema: schema,
+});
+```
+
 > On Cloudflare Workers, do not keep this provider in module scope. Create it
 > inside the request handler and dispose it before the response returns.
+
+Example:
+
+```ts
+export const ServerRoute = createServerFileRoute("/api/zero/mutate").methods({
+  POST: async ({ request }) => {
+    const provider = await createZeroDbProvider({
+      connectionString: env.HYPERDRIVE.connectionString,
+      drizzleSchema,
+      zeroSchema: schema,
+    });
+
+    try {
+      return json(await handleMutateRequest(provider.zql, handler, request));
+    } finally {
+      await provider.dispose();
+    }
+  },
+});
+```
 
 ### Step 7 — Server Mutate Route
 
@@ -335,7 +425,7 @@ This is the package-level equivalent of the pattern described in
 - The query route — no changes needed
 - Client code — completely untouched
 
-### Step 8 — Query Route (unchanged)
+### Step 9 — Query Route (unchanged)
 
 No adapter needed for queries:
 
@@ -367,20 +457,54 @@ Creates an Effect-managed Postgres connection pool backed by
 [`drizzle-orm/effect-postgres`](https://orm.drizzle.team/docs/connect-effect-postgres)
 and returns a Zero-compatible `ZQLDatabase`.
 
+You can use it in two modes:
+
+- owned connection mode: pass `connectionString` and the provider creates and
+  owns the Effect Drizzle connection
+- caller-owned mode: pass `db` if you already have an Effect Drizzle database
+  and want the provider to wrap it without taking ownership
+
 ```ts
 import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
 
+// Provider owns the connection lifecycle
 const provider = await createZeroDbProvider({
   connectionString: "postgres://...",
   drizzleSchema, // Drizzle table/relation definitions
   zeroSchema: schema, // Zero schema (from drizzle-zero)
   pgClientConfig: {}, // optional @effect/sql-pg pool config
 });
+
+// You already own the Drizzle database lifecycle
+const providerFromDb = await createZeroDbProvider({
+  db,
+  zeroSchema: schema,
+});
 ```
 
 > On Cloudflare Workers, create the provider inside the request handler and
 > dispose it before returning. Do not cache Drizzle, `pg`, or `postgres.js`
 > clients across requests.
+
+Example:
+
+```ts
+export const ServerRoute = createServerFileRoute("/api/zero/mutate").methods({
+  POST: async ({ request }) => {
+    const provider = await createZeroDbProvider({
+      connectionString: env.HYPERDRIVE.connectionString,
+      drizzleSchema,
+      zeroSchema: schema,
+    });
+
+    try {
+      return json(await handleMutateRequest(provider.zql, handler, request));
+    } finally {
+      await provider.dispose();
+    }
+  },
+});
+```
 
 Returns:
 
@@ -389,6 +513,10 @@ Returns:
 | `zql`        | `ZQLDatabase<Schema, WrappedTx>` | Pass to `handleMutateRequest`          |
 | `connection` | `EffectV3DbConnection`           | Drizzle-over-Effect managed connection |
 | `dispose()`  | `() => Promise<void>`            | Shuts down the connection pool         |
+
+If you pass `db`, `dispose()` is a no-op because the caller owns that Drizzle
+database. If you pass `connectionString`, `dispose()` closes the owned
+connection/runtime.
 
 **Why both schemas?** `drizzleSchema` configures the Effect-managed Drizzle
 connection (tables, relations, typed queries via `@effect/sql-pg`). `zeroSchema`
@@ -411,6 +539,10 @@ Wraps a `defineMutator` with a server-only override. The override receives:
 | `defer(effect)`        | Registers an Effect to run after the DB transaction commits               |
 
 The override can return `void`, `Promise<void>`, or `Effect<void>`.
+
+Use `runDefaultMutation()` only when you want to compose extra server-only work
+around the shared mutator. If you want to fully replace the server behavior, do
+not call `runDefaultMutation()`.
 
 ### `createServerMutatorHandler(options)`
 
@@ -488,6 +620,9 @@ extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
 );
 ```
 
+Use this pattern when the client-safe mutator should still run on the server
+transaction and you want to add more work around it.
+
 ### Full replacement (skip `runDefaultMutation`)
 
 ```ts
@@ -499,6 +634,9 @@ extendServerMutator(finalize, ({ args, ctx, defer }) =>
   }),
 );
 ```
+
+Use this pattern when the server path is the mutation implementation. The base
+mutator is not required in that case.
 
 ### Raw SQL in override
 
