@@ -18,6 +18,14 @@ Install one line only:
 pnpm add @effect-zero/v3
 # or
 pnpm add @effect-zero/v4
+
+npm install @effect-zero/v3
+# or
+npm install @effect-zero/v4
+
+bun add @effect-zero/v3
+# or
+bun add @effect-zero/v4
 ```
 
 Choose peer deps that match your adapter:

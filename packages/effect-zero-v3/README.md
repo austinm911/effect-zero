@@ -9,6 +9,8 @@ workflows, and deferred post-commit effects without changing client code.
 
 ```bash
 pnpm add @effect-zero/v3 @rocicorp/zero effect
+npm install @effect-zero/v3 @rocicorp/zero effect
+bun add @effect-zero/v3 @rocicorp/zero effect
 ```
 
 Then install the peer dependency for your chosen adapter:

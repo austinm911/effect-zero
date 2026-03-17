@@ -1,6 +1,6 @@
 {
   "name": "@effect-zero/v4",
-  "version": "0.0.0",
+  "version": "0.1.0-beta.0",
   "description": "Beta-track Zero DBConnection scaffold for Effect v4.",
   "license": "MIT",
   "files": [

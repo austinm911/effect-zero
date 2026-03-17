@@ -36,14 +36,14 @@ maintaining separate changelog files in each package directory.
 - Quiet expected Zero bootstrap `NOTICE` spam in the example API logs.
 - Add current mutation-stress verification snapshots and scorecard artifact.
 
-## `@effect-zero/v3` 0.1.0 - TBD
+## `@effect-zero/v3` 0.1.0 - 2026-03-16
 
 - First public release of the Effect v3 adapter line.
 - Includes Drizzle, `pg`, and `postgres.js` server adapter support.
 - Supports caller-owned and package-owned database/provider setup paths.
 - Ships the shared server mutator helpers and request handlers used by the example harness.
 
-## `@effect-zero/v4` 0.1.0-beta.0 - TBD
+## `@effect-zero/v4` 0.1.0-beta.0 - 2026-03-16
 
 - First public beta release of the Effect v4 adapter line.
 - Includes Drizzle, `pg`, and `postgres.js` server adapter support.
