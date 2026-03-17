@@ -43,14 +43,16 @@ Everything under [`.context`](/Users/am/Coding/2026/effect-zero/.context/README.
 
 ```bash
 pnpm install
+vp config
 pnpm dev:db
 pnpm dev
 pnpm dev:api
 pnpm dev:stack
 pnpm dev:zero
 pnpm desloppify:scan
-pnpm desloppify:next
-vp check --fix
+pnpm desloppify:queue
+pnpm fmt:fix
+pnpm check
 vp run test -r
 vp run build -r
 pnpm verify:client-entrypoints
@@ -60,9 +62,11 @@ pnpm verify:mutation-stress
 pnpm verify:mutation-stress:package
 ```
 
+Run `vp config` once after cloning to point your local Git hooks path at the committed `.vite-hooks` directory.
+
 `pnpm dev` starts only the ztunes app. For DB-backed checks, start `pnpm dev:db` and then run `pnpm dev:api`, `pnpm dev:zero`, or `pnpm dev:stack` as needed.
 
-Use `pnpm desloppify:scan` to bootstrap repo-local excludes and run a full Desloppify scan. Use `pnpm desloppify:next` to work the current queue.
+Use `pnpm desloppify:scan` to bootstrap repo-local excludes and run a full Desloppify scan. Use `pnpm desloppify:queue` to work the current queue.
 
 ## Common Pitfalls
 
@@ -77,7 +81,8 @@ Use `pnpm desloppify:scan` to bootstrap repo-local excludes and run a full Deslo
 ## Review Checklist
 
 - [ ] `pnpm install`
-- [ ] `vp check --fix`
+- [ ] `pnpm fmt:fix`
+- [ ] `pnpm check`
 - [ ] `vp run test -r`
 - [ ] `vp run build -r`
 - [ ] `pnpm verify:client-entrypoints`

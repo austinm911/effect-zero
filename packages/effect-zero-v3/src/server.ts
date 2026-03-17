@@ -104,7 +104,7 @@ export function extendServerMutator<
 
     if (!executionState) {
       throw new Error(
-        "extendServerMutator requires createServerMutatorHandler so deferred effects and Effect execution are request-scoped.",
+        "extendServerMutator requires createServerMutatorHandler or createRestMutatorHandler so deferred effects and Effect execution stay request-scoped.",
       );
     }
 

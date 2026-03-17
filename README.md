@@ -199,19 +199,8 @@ schema representation.
 For repo-local examples, verification commands, and service bring-up, use:
 
 - [examples/README.md](./examples/README.md)
+- [RELEASING.md](./RELEASING.md)
 - [AGENTS.md](./AGENTS.md)
-
-## Repo Cleanup
-
-Use Desloppify as the repo-local cleanup queue after correctness is green:
-
-```bash
-uv tool install --upgrade "desloppify[full]"
-pnpm desloppify:scan
-pnpm desloppify:next
-```
-
-`pnpm desloppify:scan` bootstraps the known excludes for local state, generated output, verification artifacts, and read-only upstream clones before scanning. Desloppify state lives under `.desloppify/` and is intentionally ignored.
 
 ## License
 

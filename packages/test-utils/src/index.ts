@@ -103,26 +103,6 @@ export interface BenchmarkSummary {
   readonly opsPerSecond: number;
 }
 
-export function createManifest(manifest: AdapterManifest): AdapterManifest {
-  return manifest;
-}
-
-export function createAdapterScaffold(scaffold: AdapterScaffold): AdapterScaffold {
-  return scaffold;
-}
-
-export function createBenchmarkScenario(scenario: BenchmarkScenario): BenchmarkScenario {
-  return scenario;
-}
-
-export function createBenchmarkTarget(target: BenchmarkTarget): BenchmarkTarget {
-  return target;
-}
-
-export function createBenchmarkPlan(plan: BenchmarkPlan): BenchmarkPlan {
-  return plan;
-}
-
 export const upstreamDrizzleAdapterCapabilities = [
   "supportsDbTransactionRawSqlQuery",
   "exposesWrappedDrizzleTransaction",
@@ -134,90 +114,90 @@ export const upstreamDrizzleAdapterContractTests = [
 ] as const;
 
 export const defaultBenchmarkScenarios = [
-  createBenchmarkScenario({
+  {
     id: "mutation.cold.single.1",
     operation: "mutation",
     temperature: "cold",
     execution: "single",
     iterations: 1,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "mutation.warm.single.1",
     operation: "mutation",
     temperature: "warm",
     execution: "single",
     iterations: 1,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "mutation.warm.serial.10",
     operation: "mutation",
     temperature: "warm",
     execution: "serial",
     iterations: 10,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "mutation.warm.serial.100",
     operation: "mutation",
     temperature: "warm",
     execution: "serial",
     iterations: 100,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "mutation.warm.parallel.10",
     operation: "mutation",
     temperature: "warm",
     execution: "parallel",
     iterations: 10,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "mutation.warm.parallel.100",
     operation: "mutation",
     temperature: "warm",
     execution: "parallel",
     iterations: 100,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.cold.single.1",
     operation: "query",
     temperature: "cold",
     execution: "single",
     iterations: 1,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.warm.single.1",
     operation: "query",
     temperature: "warm",
     execution: "single",
     iterations: 1,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.warm.serial.10",
     operation: "query",
     temperature: "warm",
     execution: "serial",
     iterations: 10,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.warm.serial.100",
     operation: "query",
     temperature: "warm",
     execution: "serial",
     iterations: 100,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.warm.parallel.10",
     operation: "query",
     temperature: "warm",
     execution: "parallel",
     iterations: 10,
-  }),
-  createBenchmarkScenario({
+  },
+  {
     id: "query.warm.parallel.100",
     operation: "query",
     temperature: "warm",
     execution: "parallel",
     iterations: 100,
-  }),
+  },
 ] as const satisfies readonly BenchmarkScenario[];
 
 export function formatManifest(manifest: AdapterManifest): string {

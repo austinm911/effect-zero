@@ -1,9 +1,5 @@
 import { expect, test } from "vite-plus/test";
 import {
-  createBenchmarkPlan,
-  createBenchmarkTarget,
-  createAdapterScaffold,
-  createManifest,
   defaultBenchmarkScenarios,
   evaluateAdapterContract,
   expandBenchmarkPlan,
@@ -12,7 +8,7 @@ import {
 } from "../src";
 
 test("formatManifest", () => {
-  const manifest = createManifest({
+  const manifest = {
     packageName: "@effect-zero/example",
     effectLine: "v3",
     effectVersion: "3.19.19",
@@ -20,14 +16,14 @@ test("formatManifest", () => {
     dbConnectionGoal: "Smoke-test manifest formatting.",
     status: "scaffolded",
     contextRepos: [],
-  });
+  } as const;
 
   expect(formatManifest(manifest)).toContain("3.19.19");
   expect(formatManifest(manifest)).toContain("0.26.1");
 });
 
 test("evaluateAdapterContract reports no failures for a matching scaffold", () => {
-  const manifest = createManifest({
+  const manifest = {
     packageName: "@effect-zero/example",
     effectLine: "v3",
     effectVersion: "3.19.19",
@@ -41,13 +37,13 @@ test("evaluateAdapterContract reports no failures for a matching scaffold", () =
         ref: "effect@3.19.19",
       },
     ],
-  });
+  } as const;
 
-  const scaffold = createAdapterScaffold({
+  const scaffold = {
     manifest,
     plannedCapabilities: ["createDbConnection"],
     pendingContractTests: ["constructs a Zero DBConnection"],
-  });
+  } as const;
 
   const report = evaluateAdapterContract(scaffold, {
     effectLine: "v3",
@@ -79,7 +75,7 @@ test("defaultBenchmarkScenarios cover cold and warm query/mutation workloads", (
 });
 
 test("expandBenchmarkPlan creates the full target-by-scenario matrix", () => {
-  const plan = createBenchmarkPlan({
+  const plan = {
     fixture: {
       mutationName: "cart-item-upsert",
       mutationDescription: "Insert or upsert one cart-item-shaped row.",
@@ -87,21 +83,21 @@ test("expandBenchmarkPlan creates the full target-by-scenario matrix", () => {
       queryDescription: "Fetch one artist-like row by id.",
     },
     targets: [
-      createBenchmarkTarget({
+      {
         id: "drizzle-direct",
         label: "Drizzle direct await",
         layer: "drizzle-direct",
         effectLine: "none",
-      }),
-      createBenchmarkTarget({
+      },
+      {
         id: "effect-v3-dbconnection",
         label: "Effect v3 DBConnection",
         layer: "dbconnection",
         effectLine: "v3",
-      }),
+      },
     ],
     scenarios: defaultBenchmarkScenarios.slice(0, 3),
-  });
+  } as const;
 
   const matrix = expandBenchmarkPlan(plan);
   expect(matrix).toHaveLength(6);

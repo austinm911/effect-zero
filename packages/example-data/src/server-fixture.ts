@@ -15,11 +15,30 @@ export const MUSIC_FIXTURE_DEFAULTS = {
   userId: "demo-user",
 } as const;
 
+export const MUSIC_FIXTURE_QUERY_NAMES = ["getArtist", "getCartItems", "listArtists"] as const;
+
 export type MusicFixtureQueryName = "getArtist" | "getCartItems" | "listArtists";
+
+const musicFixtureQueryNameSet = new Set<string>(MUSIC_FIXTURE_QUERY_NAMES);
+
+export function parseMusicFixtureQueryName(
+  name: string | undefined,
+): MusicFixtureQueryName | undefined {
+  if (!name) {
+    return undefined;
+  }
+
+  return musicFixtureQueryNameSet.has(name) ? (name as MusicFixtureQueryName) : undefined;
+}
 
 export interface DirectReadRequest {
   readonly args?: Record<string, unknown>;
   readonly name: MusicFixtureQueryName;
+}
+
+function readStringArg(args: DirectReadRequest["args"] | undefined, key: string, fallback: string) {
+  const value = args?.[key];
+  return typeof value === "string" ? value : fallback;
 }
 
 export interface MusicFixtureDemoState {
@@ -387,7 +406,7 @@ export async function runDirectDrizzleRead(
     case "getArtist":
       return readDirectArtist(
         db,
-        String(request.args?.artistId ?? MUSIC_FIXTURE_DEFAULTS.artistId),
+        readStringArg(request.args, "artistId", MUSIC_FIXTURE_DEFAULTS.artistId),
         userId,
       );
     case "getCartItems":
@@ -395,7 +414,7 @@ export async function runDirectDrizzleRead(
     case "listArtists":
       return readDirectArtistList(
         db,
-        String(request.args?.search ?? ""),
+        readStringArg(request.args, "search", ""),
         Number(request.args?.limit ?? 50),
       );
     default:

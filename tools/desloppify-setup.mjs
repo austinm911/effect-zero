@@ -1,11 +1,13 @@
-import { execFileSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const configDir = join(repoRoot, ".desloppify");
+const configPath = join(configDir, "config.json");
 const excludes = [
-  ".desloppify",
   ".context",
+  ".desloppify",
   ".alchemy",
   ".tanstack",
   "node_modules",
@@ -16,9 +18,24 @@ const excludes = [
   "benchmarks/results",
 ];
 
-for (const pattern of excludes) {
-  execFileSync("desloppify", ["exclude", pattern], {
-    cwd: repoRoot,
-    stdio: "inherit",
-  });
+if (!existsSync(configDir)) {
+  mkdirSync(configDir, { recursive: true });
+}
+
+const config = existsSync(configPath) ? JSON.parse(readFileSync(configPath, "utf8")) : {};
+
+const currentExcludes = Array.isArray(config.exclude) ? config.exclude : [];
+const nextExcludes = [...new Set([...currentExcludes, ...excludes])];
+const changed =
+  nextExcludes.length !== currentExcludes.length ||
+  nextExcludes.some((pattern, index) => currentExcludes[index] !== pattern);
+
+config.exclude = nextExcludes;
+
+if (changed) {
+  config.needs_rescan = true;
+  writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+  console.log(`Updated Desloppify excludes in ${configPath}`);
+} else {
+  console.log(`Desloppify excludes already up to date in ${configPath}`);
 }

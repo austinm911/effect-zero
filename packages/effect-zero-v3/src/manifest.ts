@@ -1,15 +1,11 @@
 import {
-  createAdapterScaffold,
-  createBenchmarkPlan,
-  createBenchmarkTarget,
-  createManifest,
   defaultBenchmarkScenarios,
   formatManifest,
   upstreamDrizzleAdapterCapabilities,
 } from "@effect-zero/test-utils";
 
-export const adapter = createAdapterScaffold({
-  manifest: createManifest({
+export const adapter = {
+  manifest: {
     packageName: "@effect-zero/v3",
     effectLine: "v3",
     effectVersion: "3.19.19",
@@ -39,7 +35,7 @@ export const adapter = createAdapterScaffold({
         ref: "main",
       },
     ],
-  }),
+  },
   plannedCapabilities: [
     "clientEntryPoint",
     "createDbConnection",
@@ -52,11 +48,11 @@ export const adapter = createAdapterScaffold({
     "verifyDrizzleEffectPostgresInteroperability",
   ],
   pendingContractTests: [],
-});
+} as const;
 
 export const manifest = adapter.manifest;
 
-export const performancePlan = createBenchmarkPlan({
+export const performancePlan = {
   fixture: {
     mutationName: "cart-item-upsert",
     mutationDescription:
@@ -65,33 +61,33 @@ export const performancePlan = createBenchmarkPlan({
     queryDescription: "Fetch one artist-like row by id through the selected read path.",
   },
   targets: [
-    createBenchmarkTarget({
+    {
       id: "drizzle-direct",
       label: "Drizzle direct await",
       layer: "drizzle-direct",
       effectLine: "none",
-    }),
-    createBenchmarkTarget({
+    },
+    {
       id: "effect-v3-dbconnection",
       label: "Effect v3 DBConnection",
       layer: "dbconnection",
       effectLine: "v3",
-    }),
-    createBenchmarkTarget({
+    },
+    {
       id: "zero-mutation-layer-v3",
       label: "Zero mutation layer via Effect v3",
       layer: "zero-mutation-layer",
       effectLine: "v3",
-    }),
-    createBenchmarkTarget({
+    },
+    {
       id: "zql-read-layer-v3",
       label: "ZQL read layer via Effect v3",
       layer: "zql-read-layer",
       effectLine: "v3",
-    }),
+    },
   ],
   scenarios: defaultBenchmarkScenarios,
-});
+} as const;
 
 export function describePackage() {
   return formatManifest(manifest);
