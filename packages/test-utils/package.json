@@ -16,7 +16,7 @@
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@effect-zero/example-data": "workspace:*",

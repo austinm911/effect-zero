@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const workspaceRoot = "/Users/am/Coding/2026/effect-zero";
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const entrypoints = [
   path.join(workspaceRoot, "examples/ztunes/app/zero/mutators.ts"),
