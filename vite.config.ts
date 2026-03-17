@@ -6,7 +6,6 @@ export default defineConfig({
   },
   lint: {
     ignorePatterns: [".context/**"],
-    options: { typeAware: true, typeCheck: true },
   },
   test: {
     include: ["packages/**/__tests__/**/*.test.ts", "packages/**/__tests__/**/*.test.tsx"],
