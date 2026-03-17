@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  buildMusicFixtureBenchmarkProtocolStatePath,
   buildMusicFixtureDemoProtocolStatePath,
   createMusicFixtureApiFixtures,
   createMusicFixtureZeroMutateCartAddFixture,
@@ -468,9 +469,12 @@ async function ensureApiReady(baseUrl, target) {
 
 async function getProtocolState(baseUrl, options) {
   const fixture = {
-    id: "demo-protocol-state",
+    id: "benchmark-protocol-state",
     method: "GET",
-    path: buildMusicFixtureDemoProtocolStatePath(options),
+    path:
+      options.userId === undefined
+        ? buildMusicFixtureDemoProtocolStatePath(options)
+        : buildMusicFixtureBenchmarkProtocolStatePath(options),
   };
   const payload = await invokeFixture(baseUrl, fixture, { requestTimeoutMs });
 

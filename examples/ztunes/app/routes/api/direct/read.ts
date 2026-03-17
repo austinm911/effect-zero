@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { parseMusicFixtureQueryName } from "@effect-zero/example-data/server-fixture";
 import { handlePromiseDirectRead } from "#app/server/promise-handler.ts";
 import { proxyExampleApiRequest } from "#app/server/proxy.ts";
 import { createTargetHeaders, isProxyTarget, readTargetFromRequest } from "#app/server/targets.ts";
@@ -14,7 +15,6 @@ export const Route = createFileRoute("/api/direct/read")({
         }
 
         const body = (await request.json().catch(() => ({}))) as {
-          readonly __benchmarkUserId?: string;
           readonly args?: Record<string, unknown>;
           readonly name?: string;
         };
@@ -23,11 +23,19 @@ export const Route = createFileRoute("/api/direct/read")({
           return Response.json({ error: "Direct read query name required." }, { status: 400 });
         }
 
+        const queryName = parseMusicFixtureQueryName(body.name);
+
+        if (!queryName) {
+          return Response.json(
+            { error: `Unknown direct read query: ${body.name}` },
+            { status: 400 },
+          );
+        }
+
         return Response.json(
           await handlePromiseDirectRead({
-            __benchmarkUserId: body.__benchmarkUserId,
             args: body.args,
-            name: body.name,
+            name: queryName,
           }),
           {
             headers: createTargetHeaders(target, "drizzle-direct"),

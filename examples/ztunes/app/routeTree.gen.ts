@@ -22,6 +22,7 @@ import { Route as ApiDirectReadRouteImport } from './routes/api/direct/read'
 import { Route as ApiDemoStateRouteImport } from './routes/api/demo/state'
 import { Route as ApiDemoResetRouteImport } from './routes/api/demo/reset'
 import { Route as ApiDemoProtocolStateRouteImport } from './routes/api/demo/protocol-state'
+import { Route as ApiBenchmarkProtocolStateRouteImport } from './routes/api/benchmark/protocol-state'
 import { Route as ApiDirectCartAddRouteImport } from './routes/api/direct/cart/add'
 
 const LayoutRouteRoute = LayoutRouteRouteImport.update({
@@ -88,6 +89,12 @@ const ApiDemoProtocolStateRoute = ApiDemoProtocolStateRouteImport.update({
   path: '/api/demo/protocol-state',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBenchmarkProtocolStateRoute =
+  ApiBenchmarkProtocolStateRouteImport.update({
+    id: '/api/benchmark/protocol-state',
+    path: '/api/benchmark/protocol-state',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDirectCartAddRoute = ApiDirectCartAddRouteImport.update({
   id: '/api/direct/cart/add',
   path: '/api/direct/cart/add',
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/artist': typeof LayoutArtistRoute
   '/cart': typeof LayoutCartRoute
   '/api/target': typeof ApiTargetRoute
+  '/api/benchmark/protocol-state': typeof ApiBenchmarkProtocolStateRoute
   '/api/demo/protocol-state': typeof ApiDemoProtocolStateRoute
   '/api/demo/reset': typeof ApiDemoResetRoute
   '/api/demo/state': typeof ApiDemoStateRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
   '/cart': typeof LayoutCartRoute
   '/api/target': typeof ApiTargetRoute
   '/': typeof LayoutIndexRoute
+  '/api/benchmark/protocol-state': typeof ApiBenchmarkProtocolStateRoute
   '/api/demo/protocol-state': typeof ApiDemoProtocolStateRoute
   '/api/demo/reset': typeof ApiDemoResetRoute
   '/api/demo/state': typeof ApiDemoStateRoute
@@ -131,6 +140,7 @@ export interface FileRoutesById {
   '/_layout/cart': typeof LayoutCartRoute
   '/api/target': typeof ApiTargetRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/api/benchmark/protocol-state': typeof ApiBenchmarkProtocolStateRoute
   '/api/demo/protocol-state': typeof ApiDemoProtocolStateRoute
   '/api/demo/reset': typeof ApiDemoResetRoute
   '/api/demo/state': typeof ApiDemoStateRoute
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/artist'
     | '/cart'
     | '/api/target'
+    | '/api/benchmark/protocol-state'
     | '/api/demo/protocol-state'
     | '/api/demo/reset'
     | '/api/demo/state'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/api/target'
     | '/'
+    | '/api/benchmark/protocol-state'
     | '/api/demo/protocol-state'
     | '/api/demo/reset'
     | '/api/demo/state'
@@ -179,6 +191,7 @@ export interface FileRouteTypes {
     | '/_layout/cart'
     | '/api/target'
     | '/_layout/'
+    | '/api/benchmark/protocol-state'
     | '/api/demo/protocol-state'
     | '/api/demo/reset'
     | '/api/demo/state'
@@ -193,6 +206,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
   ApiTargetRoute: typeof ApiTargetRoute
+  ApiBenchmarkProtocolStateRoute: typeof ApiBenchmarkProtocolStateRoute
   ApiDemoProtocolStateRoute: typeof ApiDemoProtocolStateRoute
   ApiDemoResetRoute: typeof ApiDemoResetRoute
   ApiDemoStateRoute: typeof ApiDemoStateRoute
@@ -297,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDemoProtocolStateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/benchmark/protocol-state': {
+      id: '/api/benchmark/protocol-state'
+      path: '/api/benchmark/protocol-state'
+      fullPath: '/api/benchmark/protocol-state'
+      preLoaderRoute: typeof ApiBenchmarkProtocolStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/direct/cart/add': {
       id: '/api/direct/cart/add'
       path: '/api/direct/cart/add'
@@ -326,6 +347,7 @@ const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   LayoutRouteRoute: LayoutRouteRouteWithChildren,
   ApiTargetRoute: ApiTargetRoute,
+  ApiBenchmarkProtocolStateRoute: ApiBenchmarkProtocolStateRoute,
   ApiDemoProtocolStateRoute: ApiDemoProtocolStateRoute,
   ApiDemoResetRoute: ApiDemoResetRoute,
   ApiDemoStateRoute: ApiDemoStateRoute,

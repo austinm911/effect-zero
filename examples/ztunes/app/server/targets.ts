@@ -4,12 +4,9 @@ import {
   type MusicFixtureApiTargetId,
 } from "@effect-zero/test-utils/api-fixtures";
 import {
-  createTargetCookieValue,
   getBrowserTargetAuthoringMode,
   getBrowserTargetSpec,
-  readBrowserTargetFromCookieValue as readSharedBrowserTargetFromCookieValue,
   TARGET_COOKIE,
-  type BrowserTarget,
 } from "#app/shared/targets.ts";
 
 export function readTargetFromRequest(request: Request): MusicFixtureApiTargetId {
@@ -23,18 +20,6 @@ export function readTargetFromRequest(request: Request): MusicFixtureApiTargetId
   const cookie = request.headers.get("cookie") ?? "";
   const match = cookie.match(new RegExp(`${TARGET_COOKIE}=([^;]+)`));
   return parseMusicFixtureApiTarget(match?.[1]?.trim());
-}
-
-export function readBrowserTargetFromRequest(request: Request): BrowserTarget {
-  return readSharedBrowserTargetFromCookieValue(readTargetFromRequest(request));
-}
-
-export function readBrowserTargetFromCookieValue(value: string | undefined): BrowserTarget {
-  return readSharedBrowserTargetFromCookieValue(value);
-}
-
-export function setTargetCookieHeader(target: BrowserTarget): string {
-  return createTargetCookieValue(target);
 }
 
 export function isProxyTarget(target: MusicFixtureApiTargetId) {

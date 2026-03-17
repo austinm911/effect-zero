@@ -161,6 +161,7 @@ These are the concrete API checks that should be used to prove the app path work
   - `POST /api/zero/query` with `getCartItems`
   - `POST /api/zero/query` with `listArtists`
 - Prove the adapter-backed query execution path works through:
+  - this is a harness-only integration and benchmarking surface, not the normal app query API
   - `POST /api/zql/read` with `getArtist`
   - `POST /api/zql/read` with `getCartItems`
   - `POST /api/zql/read` with `listArtists`

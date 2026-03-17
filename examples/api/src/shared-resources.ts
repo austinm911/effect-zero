@@ -11,6 +11,7 @@ export function getSharedSqlClient() {
   if (!sharedSqlClient) {
     sharedSqlClient = postgres(getDatabaseUrl(), {
       max: 10,
+      onnotice: () => {},
       prepare: false,
     });
   }

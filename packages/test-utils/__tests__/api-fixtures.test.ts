@@ -1,5 +1,6 @@
 import { expect, test } from "vite-plus/test";
 import {
+  buildMusicFixtureBenchmarkProtocolStatePath,
   buildMusicFixtureDemoProtocolStatePath,
   buildMusicFixtureDemoResetPath,
   buildMusicFixtureDemoStatePath,
@@ -27,6 +28,7 @@ import { ZERO_CONTROL_SCHEMA } from "@effect-zero/example-data/server-fixture";
 
 test("music fixture API paths stay stable", () => {
   expect(MUSIC_FIXTURE_API_PATHS).toEqual({
+    benchmarkProtocolState: "/api/benchmark/protocol-state",
     demoProtocolState: "/api/demo/protocol-state",
     demoReset: "/api/demo/reset",
     demoState: "/api/demo/state",
@@ -75,10 +77,19 @@ test("music fixture target helpers normalize invalid values back to control", ()
       clientGroupID: "cg-protocol",
       clientID: "c-protocol",
       target: "v3-postgresjs",
+    }),
+  ).toBe(
+    "/api/demo/protocol-state?clientGroupID=cg-protocol&clientID=c-protocol&target=v3-postgresjs",
+  );
+  expect(
+    buildMusicFixtureBenchmarkProtocolStatePath({
+      clientGroupID: "cg-protocol",
+      clientID: "c-protocol",
+      target: "v3-postgresjs",
       userId: "bench-user",
     }),
   ).toBe(
-    "/api/demo/protocol-state?clientGroupID=cg-protocol&clientID=c-protocol&target=v3-postgresjs&userId=bench-user",
+    "/api/benchmark/protocol-state?clientGroupID=cg-protocol&clientID=c-protocol&target=v3-postgresjs&userId=bench-user",
   );
   expect(
     buildMusicFixtureDemoStatePath({

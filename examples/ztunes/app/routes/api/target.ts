@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { readBrowserTargetFromCookieValue, setTargetCookieHeader } from "#app/server/targets.ts";
+import { createTargetCookieValue, readBrowserTargetFromCookieValue } from "#app/shared/targets.ts";
 
 export const Route = createFileRoute("/api/target")({
   server: {
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/target")({
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            "Set-Cookie": setTargetCookieHeader(target),
+            "Set-Cookie": createTargetCookieValue(target),
           },
         });
       },

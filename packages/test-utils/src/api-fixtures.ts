@@ -87,6 +87,7 @@ export const defaultMusicFixtureApiTarget = "control" as const satisfies MusicFi
 export const MUSIC_FIXTURE_ZERO_APP_ID = "effect-zero-test";
 
 export const MUSIC_FIXTURE_API_PATHS = {
+  benchmarkProtocolState: "/api/benchmark/protocol-state",
   demoProtocolState: "/api/demo/protocol-state",
   demoReset: "/api/demo/reset",
   demoState: "/api/demo/state",
@@ -158,6 +159,12 @@ export interface CreateMusicFixtureZeroMutateCartAddFixtureOptions {
 }
 
 export interface BuildMusicFixtureDemoProtocolStatePathOptions {
+  readonly clientGroupID?: string;
+  readonly clientID?: string;
+  readonly target?: MusicFixtureApiTargetId;
+}
+
+export interface BuildMusicFixtureBenchmarkProtocolStatePathOptions {
   readonly clientGroupID?: string;
   readonly clientID?: string;
   readonly target?: MusicFixtureApiTargetId;
@@ -272,6 +279,16 @@ export function buildMusicFixtureDemoProtocolStatePath(
   options: BuildMusicFixtureDemoProtocolStatePathOptions = {},
 ) {
   return appendMusicFixtureSearchParams(MUSIC_FIXTURE_API_PATHS.demoProtocolState, {
+    clientGroupID: options.clientGroupID,
+    clientID: options.clientID,
+    target: options.target,
+  });
+}
+
+export function buildMusicFixtureBenchmarkProtocolStatePath(
+  options: BuildMusicFixtureBenchmarkProtocolStatePathOptions = {},
+) {
+  return appendMusicFixtureSearchParams(MUSIC_FIXTURE_API_PATHS.benchmarkProtocolState, {
     clientGroupID: options.clientGroupID,
     clientID: options.clientID,
     target: options.target,
@@ -418,7 +435,6 @@ export function createMusicFixtureApiFixtures(
           clientGroupID: options.clientGroupID,
           clientID: options.clientID,
           target,
-          userId: options.userId,
         }),
         target,
         transport: "demo-query",

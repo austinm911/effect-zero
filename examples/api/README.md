@@ -74,7 +74,8 @@ also the backend that ztunes proxies to when you switch to `v3-drizzle` or
 - `POST /api/zero/query`
   Zero query transform surface
 - `POST /api/zql/read`
-  Adapter-backed read surface
+  Harness-only adapter-backed read surface for integration checks and benchmarking.
+  This is not the recommended product-facing query API.
 
 ## Verification Commands
 

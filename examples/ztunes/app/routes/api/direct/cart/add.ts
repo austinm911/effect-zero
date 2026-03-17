@@ -14,7 +14,6 @@ export const Route = createFileRoute("/api/direct/cart/add")({
         }
 
         const body = (await request.json().catch(() => ({}))) as {
-          readonly __benchmarkUserId?: string;
           readonly addedAt?: number;
           readonly albumId?: string;
         };

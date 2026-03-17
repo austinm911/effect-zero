@@ -5,6 +5,7 @@ import {
   resetMusicFixtureState,
   runDirectDrizzleCartAdd,
   runDirectDrizzleRead,
+  type MusicFixtureQueryName,
   type QueryRows,
 } from "@effect-zero/example-data/server-fixture";
 import { mustGetMutator, mustGetQuery, type ReadonlyJSONValue } from "@rocicorp/zero";
@@ -125,6 +126,21 @@ export async function handlePromiseProtocolState(options: {
   readonly clientGroupID?: string;
   readonly clientID?: string;
   readonly target: string;
+}) {
+  return withSqlClient(async (sql) =>
+    readMusicFixtureProtocolState(createQueryRows(sql), {
+      clientGroupID: options.clientGroupID,
+      clientID: options.clientID,
+      target: options.target,
+      userId: DEMO_USER_ID,
+    }),
+  );
+}
+
+export async function handlePromiseBenchmarkProtocolState(options: {
+  readonly clientGroupID?: string;
+  readonly clientID?: string;
+  readonly target: string;
   readonly userId?: string;
 }) {
   return withSqlClient(async (sql) =>
@@ -138,7 +154,6 @@ export async function handlePromiseProtocolState(options: {
 }
 
 export async function handlePromiseDirectDrizzleCartAdd(body: {
-  readonly __benchmarkUserId?: string;
   readonly addedAt?: number;
   readonly albumId?: string;
 }) {
@@ -146,24 +161,23 @@ export async function handlePromiseDirectDrizzleCartAdd(body: {
     runDirectDrizzleCartAdd(createDirectDrizzleDatabaseFromSql(sql), {
       addedAt: body.addedAt ?? Date.now(),
       albumId: body.albumId ?? "",
-      userId: body.__benchmarkUserId ?? DEMO_USER_ID,
+      userId: DEMO_USER_ID,
     }),
   );
 }
 
 export async function handlePromiseDirectRead(body: {
-  readonly __benchmarkUserId?: string;
   readonly args?: Record<string, unknown>;
-  readonly name: string;
+  readonly name: MusicFixtureQueryName;
 }) {
   return withSqlClient(async (sql) =>
     runDirectDrizzleRead(
       createDirectDrizzleDatabaseFromSql(sql),
       {
         args: body.args,
-        name: body.name as any,
+        name: body.name,
       },
-      body.__benchmarkUserId ?? DEMO_USER_ID,
+      DEMO_USER_ID,
     ),
   );
 }

@@ -7,6 +7,7 @@ import {
   parseMusicFixtureMutatorName,
 } from "@effect-zero/test-utils/api-fixtures";
 import {
+  parseMusicFixtureQueryName,
   readMusicFixtureDemoState,
   readMusicFixtureProtocolState,
   resetMusicFixtureState,
@@ -75,7 +76,26 @@ app.get("/api/demo/protocol-state", async (c) => {
     clientGroupID: c.req.query("clientGroupID") || undefined,
     clientID: c.req.query("clientID") || undefined,
     target,
-    userId: c.req.query("userId") || undefined,
+    userId: MUSIC_FIXTURE_API_DEFAULTS.userId,
+  });
+
+  return c.json(
+    {
+      ...payload,
+      authoring: readTargetAuthoringState(target),
+    },
+    200,
+    createTargetHeaders(target, "fixture-sql"),
+  );
+});
+
+app.get("/api/benchmark/protocol-state", async (c) => {
+  const target = readTargetFromRequest(c.req.raw);
+  const payload = await readMusicFixtureProtocolState(queryRows, {
+    clientGroupID: c.req.query("clientGroupID") || undefined,
+    clientID: c.req.query("clientID") || undefined,
+    target,
+    userId: c.req.query("userId") || MUSIC_FIXTURE_API_DEFAULTS.userId,
   });
 
   return c.json(
@@ -92,12 +112,11 @@ app.post("/api/direct/cart/add", async (c) => {
   const body = await c.req.json<{
     addedAt?: number;
     albumId?: string;
-    __benchmarkUserId?: string;
   }>();
   const payload = await runDirectDrizzleCartAdd(getSharedDirectDrizzleDb(), {
     addedAt: body.addedAt ?? MUSIC_FIXTURE_API_DEFAULTS.timestamp,
     albumId: body.albumId ?? MUSIC_FIXTURE_API_DEFAULTS.albumId,
-    userId: body.__benchmarkUserId ?? MUSIC_FIXTURE_API_DEFAULTS.userId,
+    userId: MUSIC_FIXTURE_API_DEFAULTS.userId,
   });
 
   return c.json(payload, 200, createTargetHeaders("control", "drizzle-direct"));
@@ -107,20 +126,25 @@ app.post("/api/direct/read", async (c) => {
   const body = await c.req.json<{
     args?: Record<string, unknown>;
     name?: string;
-    __benchmarkUserId?: string;
   }>();
 
   if (typeof body.name !== "string") {
     return c.json({ error: "Expected a direct read body with a query name." }, 400);
   }
 
+  const queryName = parseMusicFixtureQueryName(body.name);
+
+  if (!queryName) {
+    return c.json({ error: `Unknown direct read query: ${body.name}` }, 400);
+  }
+
   const payload = await runDirectDrizzleRead(
     getSharedDirectDrizzleDb(),
     {
       args: body.args,
-      name: body.name as any,
+      name: queryName,
     },
-    body.__benchmarkUserId ?? MUSIC_FIXTURE_API_DEFAULTS.userId,
+    MUSIC_FIXTURE_API_DEFAULTS.userId,
   );
 
   return c.json(payload, 200, createTargetHeaders("control", "drizzle-direct"));
@@ -177,6 +201,7 @@ app.post("/api/zero/query", async (c) => {
 });
 
 app.post("/api/zql/read", async (c) => {
+  // Harness-only surface: direct adapter-backed query execution for integration checks and benchmarks.
   const target = readRequiredTargetFromRequest(c.req.raw);
 
   if (!target) {

@@ -8,6 +8,7 @@ export const Route = createFileRoute("/api/zql/read")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Harness-only surface: keep this route for package integration checks and benchmarks.
         const target = readTargetFromRequest(request);
 
         if (isProxyTarget(target)) {

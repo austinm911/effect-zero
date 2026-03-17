@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { handlePromiseProtocolState } from "#app/server/promise-handler.ts";
+import { handlePromiseBenchmarkProtocolState } from "#app/server/promise-handler.ts";
 import { proxyExampleApiRequest } from "#app/server/proxy.ts";
 import { createTargetHeaders, isProxyTarget, readTargetFromRequest } from "#app/server/targets.ts";
 
-export const Route = createFileRoute("/api/demo/protocol-state")({
+export const Route = createFileRoute("/api/benchmark/protocol-state")({
   server: {
     handlers: {
       GET: async ({ request }) => {
@@ -14,10 +14,11 @@ export const Route = createFileRoute("/api/demo/protocol-state")({
         }
 
         const url = new URL(request.url);
-        const payload = await handlePromiseProtocolState({
+        const payload = await handlePromiseBenchmarkProtocolState({
           clientGroupID: url.searchParams.get("clientGroupID") || undefined,
           clientID: url.searchParams.get("clientID") || undefined,
           target,
+          userId: url.searchParams.get("userId") || undefined,
         });
 
         return Response.json(

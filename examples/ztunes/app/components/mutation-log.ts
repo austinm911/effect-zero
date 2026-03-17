@@ -8,7 +8,7 @@ import {
 
 type MutationLogOptions = {
   action: string;
-  run: () => Promise<unknown> | unknown;
+  run: () => unknown;
 };
 
 export function runLoggedMutation({ action, run }: MutationLogOptions) {
