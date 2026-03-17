@@ -28,14 +28,14 @@ jobs:
       - name: Install
         run: vp install
 
+      - name: Build
+        run: vp run build -r
+
       - name: Check
         run: pnpm check
 
       - name: Test
         run: vp run test -r
-
-      - name: Build
-        run: vp run build -r
 
       - name: Verify Client Entrypoints
         run: pnpm verify:client-entrypoints
