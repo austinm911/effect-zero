@@ -8,6 +8,7 @@ Use this prompt when you want an agent to verify the runnable `examples/ztunes` 
 Use [$chrome-cdp](/Users/am/Coding/loadout/vendor/chrome-cdp-skill/skills/chrome-cdp/SKILL.md) to verify the `examples/ztunes` app in Chrome.
 
 Constraints:
+
 - Work against the frontend URL at `http://localhost:4310`.
 - Work against the package harness URL at `http://localhost:4311`.
 - Browser smoke covers only these browser-visible targets:
@@ -27,6 +28,7 @@ Constraints:
 - Summarize pass/fail for each target prompt you run.
 
 Workflow:
+
 1. Check whether the frontend and package harness are live:
    - `curl -I http://localhost:4310`
    - `curl -I http://localhost:4311`

@@ -25,9 +25,7 @@ import {
 const repoRoot = resolveRepoRoot(import.meta.url);
 const args = parseArgs(process.argv.slice(2));
 const baseUrl = trimTrailingSlash(
-  args["base-url"] ??
-    process.env.VERIFY_MUTATION_FLOW_BASE_URL ??
-    "http://localhost:4310",
+  args["base-url"] ?? process.env.VERIFY_MUTATION_FLOW_BASE_URL ?? "http://localhost:4310",
 );
 const pgUrl =
   args["pg-url"] ?? process.env.PG_URL ?? "postgres://postgres:postgres@127.0.0.1:5438/effect_zero";
@@ -60,39 +58,39 @@ await withRepoLock({
     pgUrl,
   },
   operation: async () => {
-  await ensureApiReady(baseUrl, selectedTargets[0] ?? defaultMusicFixtureApiTarget);
+    await ensureApiReady(baseUrl, selectedTargets[0] ?? defaultMusicFixtureApiTarget);
 
-  const startedAt = performance.now();
-  const gitSha = readGitSha();
-  const targetResults = [];
+    const startedAt = performance.now();
+    const gitSha = readGitSha();
+    const targetResults = [];
 
-  for (const target of selectedTargets) {
-    targetResults.push(await verifyTarget({ baseUrl, pgUrl, target }));
-  }
+    for (const target of selectedTargets) {
+      targetResults.push(await verifyTarget({ baseUrl, pgUrl, target }));
+    }
 
-  const artifact = {
-    baseUrl,
-    durationMs: roundMs(performance.now() - startedAt),
-    generatedAt: new Date().toISOString(),
-    gitSha,
-    kind: "zero-mutation-flow-verification",
-    pgUrl,
-    targetResults,
-  };
+    const artifact = {
+      baseUrl,
+      durationMs: roundMs(performance.now() - startedAt),
+      generatedAt: new Date().toISOString(),
+      gitSha,
+      kind: "zero-mutation-flow-verification",
+      pgUrl,
+      targetResults,
+    };
 
-  await mkdir(outputDir, { recursive: true });
+    await mkdir(outputDir, { recursive: true });
 
-  const timestampForFile = artifact.generatedAt.replaceAll(":", "-");
-  const runPath = path.join(outputDir, `zero-mutation-flow-${timestampForFile}.json`);
-  const latestPath = path.join(outputDir, "latest.json");
-  const artifactJson = `${JSON.stringify(artifact, null, 2)}\n`;
+    const timestampForFile = artifact.generatedAt.replaceAll(":", "-");
+    const runPath = path.join(outputDir, `zero-mutation-flow-${timestampForFile}.json`);
+    const latestPath = path.join(outputDir, "latest.json");
+    const artifactJson = `${JSON.stringify(artifact, null, 2)}\n`;
 
-  await writeFile(runPath, artifactJson, "utf8");
-  await writeFile(latestPath, artifactJson, "utf8");
+    await writeFile(runPath, artifactJson, "utf8");
+    await writeFile(latestPath, artifactJson, "utf8");
 
-  console.log(JSON.stringify(artifact, null, 2));
-  console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
-  console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
+    console.log(JSON.stringify(artifact, null, 2));
+    console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
+    console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
   },
 });
 

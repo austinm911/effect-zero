@@ -8,10 +8,7 @@ import {
   executePostgresQuery,
   ZQLDatabase,
 } from "@rocicorp/zero/server";
-import type {
-  EffectDrizzleConfig,
-  EffectPgDatabase,
-} from "drizzle-orm/effect-postgres";
+import type { EffectDrizzleConfig, EffectPgDatabase } from "drizzle-orm/effect-postgres";
 import {
   buildRelations,
   extractTablesFromSchema,
@@ -59,9 +56,8 @@ export type DrizzleDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
   TRelations extends AnyRelations = AnyRelations,
 > = EffectV4DrizzleDatabase<TSchema, TRelations>;
-export type DrizzleTransaction<
-  TDrizzle extends { transaction: (...args: any[]) => unknown },
-> = EffectV4DrizzleTransaction<TDrizzle>;
+export type DrizzleTransaction<TDrizzle extends { transaction: (...args: any[]) => unknown }> =
+  EffectV4DrizzleTransaction<TDrizzle>;
 
 export interface CreateDbConnectionOptions<
   TSchema extends Record<string, unknown>,
@@ -310,13 +306,13 @@ export async function createZeroDbProvider<
 export function zeroEffectDrizzle<
   TZeroSchema extends ZeroSchema,
   TDrizzle extends EffectV4DrizzleDatabase<any, any>,
->(schema: TZeroSchema, db: TDrizzle): EffectZeroProvider<TZeroSchema, EffectV4DrizzleTransaction<TDrizzle>> {
+>(
+  schema: TZeroSchema,
+  db: TDrizzle,
+): EffectZeroProvider<TZeroSchema, EffectV4DrizzleTransaction<TDrizzle>> {
   return {
     dispose: async () => {},
-    zql: new ZQLDatabase(
-      new InlineEffectV4DbConnection(db),
-      schema,
-    ),
+    zql: new ZQLDatabase(new InlineEffectV4DbConnection(db), schema),
   };
 }
 
@@ -430,7 +426,10 @@ function resolveDrizzleV4RuntimePaths() {
     drizzlePgSessionModulePath: path.join(drizzlePackageRoot, "pg-core/effect/session.js"),
     drizzleEffectErrorsModulePath: path.join(drizzlePackageRoot, "effect-core/errors.js"),
     drizzleEffectLoggerModulePath: path.join(drizzlePackageRoot, "effect-core/logger.js"),
-    drizzleEffectQueryEffectModulePath: path.join(drizzlePackageRoot, "effect-core/query-effect.js"),
+    drizzleEffectQueryEffectModulePath: path.join(
+      drizzlePackageRoot,
+      "effect-core/query-effect.js",
+    ),
     drizzleEffectCacheModulePath: path.join(drizzlePackageRoot, "cache/core/cache-effect.js"),
     sqlPgAliasPath,
   };
@@ -610,7 +609,7 @@ function ensurePatchedDrizzleEffectLogger(modulePath: string) {
       "  logQuery: (_query, _params) => Effect.void,",
       "});",
       "EffectLogger.layer = Layer.succeed(EffectLogger)({",
-      "  logQuery: Effect.fn(\"EffectLogger.logQuery\")(function* (query, params) {",
+      '  logQuery: Effect.fn("EffectLogger.logQuery")(function* (query, params) {',
       "    const stringifiedParams = params.map((param) => {",
       "      try {",
       "        return JSON.stringify(param);",
@@ -867,7 +866,7 @@ function ensurePatchedDrizzlePgCoreSession(modulePath: string) {
       "    this.cache = cache;",
       "    this.queryMetadata = queryMetadata;",
       "    this.cacheConfig = cacheConfig;",
-      "    if (cache && cache.strategy() === \"all\" && cacheConfig === void 0) this.cacheConfig = { enabled: true, autoInvalidate: true };",
+      '    if (cache && cache.strategy() === "all" && cacheConfig === void 0) this.cacheConfig = { enabled: true, autoInvalidate: true };',
       "    if (!this.cacheConfig?.enabled) this.cacheConfig = void 0;",
       "  }",
       "  queryWithCache(queryString, params, query) {",
@@ -877,17 +876,17 @@ function ensurePatchedDrizzlePgCoreSession(modulePath: string) {
       "      const cache = yield* EffectCache;",
       "      const cacheStrat = cache && !is(cache.cache, NoopCache)",
       "        ? yield* Effect.tryPromise({ try: () => strategyFor(queryString, params, queryMetadata, cacheConfig), catch: (cause) => cause })",
-      "        : { type: \"skip\" };",
-      "      if (cacheStrat.type === \"skip\") return yield* query;",
-      "      if (cacheStrat.type === \"invalidate\") {",
+      '        : { type: "skip" };',
+      '      if (cacheStrat.type === "skip") return yield* query;',
+      '      if (cacheStrat.type === "invalidate") {',
       "        const result = yield* query;",
       "        yield* cache.onMutate({ tables: cacheStrat.tables });",
       "        return result;",
       "      }",
-      "      if (cacheStrat.type === \"try\") {",
+      '      if (cacheStrat.type === "try") {',
       "        const { tables, key, isTag, autoInvalidate, config } = cacheStrat;",
       "        const fromCache = yield* cache.get(key, tables, isTag, autoInvalidate);",
-      "        if (typeof fromCache !== \"undefined\") return fromCache;",
+      '        if (typeof fromCache !== "undefined") return fromCache;',
       "        const result = yield* query;",
       "        yield* cache.put(key, result, autoInvalidate ? tables : [], isTag, config);",
       "        return result;",
@@ -928,16 +927,16 @@ function ensurePatchedDrizzlePgCoreSession(modulePath: string) {
       "    const chunks = [];",
       "    if (config.isolationLevel) chunks.push(`isolation level ${config.isolationLevel}`);",
       "    if (config.accessMode) chunks.push(config.accessMode);",
-      "    if (typeof config.deferrable === \"boolean\") chunks.push(config.deferrable ? \"deferrable\" : \"not deferrable\");",
-      "    return sql.raw(chunks.join(\" \"));",
+      '    if (typeof config.deferrable === "boolean") chunks.push(config.deferrable ? "deferrable" : "not deferrable");',
+      '    return sql.raw(chunks.join(" "));',
       "  }",
       "  setTransaction(config) {",
       "    return this.session.execute(sql`set transaction ${this.getTransactionConfigSQL(config)}`);",
       "  }",
       "};",
-      "const migrate = Effect.fn(\"migrate\")(function* (migrations, session, config) {",
-      "  const migrationsTable = typeof config === \"string\" ? \"__drizzle_migrations\" : config.migrationsTable ?? \"__drizzle_migrations\";",
-      "  const migrationsSchema = typeof config === \"string\" ? \"drizzle\" : config.migrationsSchema ?? \"drizzle\";",
+      'const migrate = Effect.fn("migrate")(function* (migrations, session, config) {',
+      '  const migrationsTable = typeof config === "string" ? "__drizzle_migrations" : config.migrationsTable ?? "__drizzle_migrations";',
+      '  const migrationsSchema = typeof config === "string" ? "drizzle" : config.migrationsSchema ?? "drizzle";',
       "  yield* session.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(migrationsSchema)}`);",
       "  const { newDb } = yield* upgradeIfNeeded(migrationsSchema, migrationsTable, session, migrations);",
       "  if (newDb) {",
@@ -953,19 +952,19 @@ function ensurePatchedDrizzlePgCoreSession(modulePath: string) {
       "    yield* session.execute(migrationTableCreate);",
       "  }",
       "  const dbMigrations = yield* session.all(sql`select id, hash, created_at, name from ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)}`);",
-      "  if (typeof config === \"object\" && config.init) {",
-      "    if (dbMigrations.length) return yield* new MigratorInitError({ exitCode: \"databaseMigrations\" });",
-      "    if (migrations.length > 1) return yield* new MigratorInitError({ exitCode: \"localMigrations\" });",
+      '  if (typeof config === "object" && config.init) {',
+      '    if (dbMigrations.length) return yield* new MigratorInitError({ exitCode: "databaseMigrations" });',
+      '    if (migrations.length > 1) return yield* new MigratorInitError({ exitCode: "localMigrations" });',
       "    const [migration] = migrations;",
       "    if (!migration) return;",
-      "    yield* session.execute(sql`insert into ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)} (\"hash\", \"created_at\", \"name\") values(${migration.hash}, ${migration.folderMillis}, ${migration.name})`);",
+      '    yield* session.execute(sql`insert into ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)} ("hash", "created_at", "name") values(${migration.hash}, ${migration.folderMillis}, ${migration.name})`);',
       "    return;",
       "  }",
       "  const migrationsToRun = getMigrationsToRun({ localMigrations: migrations, dbMigrations });",
       "  yield* session.transaction((tx) => Effect.gen(function* () {",
       "    for (const migration of migrationsToRun) {",
       "      for (const stmt of migration.sql) yield* tx.execute(sql.raw(stmt));",
-      "      yield* tx.execute(sql`insert into ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)} (\"hash\", \"created_at\", \"name\") values(${migration.hash}, ${migration.folderMillis}, ${migration.name})`);",
+      '      yield* tx.execute(sql`insert into ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)} ("hash", "created_at", "name") values(${migration.hash}, ${migration.folderMillis}, ${migration.name})`);',
       "    }",
       "  }));",
       "});",

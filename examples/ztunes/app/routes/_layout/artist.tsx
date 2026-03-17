@@ -49,7 +49,9 @@ function ArtistPage() {
                     run: () =>
                       inCart
                         ? zero.mutate(mutators.cart.remove({ albumId: album.id }))
-                        : zero.mutate(mutators.cart.add({ albumId: album.id, addedAt: Date.now() })),
+                        : zero.mutate(
+                            mutators.cart.add({ albumId: album.id, addedAt: Date.now() }),
+                          ),
                   });
                 }}
               >

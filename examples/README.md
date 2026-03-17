@@ -42,11 +42,11 @@ routes fail if the fixture catalog is empty.
 
 ## Process Matrix
 
-| What you want | Required processes |
-| --- | --- |
-| ztunes `control` only | `pnpm dev` + `pnpm dev:zero` |
-| ztunes `v3-drizzle` / `v4-drizzle` | `pnpm dev` + `pnpm dev:zero` + `pnpm dev:api` |
-| direct harness work in `examples/api` | `pnpm dev:api` |
+| What you want                         | Required processes                            |
+| ------------------------------------- | --------------------------------------------- |
+| ztunes `control` only                 | `pnpm dev` + `pnpm dev:zero`                  |
+| ztunes `v3-drizzle` / `v4-drizzle`    | `pnpm dev` + `pnpm dev:zero` + `pnpm dev:api` |
+| direct harness work in `examples/api` | `pnpm dev:api`                                |
 
 ## One Process Per Terminal
 

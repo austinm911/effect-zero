@@ -19,11 +19,11 @@ bun add @effect-zero/v4 @rocicorp/zero effect@4.0.0-beta
 
 Then install the peer dependency for your chosen adapter:
 
-| Adapter | Peer dep | Install | Notes |
-| --- | --- | --- | --- |
-| `postgresjs` | `postgres` | `pnpm add postgres` | Stable |
-| `pg` | `pg` | `pnpm add pg` | Stable |
-| `drizzle` | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` | ⚠️ Experimental — see below |
+| Adapter      | Peer dep                      | Install                     | Notes                       |
+| ------------ | ----------------------------- | --------------------------- | --------------------------- |
+| `postgresjs` | `postgres`                    | `pnpm add postgres`         | Stable                      |
+| `pg`         | `pg`                          | `pnpm add pg`               | Stable                      |
+| `drizzle`    | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` | ⚠️ Experimental — see below |
 
 ### Drizzle Adapter on Effect v4
 
@@ -76,13 +76,13 @@ import { createZeroDbProvider } from "@effect-zero/v4/server/adapters/drizzle";
 
 All entrypoints mirror v3:
 
-| Import | Peer dep | What |
-| --- | --- | --- |
-| `@effect-zero/v4/server` | — | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@effect-zero/v4/client` | — | Re-exports from `@rocicorp/zero` |
-| `@effect-zero/v4/server/adapters/drizzle` | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection` |
-| `@effect-zero/v4/server/adapters/pg` | `pg` | `zeroEffectNodePg` |
-| `@effect-zero/v4/server/adapters/postgresjs` | `postgres` | `zeroEffectPostgresJS` |
+| Import                                       | Peer dep      | What                                                                            |
+| -------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| `@effect-zero/v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
+| `@effect-zero/v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                |
+| `@effect-zero/v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
+| `@effect-zero/v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                              |
+| `@effect-zero/v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                          |
 
 ## Effect v4 Service Pattern
 
@@ -97,13 +97,16 @@ import { Effect } from "effect";
 export class CartWorkflow extends Effect.Service<CartWorkflow>()("CartWorkflow", {
   effect: Effect.gen(function* () {
     return {
-      onItemAdded: (input) => Effect.gen(function* () { /* ... */ }),
+      onItemAdded: (input) =>
+        Effect.gen(function* () {
+          /* ... */
+        }),
     };
   }),
 }) {}
 
 // Provide via:
-Effect.provide(effect, CartWorkflow.Default)
+Effect.provide(effect, CartWorkflow.Default);
 ```
 
 **Effect v4:**
@@ -127,7 +130,7 @@ export class CartWorkflow extends ServiceMap.Service<
 }
 
 // Provide via:
-Effect.provide(effect, CartWorkflow.layer)
+Effect.provide(effect, CartWorkflow.layer);
 ```
 
 Wire it into the handler the same way:
@@ -136,8 +139,7 @@ Wire it into the handler the same way:
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) =>
-    Effect.runPromise(Effect.provide(effect, CartWorkflow.layer)),
+  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.layer)),
 });
 ```
 

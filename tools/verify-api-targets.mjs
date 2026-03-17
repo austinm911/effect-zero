@@ -21,9 +21,9 @@ const baseUrl = trimTrailingSlash(
   args["base-url"] ?? process.env.VERIFY_API_BASE_URL ?? "http://localhost:4310",
 );
 const targetFilter = parseCsvFilter(args.target);
-const selectedTargets = (targetFilter === null ? musicFixtureApiBrowserTargets : musicFixtureApiTargetIds).filter(
-  (target) => (targetFilter === null ? true : targetFilter.has(target)),
-);
+const selectedTargets = (
+  targetFilter === null ? musicFixtureApiBrowserTargets : musicFixtureApiTargetIds
+).filter((target) => (targetFilter === null ? true : targetFilter.has(target)));
 
 if (selectedTargets.length === 0) {
   throw new Error("No verification targets selected. Check --target filters.");

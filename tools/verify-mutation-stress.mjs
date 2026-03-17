@@ -112,8 +112,7 @@ function createScenarioDefinitions() {
   return [
     {
       id: "sequential.requests.10.alternating",
-      run: (currentBaseUrl, target) =>
-        runSequentialAlternatingScenario(currentBaseUrl, target, 10),
+      run: (currentBaseUrl, target) => runSequentialAlternatingScenario(currentBaseUrl, target, 10),
     },
     {
       id: "sequential.requests.100.alternating",
@@ -600,9 +599,7 @@ function assertAuthoringState(payload, target, options) {
   const expectedMode = expectedAuthoringMode(target);
 
   if (authoring.mode !== expectedMode) {
-    throw new Error(
-      `Expected authoring mode ${expectedMode}, received ${String(authoring.mode)}.`,
-    );
+    throw new Error(`Expected authoring mode ${expectedMode}, received ${String(authoring.mode)}.`);
   }
 
   if (!options.expectMutationExecution || target === "control") {

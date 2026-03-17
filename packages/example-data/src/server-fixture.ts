@@ -65,16 +65,14 @@ export interface MusicFixtureProtocolState {
   readonly cartItemCount: number;
   readonly target: string;
   readonly userId: string;
-  readonly zeroClient:
-    | {
-        readonly clientGroupID: string;
-        readonly clientID: string;
-        readonly exists: boolean;
-        readonly lastMutationID: number;
-        readonly mutationResultCount: number;
-        readonly mutationResultIDs: readonly number[];
-      }
-    | null;
+  readonly zeroClient: {
+    readonly clientGroupID: string;
+    readonly clientID: string;
+    readonly exists: boolean;
+    readonly lastMutationID: number;
+    readonly mutationResultCount: number;
+    readonly mutationResultIDs: readonly number[];
+  } | null;
 }
 
 export type QueryRows = <TRow extends Record<string, unknown>>(
@@ -109,9 +107,7 @@ export async function ensureMusicFixtureCatalogPresent(queryRows: QueryRows) {
   const artistRows = await queryRows<{ count: number }>(
     `SELECT count(*)::int AS count FROM artist`,
   );
-  const albumRows = await queryRows<{ count: number }>(
-    `SELECT count(*)::int AS count FROM album`,
-  );
+  const albumRows = await queryRows<{ count: number }>(`SELECT count(*)::int AS count FROM album`);
 
   if ((artistRows[0]?.count ?? 0) > 0 && (albumRows[0]?.count ?? 0) > 0) {
     return;
@@ -389,7 +385,11 @@ export async function runDirectDrizzleRead(
 ) {
   switch (request.name) {
     case "getArtist":
-      return readDirectArtist(db, String(request.args?.artistId ?? MUSIC_FIXTURE_DEFAULTS.artistId), userId);
+      return readDirectArtist(
+        db,
+        String(request.args?.artistId ?? MUSIC_FIXTURE_DEFAULTS.artistId),
+        userId,
+      );
     case "getCartItems":
       return readDirectCartItems(db, userId);
     case "listArtists":
@@ -426,10 +426,7 @@ async function readDirectArtist(
       year: album.year,
     })
     .from(album)
-    .leftJoin(
-      cartItem,
-      and(eq(cartItem.albumId, album.id), eq(cartItem.userId, userId)),
-    )
+    .leftJoin(cartItem, and(eq(cartItem.albumId, album.id), eq(cartItem.userId, userId)))
     .where(eq(album.artistId, artistId))
     .orderBy(desc(album.year), album.title);
 

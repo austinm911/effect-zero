@@ -49,10 +49,7 @@ type TargetRuntime = {
   directMutate(mutatorName: string, args: ReadonlyJSONValue | undefined): Promise<void>;
   mutate(request: Request): Promise<unknown>;
   query(request: Request): Promise<unknown>;
-  zqlRead(body: {
-    readonly args?: ReadonlyJSONValue;
-    readonly name: string;
-  }): Promise<unknown>;
+  zqlRead(body: { readonly args?: ReadonlyJSONValue; readonly name: string }): Promise<unknown>;
   dispose(): Promise<void>;
 };
 
@@ -79,7 +76,10 @@ type V3SqlTarget = "v3-pg" | "v3-postgresjs";
 type V4SqlTarget = "v4-pg" | "v4-postgresjs";
 
 const targetAuthoringState = Object.fromEntries(
-  musicFixtureApiTargetIds.map((target) => [target, createAuthoringSnapshot(getAuthoringModeForTarget(target))]),
+  musicFixtureApiTargetIds.map((target) => [
+    target,
+    createAuthoringSnapshot(getAuthoringModeForTarget(target)),
+  ]),
 ) as Record<MusicFixtureApiTargetId, TargetAuthoringSnapshot>;
 
 function getDemoContext() {
@@ -123,9 +123,7 @@ function createCachedValue<T>(factory: () => Promise<T>): CachedValue<T> {
   };
 }
 
-function createAuthoringSnapshot(
-  mode: TargetRuntime["authoringMode"],
-): TargetAuthoringSnapshot {
+function createAuthoringSnapshot(mode: TargetRuntime["authoringMode"]): TargetAuthoringSnapshot {
   return {
     afterCommitRuns: 0,
     mode,
@@ -135,12 +133,16 @@ function createAuthoringSnapshot(
   };
 }
 
-function getAuthoringModeForTarget(target: MusicFixtureApiTargetId): TargetRuntime["authoringMode"] {
+function getAuthoringModeForTarget(
+  target: MusicFixtureApiTargetId,
+): TargetRuntime["authoringMode"] {
   if (target === "control") {
     return "shared-client-mutator";
   }
 
-  return getMusicFixtureApiTargetSpec(target).adapter === "drizzle" ? "service-workflow" : "raw-sql";
+  return getMusicFixtureApiTargetSpec(target).adapter === "drizzle"
+    ? "service-workflow"
+    : "raw-sql";
 }
 
 function resetAuthoringSnapshot(target: MusicFixtureApiTargetId) {
@@ -253,7 +255,7 @@ class V4DrizzleWorkflow extends ServiceMapV4.Service<
 >()("example-api/V4DrizzleWorkflow") {
   static readonly layer = LayerV4.succeed(this)({
     plan: (input) =>
-      (EffectV4.gen(function* () {
+      EffectV4.gen(function* () {
         recordServicePlanRun(input.target);
         yield* EffectV4.promise(() =>
           verifyWrappedTransactionAccess(input.wrappedTransaction, input),
@@ -266,7 +268,7 @@ class V4DrizzleWorkflow extends ServiceMapV4.Service<
             }),
           ] as const,
         };
-      }) as any),
+      }) as any,
   });
 }
 
@@ -366,14 +368,14 @@ function createV4DrizzleMutators(target: "v4-drizzle") {
         }
 
         return EffectV4.gen(function* () {
-          yield* (input.runDefaultMutation() as any);
+          yield* input.runDefaultMutation() as any;
 
-          const workflow = yield* (V4DrizzleWorkflow as any);
-          const result = yield* (workflow.plan({
+          const workflow = yield* V4DrizzleWorkflow as any;
+          const result = yield* workflow.plan({
             albumId: input.args.albumId,
             target,
             wrappedTransaction: input.tx.dbTransaction.wrappedTransaction,
-          }) as any);
+          }) as any;
 
           for (const effect of result.afterCommit) {
             input.defer(effect as any);
@@ -388,14 +390,14 @@ function createV4DrizzleMutators(target: "v4-drizzle") {
         }
 
         return EffectV4.gen(function* () {
-          yield* (input.runDefaultMutation() as any);
+          yield* input.runDefaultMutation() as any;
 
-          const workflow = yield* (V4DrizzleWorkflow as any);
-          const result = yield* (workflow.plan({
+          const workflow = yield* V4DrizzleWorkflow as any;
+          const result = yield* workflow.plan({
             albumId: input.args.albumId,
             target,
             wrappedTransaction: input.tx.dbTransaction.wrappedTransaction,
-          }) as any);
+          }) as any;
 
           for (const effect of result.afterCommit) {
             input.defer(effect as any);
@@ -430,10 +432,10 @@ function createV3SqlMutators(target: V3SqlTarget) {
           throw new Error("Missing demo context");
         }
 
-        await tx.dbTransaction.query(
-          `DELETE FROM cart_item WHERE user_id = $1 AND album_id = $2`,
-          [ctx.userId, args.albumId],
-        );
+        await tx.dbTransaction.query(`DELETE FROM cart_item WHERE user_id = $1 AND album_id = $2`, [
+          ctx.userId,
+          args.albumId,
+        ]);
         recordRawSqlMutation(target);
       }),
     },
@@ -464,10 +466,10 @@ function createV4SqlMutators(target: V4SqlTarget) {
           throw new Error("Missing demo context");
         }
 
-        await tx.dbTransaction.query(
-          `DELETE FROM cart_item WHERE user_id = $1 AND album_id = $2`,
-          [ctx.userId, args.albumId],
-        );
+        await tx.dbTransaction.query(`DELETE FROM cart_item WHERE user_id = $1 AND album_id = $2`, [
+          ctx.userId,
+          args.albumId,
+        ]);
         recordRawSqlMutation(target);
       }),
     },
@@ -481,19 +483,13 @@ const v4DrizzleMutators = createV4DrizzleMutators("v4-drizzle");
 const v4PgMutators = createV4SqlMutators("v4-pg");
 const v4PostgresJsMutators = createV4SqlMutators("v4-postgresjs");
 
-const executeV3DrizzleEffect = <A, E, R>(input: {
-  readonly effect: Effect.Effect<A, E, R>;
-}) =>
+const executeV3DrizzleEffect = <A, E, R>(input: { readonly effect: Effect.Effect<A, E, R> }) =>
   Effect.runPromise(
     Effect.provide(input.effect, V3DrizzleWorkflow.Default) as Effect.Effect<A, E, never>,
   ) as Promise<A>;
 
-const executeV4DrizzleEffect = <A>(input: {
-  readonly effect: any;
-}) =>
-  EffectV4.runPromise(
-    EffectV4.provide(input.effect, V4DrizzleWorkflow.layer) as any,
-  ) as Promise<A>;
+const executeV4DrizzleEffect = <A>(input: { readonly effect: any }) =>
+  EffectV4.runPromise(EffectV4.provide(input.effect, V4DrizzleWorkflow.layer) as any) as Promise<A>;
 
 const v3DrizzleHandler = createV3ServerMutatorHandler({
   executeEffect: executeV3DrizzleEffect,

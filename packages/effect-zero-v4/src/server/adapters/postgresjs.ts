@@ -9,15 +9,16 @@ import {
 import postgres from "postgres";
 import type { EffectZeroProvider } from "../types.js";
 
-export type PostgresJsTransaction<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> = postgres.TransactionSql<T>;
+export type PostgresJsTransaction<T extends Record<string, unknown> = Record<string, unknown>> =
+  postgres.TransactionSql<T>;
 
-type UnsafeParams<T extends Record<string, unknown>> = Parameters<PostgresJsTransaction<T>["unsafe"]>[1];
+type UnsafeParams<T extends Record<string, unknown>> = Parameters<
+  PostgresJsTransaction<T>["unsafe"]
+>[1];
 
-class PostgresJsConnection<T extends Record<string, unknown>>
-  implements DBConnection<PostgresJsTransaction<T>>
-{
+class PostgresJsConnection<T extends Record<string, unknown>> implements DBConnection<
+  PostgresJsTransaction<T>
+> {
   readonly #sql: postgres.Sql<T>;
 
   constructor(sql: postgres.Sql<T>) {
@@ -33,9 +34,9 @@ class PostgresJsConnection<T extends Record<string, unknown>>
   }
 }
 
-class PostgresJsTransactionInternal<T extends Record<string, unknown>>
-  implements DBTransaction<PostgresJsTransaction<T>>
-{
+class PostgresJsTransactionInternal<T extends Record<string, unknown>> implements DBTransaction<
+  PostgresJsTransaction<T>
+> {
   readonly wrappedTransaction: PostgresJsTransaction<T>;
 
   constructor(transactionSql: PostgresJsTransaction<T>) {
@@ -59,7 +60,10 @@ class PostgresJsTransactionInternal<T extends Record<string, unknown>>
 export function zeroEffectPostgresJS<
   TZeroSchema extends ZeroSchema,
   T extends Record<string, unknown> = Record<string, unknown>,
->(schema: TZeroSchema, sql: postgres.Sql<T> | string): EffectZeroProvider<TZeroSchema, PostgresJsTransaction<T>> {
+>(
+  schema: TZeroSchema,
+  sql: postgres.Sql<T> | string,
+): EffectZeroProvider<TZeroSchema, PostgresJsTransaction<T>> {
   const client = typeof sql === "string" ? (postgres(sql) as postgres.Sql<T>) : sql;
   const ownsClient = typeof sql === "string";
 

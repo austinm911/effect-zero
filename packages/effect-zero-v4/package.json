@@ -26,26 +26,10 @@
     "prepublishOnly": "vp pack"
   },
   "dependencies": {
-    "@effect/platform-node": "4.0.0-beta.31",
     "@effect-zero/sql-pg-v4": "npm:@effect/sql-pg@4.0.0-beta.31",
+    "@effect/platform-node": "4.0.0-beta.31",
     "@rocicorp/zero": "0.26.1",
     "effect": "4.0.0-beta.31"
-  },
-  "peerDependencies": {
-    "drizzle-orm": "1.0.0-beta.17-67b1795",
-    "pg": "8.20.0",
-    "postgres": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "drizzle-orm": {
-      "optional": true
-    },
-    "pg": {
-      "optional": true
-    },
-    "postgres": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@effect-zero/example-data": "workspace:*",
@@ -62,5 +46,21 @@
     "typescript": "^5.9.3",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "1.0.0-beta.17-67b1795",
+    "pg": "8.20.0",
+    "postgres": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "drizzle-orm": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "postgres": {
+      "optional": true
+    }
   }
 }

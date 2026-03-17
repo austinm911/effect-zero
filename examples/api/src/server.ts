@@ -39,14 +39,10 @@ app.post("/api/target", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as { target?: string };
   const target = parseMusicFixtureApiTarget(body.target);
 
-  return c.json(
-    { ok: true, target },
-    200,
-    {
-      ...createTargetHeaders(target, "fixture-sql"),
-      "Set-Cookie": `${TARGET_COOKIE}=${target}; Path=/; SameSite=Lax; Max-Age=31536000`,
-    },
-  );
+  return c.json({ ok: true, target }, 200, {
+    ...createTargetHeaders(target, "fixture-sql"),
+    "Set-Cookie": `${TARGET_COOKIE}=${target}; Path=/; SameSite=Lax; Max-Age=31536000`,
+  });
 });
 
 app.post("/api/demo/reset", async (c) => {
@@ -146,9 +142,9 @@ app.post("/api/mutators/:scope/:name", async (c) => {
     return c.json({ error: "Unknown mutator path." }, 404);
   }
 
-  const args = await c.req.json<import("@rocicorp/zero").ReadonlyJSONValue>().catch(
-    () => undefined,
-  );
+  const args = await c.req
+    .json<import("@rocicorp/zero").ReadonlyJSONValue>()
+    .catch(() => undefined);
   await runtime.directMutate(mutatorName, args);
 
   return c.json({ ok: true }, 200, createTargetHeaders(target, runtime.serverDbApi));
@@ -264,7 +260,10 @@ function readExplicitTargetFromRequest(request: Request) {
   return match?.[1]?.trim();
 }
 
-function createTargetHeaders(target: ReturnType<typeof readTargetFromRequest>, serverDbApi: string) {
+function createTargetHeaders(
+  target: ReturnType<typeof readTargetFromRequest>,
+  serverDbApi: string,
+) {
   const spec = getMusicFixtureApiTargetSpec(target);
 
   return {

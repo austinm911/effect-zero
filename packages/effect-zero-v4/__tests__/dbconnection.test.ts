@@ -219,9 +219,7 @@ describe("Effect v4 DBConnection", () => {
 
       await provider.dispose();
 
-      const result = await provider.zql.run(
-        zeroBuilder.artist.where("id", "=", seed.artist.id),
-      );
+      const result = await provider.zql.run(zeroBuilder.artist.where("id", "=", seed.artist.id));
 
       expect(result[0]?.id).toBe(seed.artist.id);
       expect(result[0]?.name).toBe(seed.artist.name);
@@ -303,10 +301,9 @@ describe("Effect v4 DBConnection", () => {
       );
       const resultPg = await provider.zql.transaction(
         (tx) =>
-          tx.dbTransaction.wrappedTransaction.query(
-            'SELECT id, name FROM "artist" WHERE id = $1',
-            [seed.artist.id],
-          ),
+          tx.dbTransaction.wrappedTransaction.query('SELECT id, name FROM "artist" WHERE id = $1', [
+            seed.artist.id,
+          ]),
         mockTransactionInput,
       );
 

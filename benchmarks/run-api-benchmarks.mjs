@@ -60,146 +60,146 @@ await withRepoLock({
     outputDir,
   },
   operation: async () => {
-  if (selectedTargets.length === 0) {
-    throw new Error("No benchmark targets selected. Check --target filters.");
-  }
-
-  if (scenarios.length === 0) {
-    throw new Error("No benchmark scenarios selected. Check --scenario filters.");
-  }
-
-  const defaultPerformanceFixtures = selectedTargets.flatMap((target) =>
-    createMusicFixtureApiPerformanceFixtures({ target }),
-  );
-  const performanceFixtureCatalog = selectedTargets.flatMap((target) =>
-    createMusicFixtureApiPerformanceFixtureCatalog({ target }),
-  );
-  const performanceFixtures = (
-    fixtureFilter === null ? defaultPerformanceFixtures : performanceFixtureCatalog
-  ).filter((fixture) => {
-    if (!includeDirect && fixture.benchmarkTargetId === "drizzle-direct") {
-      return false;
+    if (selectedTargets.length === 0) {
+      throw new Error("No benchmark targets selected. Check --target filters.");
     }
 
-    return fixtureFilter === null ? true : fixtureFilter.has(fixture.id);
-  });
+    if (scenarios.length === 0) {
+      throw new Error("No benchmark scenarios selected. Check --scenario filters.");
+    }
 
-  if (performanceFixtures.length === 0) {
-    throw new Error("No benchmark fixtures selected. Check --fixture filters.");
-  }
-
-  await ensureApiReady(
-    baseUrl,
-    createMusicFixtureApiFixtures({
-      target: selectedTargets[0] ?? defaultMusicFixtureApiTarget,
-    }).control.state,
-  );
-
-  const generatedAt = new Date().toISOString();
-  const gitSha = readGitSha();
-  const results = [];
-
-  for (const fixture of performanceFixtures) {
-    const scenariosForFixture = scenarios.filter(
-      (scenario) => scenario.operation === fixture.operation,
+    const defaultPerformanceFixtures = selectedTargets.flatMap((target) =>
+      createMusicFixtureApiPerformanceFixtures({ target }),
     );
-    const targetPackage =
-      fixture.benchmarkTargetId === "drizzle-direct"
-        ? packageMetadata.direct
-        : packageMetadata[fixture.target];
-
-    for (const scenario of scenariosForFixture) {
-      const measurements = [];
-
-      for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
-        await invokeBenchmarkFixture(
-          baseUrl,
-          createMusicFixtureApiFixtures({
-            target: fixture.target,
-          }).control.reset,
-        );
-
-        if (scenario.temperature === "warm") {
-          await runScenarioIteration(baseUrl, fixture, scenario, sampleIndex, {
-            phase: "warmup",
-          });
-        }
-
-        const requestMeasurements = await runScenarioIteration(
-          baseUrl,
-          fixture,
-          scenario,
-          sampleIndex,
-          {
-            phase: "measured",
-          },
-        );
-        measurements.push(...requestMeasurements);
+    const performanceFixtureCatalog = selectedTargets.flatMap((target) =>
+      createMusicFixtureApiPerformanceFixtureCatalog({ target }),
+    );
+    const performanceFixtures = (
+      fixtureFilter === null ? defaultPerformanceFixtures : performanceFixtureCatalog
+    ).filter((fixture) => {
+      if (!includeDirect && fixture.benchmarkTargetId === "drizzle-direct") {
+        return false;
       }
 
-      const summary = summarizeBenchmarkMeasurements(measurements);
-      const result = {
-        batchSampleCount: sampleCount,
-        benchmarkEffectLine: fixture.benchmarkEffectLine,
-        benchmarkLayer: fixture.benchmarkLayer,
-        benchmarkTargetId: fixture.benchmarkTargetId,
-        benchmarkTargetLabel: fixture.benchmarkTargetLabel,
-        databaseConnectionMode: targetPackage.databaseConnectionMode,
-        fixtureId: fixture.id,
-        generatedAt,
-        gitSha,
-        iterations: scenario.iterations,
-        method: fixture.method,
-        nodeVersion: process.version,
-        operation: fixture.operation,
-        packageName: targetPackage.packageName,
-        packageVersion: targetPackage.packageVersion,
-        path: fixture.path,
-        sampleCount,
-        scenarioId: scenario.id,
-        summary,
-        target: fixture.target,
-        temperature: scenario.temperature,
-        transport: fixture.transport,
-      };
+      return fixtureFilter === null ? true : fixtureFilter.has(fixture.id);
+    });
 
-      results.push(result);
-      console.log(
-        [
-          result.benchmarkTargetId,
-          result.scenarioId,
-          `avg=${summary.avgMs}ms`,
-          `p95=${summary.p95Ms}ms`,
-          `ops=${summary.opsPerSecond}/s`,
-        ].join(" "),
-      );
+    if (performanceFixtures.length === 0) {
+      throw new Error("No benchmark fixtures selected. Check --fixture filters.");
     }
-  }
 
-  const artifact = {
-    baseUrl,
-    generatedAt,
-    gitSha,
-    kind: "api-benchmark-run",
-    nodeVersion: process.version,
-    packageMetadata,
-    results,
-    sampleCount,
-    targets: selectedTargets,
-  };
+    await ensureApiReady(
+      baseUrl,
+      createMusicFixtureApiFixtures({
+        target: selectedTargets[0] ?? defaultMusicFixtureApiTarget,
+      }).control.state,
+    );
 
-  await mkdir(outputDir, { recursive: true });
+    const generatedAt = new Date().toISOString();
+    const gitSha = readGitSha();
+    const results = [];
 
-  const timestampForFile = generatedAt.replaceAll(":", "-");
-  const runPath = path.join(outputDir, `api-${timestampForFile}.json`);
-  const latestPath = path.join(outputDir, "latest.json");
+    for (const fixture of performanceFixtures) {
+      const scenariosForFixture = scenarios.filter(
+        (scenario) => scenario.operation === fixture.operation,
+      );
+      const targetPackage =
+        fixture.benchmarkTargetId === "drizzle-direct"
+          ? packageMetadata.direct
+          : packageMetadata[fixture.target];
 
-  const artifactJson = `${JSON.stringify(artifact, null, 2)}\n`;
-  await writeFile(runPath, artifactJson, "utf8");
-  await writeFile(latestPath, artifactJson, "utf8");
+      for (const scenario of scenariosForFixture) {
+        const measurements = [];
 
-  console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
-  console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
+        for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
+          await invokeBenchmarkFixture(
+            baseUrl,
+            createMusicFixtureApiFixtures({
+              target: fixture.target,
+            }).control.reset,
+          );
+
+          if (scenario.temperature === "warm") {
+            await runScenarioIteration(baseUrl, fixture, scenario, sampleIndex, {
+              phase: "warmup",
+            });
+          }
+
+          const requestMeasurements = await runScenarioIteration(
+            baseUrl,
+            fixture,
+            scenario,
+            sampleIndex,
+            {
+              phase: "measured",
+            },
+          );
+          measurements.push(...requestMeasurements);
+        }
+
+        const summary = summarizeBenchmarkMeasurements(measurements);
+        const result = {
+          batchSampleCount: sampleCount,
+          benchmarkEffectLine: fixture.benchmarkEffectLine,
+          benchmarkLayer: fixture.benchmarkLayer,
+          benchmarkTargetId: fixture.benchmarkTargetId,
+          benchmarkTargetLabel: fixture.benchmarkTargetLabel,
+          databaseConnectionMode: targetPackage.databaseConnectionMode,
+          fixtureId: fixture.id,
+          generatedAt,
+          gitSha,
+          iterations: scenario.iterations,
+          method: fixture.method,
+          nodeVersion: process.version,
+          operation: fixture.operation,
+          packageName: targetPackage.packageName,
+          packageVersion: targetPackage.packageVersion,
+          path: fixture.path,
+          sampleCount,
+          scenarioId: scenario.id,
+          summary,
+          target: fixture.target,
+          temperature: scenario.temperature,
+          transport: fixture.transport,
+        };
+
+        results.push(result);
+        console.log(
+          [
+            result.benchmarkTargetId,
+            result.scenarioId,
+            `avg=${summary.avgMs}ms`,
+            `p95=${summary.p95Ms}ms`,
+            `ops=${summary.opsPerSecond}/s`,
+          ].join(" "),
+        );
+      }
+    }
+
+    const artifact = {
+      baseUrl,
+      generatedAt,
+      gitSha,
+      kind: "api-benchmark-run",
+      nodeVersion: process.version,
+      packageMetadata,
+      results,
+      sampleCount,
+      targets: selectedTargets,
+    };
+
+    await mkdir(outputDir, { recursive: true });
+
+    const timestampForFile = generatedAt.replaceAll(":", "-");
+    const runPath = path.join(outputDir, `api-${timestampForFile}.json`);
+    const latestPath = path.join(outputDir, "latest.json");
+
+    const artifactJson = `${JSON.stringify(artifact, null, 2)}\n`;
+    await writeFile(runPath, artifactJson, "utf8");
+    await writeFile(latestPath, artifactJson, "utf8");
+
+    console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
+    console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
   },
 });
 

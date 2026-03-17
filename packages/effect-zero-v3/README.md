@@ -13,11 +13,11 @@ pnpm add @effect-zero/v3 @rocicorp/zero effect
 
 Then install the peer dependency for your chosen adapter:
 
-| Adapter | Peer dependency | Install |
-| --- | --- | --- |
-| `postgresjs` | `postgres` | `pnpm add postgres` |
-| `pg` | `pg` | `pnpm add pg` |
-| `drizzle` | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` |
+| Adapter      | Peer dependency               | Install                     |
+| ------------ | ----------------------------- | --------------------------- |
+| `postgresjs` | `postgres`                    | `pnpm add postgres`         |
+| `pg`         | `pg`                          | `pnpm add pg`               |
+| `drizzle`    | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` |
 
 > The `drizzle` adapter requires `drizzle-orm` 1.0.0-beta.17+ for the
 > `drizzle-orm/effect-postgres` entrypoint. The `pg` and `postgresjs` adapters
@@ -33,8 +33,8 @@ import { add } from "./mutators/cart/add";
 
 export const addServer = extendServerMutator(add, ({ runDefaultMutation, defer }) =>
   Effect.gen(function* () {
-    yield* runDefaultMutation();              // run the shared mutator
-    defer(analytics.track("cart.added"));      // fire after commit
+    yield* runDefaultMutation(); // run the shared mutator
+    defer(analytics.track("cart.added")); // fire after commit
   }),
 );
 ```
@@ -46,8 +46,7 @@ import { createServerMutatorHandler } from "@effect-zero/v3/server";
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) =>
-    Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
+  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
 });
 
 return handleMutateRequest(provider.zql, handler, request);
@@ -58,23 +57,23 @@ untouched.
 
 ## Entrypoints
 
-| Import | Environment | What |
-| --- | --- | --- |
-| `@effect-zero/v3/server` | Server | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@effect-zero/v3/client` | Browser | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero` |
-| `@effect-zero/v3/server/adapters/drizzle` | Server | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection` |
-| `@effect-zero/v3/server/adapters/pg` | Server | `zeroEffectNodePg` |
-| `@effect-zero/v3/server/adapters/postgresjs` | Server | `zeroEffectPostgresJS` |
+| Import                                       | Environment | What                                                                            |
+| -------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `@effect-zero/v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
+| `@effect-zero/v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`        |
+| `@effect-zero/v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
+| `@effect-zero/v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                              |
+| `@effect-zero/v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                          |
 
 ## Adapters
 
 Pick the adapter that matches your DB client:
 
-| Adapter | Peer dep | When to use | Example |
-| --- | --- | --- | --- |
-| `postgresjs` | `postgres` | Already using `postgres.js` | `zeroEffectPostgresJS(schema, connString)` |
-| `pg` | `pg` | Already using `pg` pools | `zeroEffectNodePg(schema, connString)` |
-| `drizzle` | `drizzle-orm` | Want typed Drizzle + Effect-managed pool | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` |
+| Adapter      | Peer dep      | When to use                              | Example                                                                 |
+| ------------ | ------------- | ---------------------------------------- | ----------------------------------------------------------------------- |
+| `postgresjs` | `postgres`    | Already using `postgres.js`              | `zeroEffectPostgresJS(schema, connString)`                              |
+| `pg`         | `pg`          | Already using `pg` pools                 | `zeroEffectNodePg(schema, connString)`                                  |
+| `drizzle`    | `drizzle-orm` | Want typed Drizzle + Effect-managed pool | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` |
 
 Every adapter supports two modes:
 
@@ -209,8 +208,7 @@ import { provider } from "zero/db.server";
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) =>
-    Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
+  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
 });
 
 return handleMutateRequest(provider.zql, handler, request);
@@ -303,13 +301,13 @@ server automatically — no `.server.ts` file required.
 
 Wraps a `defineMutator` with a server-only override. The override receives:
 
-| Parameter | Description |
-| --- | --- |
-| `args` | Validated mutator args (typed from the base mutator's Zod schema) |
-| `ctx` | App context from `getContext` (userId, etc.) |
-| `tx` | Zero `ServerTransaction` — includes `tx.dbTransaction` for raw SQL |
+| Parameter              | Description                                                               |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `args`                 | Validated mutator args (typed from the base mutator's Zod schema)         |
+| `ctx`                  | App context from `getContext` (userId, etc.)                              |
+| `tx`                   | Zero `ServerTransaction` — includes `tx.dbTransaction` for raw SQL        |
 | `runDefaultMutation()` | Runs the base mutator once in the server transaction. Optional. Max once. |
-| `defer(effect)` | Registers an Effect to run after the DB transaction commits |
+| `defer(effect)`        | Registers an Effect to run after the DB transaction commits               |
 
 The override can return `void`, `Promise<void>`, or `Effect<void>`.
 
@@ -317,11 +315,11 @@ The override can return `void`, `Promise<void>`, or `Effect<void>`.
 
 Creates a handler compatible with `handleMutateRequest`.
 
-| Option | Description |
-| --- | --- |
-| `mutators` | Server mutator registry (from `defineMutators`) |
-| `getContext` | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
-| `executeEffect` | Optional. Runs Effect overrides with your service layers provided |
+| Option          | Description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| `mutators`      | Server mutator registry (from `defineMutators`)                             |
+| `getContext`    | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
+| `executeEffect` | Optional. Runs Effect overrides with your service layers provided           |
 
 ```ts
 const handler = createServerMutatorHandler({
@@ -352,9 +350,9 @@ import { createZeroDbProvider } from "@effect-zero/v3/server/adapters/drizzle";
 
 const provider = await createZeroDbProvider({
   connectionString: "postgres://...",
-  drizzleSchema,       // Drizzle table/relation definitions
-  zeroSchema: schema,  // Zero schema (from drizzle-zero)
-  pgClientConfig: {},  // optional @effect/sql-pg pool config
+  drizzleSchema, // Drizzle table/relation definitions
+  zeroSchema: schema, // Zero schema (from drizzle-zero)
+  pgClientConfig: {}, // optional @effect/sql-pg pool config
 });
 ```
 

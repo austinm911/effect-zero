@@ -7,10 +7,10 @@ authoritative server mutation path without changing your browser-safe mutators.
 
 ## Packages
 
-| Package | Effect | Status |
-| --- | --- | --- |
-| [`@effect-zero/v3`](./packages/effect-zero-v3) | v3 | stable |
-| [`@effect-zero/v4`](./packages/effect-zero-v4) | v4 | beta |
+| Package                                        | Effect | Status |
+| ---------------------------------------------- | ------ | ------ |
+| [`@effect-zero/v3`](./packages/effect-zero-v3) | v3     | stable |
+| [`@effect-zero/v4`](./packages/effect-zero-v4) | v4     | beta   |
 
 Install one line only:
 
@@ -74,11 +74,11 @@ app is already on Effect v4.
 
 ## Choose An Adapter
 
-| Adapter | Use when | Owned mode | Caller-owned mode |
-| --- | --- | --- | --- |
-| `postgresjs` | you already use `postgres.js` or want the plainest Zero-style path | `zeroEffectPostgresJS(schema, connectionString)` | `zeroEffectPostgresJS(schema, sql)` |
-| `pg` | you already use `pg` pools/clients | `zeroEffectNodePg(schema, connectionString)` | `zeroEffectNodePg(schema, poolOrClient)` |
-| `drizzle` | you want typed Drizzle access in server overrides | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` | `createZeroDbProvider({ db, zeroSchema })` or `zeroEffectDrizzle(schema, db)` |
+| Adapter      | Use when                                                           | Owned mode                                                              | Caller-owned mode                                                             |
+| ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `postgresjs` | you already use `postgres.js` or want the plainest Zero-style path | `zeroEffectPostgresJS(schema, connectionString)`                        | `zeroEffectPostgresJS(schema, sql)`                                           |
+| `pg`         | you already use `pg` pools/clients                                 | `zeroEffectNodePg(schema, connectionString)`                            | `zeroEffectNodePg(schema, poolOrClient)`                                      |
+| `drizzle`    | you want typed Drizzle access in server overrides                  | `createZeroDbProvider({ connectionString, drizzleSchema, zeroSchema })` | `createZeroDbProvider({ db, zeroSchema })` or `zeroEffectDrizzle(schema, db)` |
 
 Ownership rule:
 

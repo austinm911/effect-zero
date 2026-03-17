@@ -17,8 +17,10 @@ import { DEMO_USER_ID } from "#app/shared/constants.ts";
 import { type SqlClient, withSqlClient } from "./pg.ts";
 
 const getContext = () => ({ userId: DEMO_USER_ID });
-const createQueryRows = (sql: SqlClient): QueryRows => (statement, params = []) =>
-  sql.unsafe(statement, [...params]);
+const createQueryRows =
+  (sql: SqlClient): QueryRows =>
+  (statement, params = []) =>
+    sql.unsafe(statement, [...params]);
 
 function getMutationContext(args: ReadonlyJSONValue | undefined) {
   const benchmarkUserId =

@@ -5,9 +5,7 @@ import {
 import postgres from "postgres";
 import { getDatabaseUrl } from "./config.ts";
 
-let sharedSqlClient:
-  | postgres.Sql<Record<string, unknown>>
-  | undefined;
+let sharedSqlClient: postgres.Sql<Record<string, unknown>> | undefined;
 
 export function getSharedSqlClient() {
   if (!sharedSqlClient) {

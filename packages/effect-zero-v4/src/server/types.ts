@@ -4,10 +4,7 @@ import type { ZQLDatabase } from "@rocicorp/zero/server";
 
 export type EffectPgConfig = Omit<PgClientConfig, "url">;
 
-export interface EffectZeroProvider<
-  TZeroSchema extends ZeroSchema,
-  TWrappedTransaction,
-> {
+export interface EffectZeroProvider<TZeroSchema extends ZeroSchema, TWrappedTransaction> {
   readonly zql: ZQLDatabase<TZeroSchema, TWrappedTransaction>;
   dispose(): Promise<void>;
 }

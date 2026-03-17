@@ -46,9 +46,8 @@ export type DrizzleDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
   TRelations extends AnyRelations = AnyRelations,
 > = EffectV3DrizzleDatabase<TSchema, TRelations>;
-export type DrizzleTransaction<
-  TDrizzle extends { transaction: (...args: any[]) => unknown },
-> = EffectV3DrizzleTransaction<TDrizzle>;
+export type DrizzleTransaction<TDrizzle extends { transaction: (...args: any[]) => unknown }> =
+  EffectV3DrizzleTransaction<TDrizzle>;
 
 export interface CreateDbConnectionOptions<
   TSchema extends Record<string, unknown>,
@@ -291,13 +290,13 @@ export async function createZeroDbProvider<
 export function zeroEffectDrizzle<
   TZeroSchema extends ZeroSchema,
   TDrizzle extends EffectV3DrizzleDatabase<any, any>,
->(schema: TZeroSchema, db: TDrizzle): EffectZeroProvider<TZeroSchema, EffectV3DrizzleTransaction<TDrizzle>> {
+>(
+  schema: TZeroSchema,
+  db: TDrizzle,
+): EffectZeroProvider<TZeroSchema, EffectV3DrizzleTransaction<TDrizzle>> {
   return {
     dispose: async () => {},
-    zql: new ZQLDatabase(
-      new InlineEffectV3DbConnection(db),
-      schema,
-    ),
+    zql: new ZQLDatabase(new InlineEffectV3DbConnection(db), schema),
   };
 }
 

@@ -11,11 +11,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.5",
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/v3": "workspace:*",
     "@effect-zero/v4": "workspace:*",
+    "@hono/node-server": "^1.19.5",
     "@rocicorp/zero": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "3.19.19",

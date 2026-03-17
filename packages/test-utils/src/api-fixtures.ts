@@ -235,11 +235,17 @@ export interface MusicFixtureApiFixtures {
 const musicFixtureApiTargetIdSet = new Set<string>(musicFixtureApiTargetIds);
 const musicFixtureMutatorNameSet = new Set<string>(musicFixtureMutatorNames);
 
-export function getMusicFixtureApiTargetSpec(target: MusicFixtureApiTargetId): MusicFixtureApiTargetSpec {
-  return musicFixtureApiTargets.find((candidate) => candidate.id === target) ?? musicFixtureApiTargets[0];
+export function getMusicFixtureApiTargetSpec(
+  target: MusicFixtureApiTargetId,
+): MusicFixtureApiTargetSpec {
+  return (
+    musicFixtureApiTargets.find((candidate) => candidate.id === target) ?? musicFixtureApiTargets[0]
+  );
 }
 
-export function parseMusicFixtureApiTarget(value: string | undefined | null): MusicFixtureApiTargetId {
+export function parseMusicFixtureApiTarget(
+  value: string | undefined | null,
+): MusicFixtureApiTargetId {
   const normalized = value?.trim().toLowerCase();
   return isMusicFixtureApiTarget(normalized) ? normalized : defaultMusicFixtureApiTarget;
 }

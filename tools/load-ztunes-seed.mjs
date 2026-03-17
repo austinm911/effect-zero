@@ -14,7 +14,8 @@ const databaseUrl =
   process.env.DATABASE_URL?.trim() ||
   process.env.PGURL?.trim() ||
   defaultDatabaseUrl;
-const artistHeader = "INSERT INTO artist (id, name, sort_name, type, begin_date, end_date, popularity) VALUES";
+const artistHeader =
+  "INSERT INTO artist (id, name, sort_name, type, begin_date, end_date, popularity) VALUES";
 const albumHeader = "INSERT INTO public.album (id, artist_id, title, year) VALUES";
 
 async function main() {

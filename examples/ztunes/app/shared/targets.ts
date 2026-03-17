@@ -3,10 +3,7 @@ export const browserTargets = ["control", "v3-drizzle", "v4-drizzle"] as const;
 export type BrowserTarget = (typeof browserTargets)[number];
 export type BrowserTargetRuntime = "control" | "v3" | "v4";
 export type BrowserTargetAdapter = "control" | "drizzle";
-export type BrowserTargetAuthoringMode =
-  | "shared-client-mutator"
-  | "service-workflow"
-  | "raw-sql";
+export type BrowserTargetAuthoringMode = "shared-client-mutator" | "service-workflow" | "raw-sql";
 
 export const defaultBrowserTarget = "control" as const satisfies BrowserTarget;
 
