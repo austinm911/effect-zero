@@ -27,7 +27,7 @@ import {
 const repoRoot = resolveRepoRoot(import.meta.url);
 const args = parseArgs(process.argv.slice(2));
 const baseUrl = trimTrailingSlash(
-  args["base-url"] ?? process.env.VERIFY_API_BASE_URL ?? "http://effect-zero-ztunes.localhost:1355",
+  args["base-url"] ?? process.env.VERIFY_API_BASE_URL ?? "http://localhost:4310",
 );
 const targetFilter = parseCsvFilter(args.target);
 const scenarioFilter = parseCsvFilter(args.scenario);

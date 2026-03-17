@@ -1,15 +1,16 @@
 import {
+  getMusicFixtureApiTargetSpec,
   parseMusicFixtureApiTarget,
   type MusicFixtureApiTargetId,
 } from "@effect-zero/test-utils/api-fixtures";
-
-export const browserTargets = ["control", "v3-drizzle", "v4-drizzle"] as const;
-export type BrowserTarget = (typeof browserTargets)[number];
-
-export const defaultBrowserTarget = "control" as const satisfies BrowserTarget;
-
-const TARGET_COOKIE = "effect-zero-target";
-const browserTargetSet = new Set<string>(browserTargets);
+import {
+  createTargetCookieValue,
+  getBrowserTargetAuthoringMode,
+  getBrowserTargetSpec,
+  readBrowserTargetFromCookieValue as readSharedBrowserTargetFromCookieValue,
+  TARGET_COOKIE,
+  type BrowserTarget,
+} from "#app/shared/targets.ts";
 
 export function readTargetFromRequest(request: Request): MusicFixtureApiTargetId {
   const url = new URL(request.url);
@@ -25,53 +26,38 @@ export function readTargetFromRequest(request: Request): MusicFixtureApiTargetId
 }
 
 export function readBrowserTargetFromRequest(request: Request): BrowserTarget {
-  return coerceBrowserTarget(readTargetFromRequest(request));
+  return readSharedBrowserTargetFromCookieValue(readTargetFromRequest(request));
 }
 
 export function readBrowserTargetFromCookieValue(value: string | undefined): BrowserTarget {
-  return coerceBrowserTarget(parseMusicFixtureApiTarget(value));
+  return readSharedBrowserTargetFromCookieValue(value);
 }
 
 export function setTargetCookieHeader(target: BrowserTarget): string {
-  return `${TARGET_COOKIE}=${target}; Path=/; SameSite=Lax; Max-Age=31536000`;
+  return createTargetCookieValue(target);
 }
-
-export const browserTargetLabels: Record<BrowserTarget, string> = {
-  control: "Promise",
-  "v3-drizzle": "Effect v3 (Drizzle)",
-  "v4-drizzle": "Effect v4 (Drizzle)",
-};
 
 export function isProxyTarget(target: MusicFixtureApiTargetId) {
   return target !== "control";
 }
 
 export function createTargetHeaders(target: MusicFixtureApiTargetId, serverDbApi: string) {
-  const runtime = target === "control" ? "control" : target.startsWith("v3-") ? "v3" : "v4";
-  const adapter =
-    target === "control"
-      ? "control"
-      : target.endsWith("-drizzle")
-        ? "drizzle"
-      : target.endsWith("-pg")
-          ? "pg"
-          : "postgresjs";
+  const targetSpec =
+    target === "control" || target === "v3-drizzle" || target === "v4-drizzle"
+      ? getBrowserTargetSpec(target)
+      : getMusicFixtureApiTargetSpec(target);
   const authoringMode =
-    target === "control"
-      ? "shared-client-mutator"
-      : target.endsWith("-drizzle")
+    target === "control" || target === "v3-drizzle" || target === "v4-drizzle"
+      ? getBrowserTargetAuthoringMode(target)
+      : targetSpec.adapter === "drizzle"
         ? "service-workflow"
         : "raw-sql";
 
   return {
-    "x-effect-zero-adapter": adapter,
+    "x-effect-zero-adapter": targetSpec.adapter,
     "x-effect-zero-authoring-mode": authoringMode,
-    "x-effect-zero-runtime": runtime,
+    "x-effect-zero-runtime": targetSpec.runtime,
     "x-effect-zero-server-db-api": serverDbApi,
     "x-effect-zero-target": target,
   };
-}
-
-function coerceBrowserTarget(target: MusicFixtureApiTargetId): BrowserTarget {
-  return browserTargetSet.has(target) ? (target as BrowserTarget) : defaultBrowserTarget;
 }

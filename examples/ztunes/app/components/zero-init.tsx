@@ -6,7 +6,7 @@ import { mutators } from "#app/zero/mutators.ts";
 import { queries } from "#app/zero/queries.ts";
 import { DEMO_USER_ID } from "#app/shared/constants.ts";
 
-const cacheURL = import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL as string;
+const cacheURL = import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL || "http://localhost:4848";
 
 export function ZeroInit({ children }: { children: React.ReactNode }) {
   const router = useRouter();

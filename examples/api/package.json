@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
-    "dev": "bash ../../scripts/example-api-dev.sh",
+    "dev": "HOST=localhost PORT=4311 pnpm exec tsx watch src/server.ts",
     "start": "pnpm exec tsx src/server.ts",
     "typecheck": "tsc --noEmit"
   },

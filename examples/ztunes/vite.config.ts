@@ -7,12 +7,12 @@ import tsConfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   define: {
     __EFFECT_ZERO_API_BASE_URL__: JSON.stringify(
-      process.env.EFFECT_ZERO_API_BASE_URL?.trim() || "http://effect-zero-api.localhost:1355",
+      process.env.EFFECT_ZERO_API_BASE_URL?.trim() || "http://localhost:4311",
     ),
     __EFFECT_ZERO_API_INTERNAL_URL__: JSON.stringify(
       process.env.EFFECT_ZERO_API_INTERNAL_URL?.trim() ||
         process.env.EFFECT_ZERO_API_BASE_URL?.trim() ||
-        "http://effect-zero-api.localhost:1355",
+        "http://localhost:4311",
     ),
   },
   plugins: [

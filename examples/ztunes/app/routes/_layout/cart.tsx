@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@rocicorp/zero/react";
 import { queries } from "#app/zero/queries.ts";
 import { mutators } from "#app/zero/mutators.ts";
+import { runLoggedMutation } from "#app/components/mutation-log.ts";
 import type { CSSProperties } from "react";
 
 export const Route = createFileRoute("/_layout/cart")({
@@ -32,7 +33,12 @@ function CartPage() {
                 <button
                   type="button"
                   style={removeButtonStyle}
-                  onClick={() => zero.mutate(mutators.cart.remove({ albumId: item.albumId }))}
+                  onClick={() => {
+                    void runLoggedMutation({
+                      action: "cart.remove",
+                      run: () => zero.mutate(mutators.cart.remove({ albumId: item.albumId })),
+                    });
+                  }}
                 >
                   Remove
                 </button>

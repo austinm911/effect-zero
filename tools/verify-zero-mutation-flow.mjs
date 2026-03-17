@@ -1,10 +1,6 @@
 import { execFileSync } from "node:child_process";
-import dns from "node:dns";
-import { mkdir, rm, writeFile } from "node:fs/promises";
-import http from "node:http";
-import https from "node:https";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   createMusicFixtureApiFixtures,
   createMusicFixtureZeroMutation,
@@ -14,15 +10,24 @@ import {
   musicFixtureApiBrowserTargets,
   musicFixtureApiTargetIds,
 } from "../packages/test-utils/src/api-fixtures.ts";
+import {
+  formatPayload,
+  invokeFixture,
+  isObject,
+  parseArgs,
+  parseCsvFilter,
+  parsePositiveInteger,
+  resolveRepoRoot,
+  trimTrailingSlash,
+  withRepoLock,
+} from "./fixture-verification.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = resolveRepoRoot(import.meta.url);
 const args = parseArgs(process.argv.slice(2));
 const baseUrl = trimTrailingSlash(
   args["base-url"] ??
     process.env.VERIFY_MUTATION_FLOW_BASE_URL ??
-    "http://effect-zero-ztunes.localhost:1355",
+    "http://localhost:4310",
 );
 const pgUrl =
   args["pg-url"] ?? process.env.PG_URL ?? "postgres://postgres:postgres@127.0.0.1:5438/effect_zero";
@@ -39,14 +44,22 @@ const targetFilter = parseCsvFilter(args.target);
 const selectedTargets = (
   targetFilter === null ? musicFixtureApiBrowserTargets : musicFixtureApiTargetIds
 ).filter((target) => (targetFilter === null ? true : targetFilter.has(target)));
-const lockDir = path.resolve(repoRoot, "verification/.zero-mutation-flow.lock");
 const defaultAlbumId = MUSIC_FIXTURE_API_DEFAULTS.albumId;
 
 if (selectedTargets.length === 0) {
   throw new Error("No targets selected. Check --target filters.");
 }
 
-await withLock(async () => {
+await withRepoLock({
+  conflictMessage:
+    "Another zero mutation flow verification is already running. Do not run multiple local fixture verifiers at the same time.",
+  importMetaUrl: import.meta.url,
+  lockRelativePath: "verification/.zero-mutation-flow.lock",
+  metadata: {
+    baseUrl,
+    pgUrl,
+  },
+  operation: async () => {
   await ensureApiReady(baseUrl, selectedTargets[0] ?? defaultMusicFixtureApiTarget);
 
   const startedAt = performance.now();
@@ -80,6 +93,7 @@ await withLock(async () => {
   console.log(JSON.stringify(artifact, null, 2));
   console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
   console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
+  },
 });
 
 async function verifyTarget({ baseUrl, pgUrl, target }) {
@@ -380,40 +394,7 @@ async function ensureApiReady(baseUrl, target) {
 }
 
 async function invokeJson(baseUrl, fixture) {
-  const abortController = new AbortController();
-  const timeout = setTimeout(() => {
-    abortController.abort(
-      new Error(`Timed out after ${requestTimeoutMs}ms calling ${fixture.method} ${fixture.path}`),
-    );
-  }, requestTimeoutMs);
-
-  let response;
-
-  try {
-    response = await requestWithPortlessLookup(`${baseUrl}${fixture.path}`, {
-      body: fixture.body === undefined ? undefined : JSON.stringify(fixture.body),
-      headers: fixture.body === undefined ? undefined : { "content-type": "application/json" },
-      method: fixture.method,
-      signal: abortController.signal,
-    });
-  } catch (error) {
-    throw new Error(
-      `${fixture.id} request failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  const contentType = response.headers.get("content-type") ?? "";
-  const payload = contentType.includes("application/json")
-    ? await response.json()
-    : await response.text();
-
-  if (!response.ok) {
-    throw new Error(`${fixture.id} failed with ${response.status}: ${formatPayload(payload)}`);
-  }
-
-  return payload;
+  return invokeFixture(baseUrl, fixture, { requestTimeoutMs });
 }
 
 function readLastMutationId(pgUrl, clientGroupID, clientID) {
@@ -522,92 +503,6 @@ function makeRemoveOperation(albumId, mutationID, userId) {
   };
 }
 
-async function withLock(operation) {
-  await acquireLock();
-
-  try {
-    return await operation();
-  } finally {
-    await rm(lockDir, { force: true, recursive: true });
-  }
-}
-
-async function acquireLock() {
-  try {
-    await mkdir(lockDir);
-  } catch (error) {
-    if (isNodeError(error) && error.code === "EEXIST") {
-      throw new Error(
-        "Another zero mutation flow verification is already running. Do not run multiple local fixture verifiers at the same time.",
-      );
-    }
-
-    throw error;
-  }
-
-  await writeFile(
-    path.join(lockDir, "owner.json"),
-    `${JSON.stringify({ baseUrl, pgUrl, pid: process.pid, startedAt: new Date().toISOString() }, null, 2)}\n`,
-    "utf8",
-  );
-}
-
-function parseArgs(argv) {
-  const parsed = {};
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const token = argv[index];
-
-    if (!token?.startsWith("--")) {
-      continue;
-    }
-
-    const key = token.slice(2);
-    const nextToken = argv[index + 1];
-
-    if (!nextToken || nextToken.startsWith("--")) {
-      parsed[key] = "true";
-      continue;
-    }
-
-    parsed[key] = nextToken;
-    index += 1;
-  }
-
-  return parsed;
-}
-
-function parseCsvFilter(rawValue) {
-  if (!rawValue) {
-    return null;
-  }
-
-  return new Set(
-    String(rawValue)
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
-}
-
-function parsePositiveInteger(rawValue, fallback, label) {
-  if (rawValue === undefined) {
-    return fallback;
-  }
-
-  const parsed = Number.parseInt(String(rawValue), 10);
-
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`Expected --${label} to be a positive integer.`);
-  }
-
-  return parsed;
-}
-
-function trimTrailingSlash(value) {
-  return value.endsWith("/") ? value.slice(0, -1) : value;
-}
-
 function arraysEqual(left, right) {
   if (left.length !== right.length) {
     return false;
@@ -634,95 +529,6 @@ function readGitSha() {
   } catch {
     return "uncommitted-worktree";
   }
-}
-
-function isObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function isNodeError(value) {
-  return value instanceof Error && "code" in value;
-}
-
-function formatPayload(payload) {
-  return typeof payload === "string" ? payload : JSON.stringify(payload);
-}
-
-function lookupPortlessHostname(hostname, options, callback) {
-  if (hostname.endsWith(".localhost")) {
-    if (typeof options === "object" && options?.all) {
-      callback(null, [{ address: "127.0.0.1", family: 4 }]);
-      return;
-    }
-
-    callback(null, "127.0.0.1", 4);
-    return;
-  }
-
-  dns.lookup(hostname, options, callback);
-}
-
-async function requestWithPortlessLookup(url, options) {
-  const requestUrl = new URL(url);
-  const transport = requestUrl.protocol === "https:" ? https : http;
-
-  return await new Promise((resolve, reject) => {
-    const request = transport.request(
-      requestUrl,
-      {
-        headers: options.headers,
-        lookup: lookupPortlessHostname,
-        method: options.method,
-        signal: options.signal,
-      },
-      (response) => {
-        const chunks = [];
-
-        response.on("data", (chunk) => {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        });
-
-        response.on("end", () => {
-          const bodyText = Buffer.concat(chunks).toString("utf8");
-          const headers = new Headers();
-
-          for (const [key, value] of Object.entries(response.headers)) {
-            if (value === undefined) {
-              continue;
-            }
-
-            if (Array.isArray(value)) {
-              for (const entry of value) {
-                headers.append(key, entry);
-              }
-              continue;
-            }
-
-            headers.set(key, value);
-          }
-
-          resolve({
-            headers,
-            json: async () => JSON.parse(bodyText),
-            ok:
-              typeof response.statusCode === "number" &&
-              response.statusCode >= 200 &&
-              response.statusCode < 300,
-            status: response.statusCode ?? 500,
-            text: async () => bodyText,
-          });
-        });
-      },
-    );
-
-    request.on("error", reject);
-
-    if (options.body !== undefined) {
-      request.write(options.body);
-    }
-
-    request.end();
-  });
 }
 
 function wait(durationMs) {

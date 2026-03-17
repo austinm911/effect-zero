@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "dev": "../../scripts/ztunes-dev.sh",
+    "dev": "alchemy dev",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "postgres": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "sonner": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

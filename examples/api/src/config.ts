@@ -1,4 +1,4 @@
-export const defaultApiBaseUrl = "http://effect-zero-api.localhost:1355";
+export const defaultApiBaseUrl = "http://localhost:4311";
 export const defaultDatabaseUrl = "postgresql://postgres:postgres@127.0.0.1:5438/effect_zero";
 
 export function getApiBaseUrl() {
@@ -15,9 +15,9 @@ export function getDatabaseUrl() {
 }
 
 export function getListenHost() {
-  return process.env.HOST?.trim() || "127.0.0.1";
+  return process.env.HOST?.trim() || "localhost";
 }
 
 export function getListenPort() {
-  return Number.parseInt(process.env.PORT?.trim() || "3210", 10);
+  return Number.parseInt(process.env.PORT?.trim() || "4311", 10);
 }

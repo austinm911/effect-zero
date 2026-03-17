@@ -7,6 +7,8 @@ import { queries } from "@effect-zero/example-data/queries";
 import { schema as zeroSchema } from "@effect-zero/example-data/zero";
 import {
   MUSIC_FIXTURE_API_DEFAULTS,
+  getMusicFixtureApiTargetSpec,
+  musicFixtureApiTargetIds,
   type MusicFixtureApiTargetId,
 } from "@effect-zero/test-utils/api-fixtures";
 import { zeroEffectNodePg as zeroEffectV3NodePg } from "@effect-zero/v3/server/adapters/pg";
@@ -67,19 +69,18 @@ type ZeroProviderLike = {
   dispose(): Promise<void>;
 };
 
+type CachedValue<T> = {
+  get(): Promise<T>;
+  peek(): Promise<T> | undefined;
+};
+
 type ServiceWorkflowTarget = "v3-drizzle" | "v4-drizzle";
 type V3SqlTarget = "v3-pg" | "v3-postgresjs";
 type V4SqlTarget = "v4-pg" | "v4-postgresjs";
 
-const targetAuthoringState: Record<MusicFixtureApiTargetId, TargetAuthoringSnapshot> = {
-  control: createAuthoringSnapshot("shared-client-mutator"),
-  "v3-drizzle": createAuthoringSnapshot("service-workflow"),
-  "v3-pg": createAuthoringSnapshot("raw-sql"),
-  "v3-postgresjs": createAuthoringSnapshot("raw-sql"),
-  "v4-drizzle": createAuthoringSnapshot("service-workflow"),
-  "v4-pg": createAuthoringSnapshot("raw-sql"),
-  "v4-postgresjs": createAuthoringSnapshot("raw-sql"),
-};
+const targetAuthoringState = Object.fromEntries(
+  musicFixtureApiTargetIds.map((target) => [target, createAuthoringSnapshot(getAuthoringModeForTarget(target))]),
+) as Record<MusicFixtureApiTargetId, TargetAuthoringSnapshot>;
 
 function getDemoContext() {
   return { userId: MUSIC_FIXTURE_API_DEFAULTS.userId };
@@ -108,12 +109,17 @@ function getMutationContext(args: ReadonlyJSONValue | undefined) {
   };
 }
 
-function createCachedValue<T>(factory: () => Promise<T>) {
+function createCachedValue<T>(factory: () => Promise<T>): CachedValue<T> {
   let cached: Promise<T> | undefined;
 
-  return () => {
-    cached ??= factory();
-    return cached;
+  return {
+    get() {
+      cached ??= factory();
+      return cached;
+    },
+    peek() {
+      return cached;
+    },
   };
 }
 
@@ -127,6 +133,14 @@ function createAuthoringSnapshot(
     servicePlanRuns: 0,
     wrappedTransactionReads: 0,
   };
+}
+
+function getAuthoringModeForTarget(target: MusicFixtureApiTargetId): TargetRuntime["authoringMode"] {
+  if (target === "control") {
+    return "shared-client-mutator";
+  }
+
+  return getMusicFixtureApiTargetSpec(target).adapter === "drizzle" ? "service-workflow" : "raw-sql";
 }
 
 function resetAuthoringSnapshot(target: MusicFixtureApiTargetId) {
@@ -173,13 +187,9 @@ export function resetTargetAuthoringState(target?: MusicFixtureApiTargetId) {
     return;
   }
 
-  resetAuthoringSnapshot("control");
-  resetAuthoringSnapshot("v3-drizzle");
-  resetAuthoringSnapshot("v3-pg");
-  resetAuthoringSnapshot("v3-postgresjs");
-  resetAuthoringSnapshot("v4-drizzle");
-  resetAuthoringSnapshot("v4-pg");
-  resetAuthoringSnapshot("v4-postgresjs");
+  for (const targetId of musicFixtureApiTargetIds) {
+    resetAuthoringSnapshot(targetId);
+  }
 }
 
 async function verifyWrappedTransactionAccess(
@@ -600,14 +610,14 @@ function createPackageRuntime(options: {
     readonly mutation: { readonly args?: ReadonlyJSONValue; readonly name: string };
   }) => Promise<void>;
   readonly handler: any;
-  readonly provider: () => Promise<ZeroProviderLike>;
+  readonly provider: CachedValue<ZeroProviderLike>;
   readonly serverDbApi: TargetRuntime["serverDbApi"];
 }): TargetRuntime {
   return {
     authoringMode: options.authoringMode,
     serverDbApi: options.serverDbApi,
     async directMutate(mutatorName, args) {
-      const provider = await options.provider();
+      const provider = await options.provider.get();
       await options.directHandler({
         db: provider.zql,
         mutation: {
@@ -617,7 +627,7 @@ function createPackageRuntime(options: {
       });
     },
     async mutate(request) {
-      const provider = await options.provider();
+      const provider = await options.provider.get();
       return handleMutateRequest(provider.zql, options.handler, request);
     },
     async query(request) {
@@ -628,12 +638,18 @@ function createPackageRuntime(options: {
       );
     },
     async zqlRead(body) {
-      const provider = await options.provider();
+      const provider = await options.provider.get();
       const query = mustGetQuery(queries, body.name);
       return provider.zql.run(query.fn({ args: body.args, ctx: getDemoContext() }) as never);
     },
     async dispose() {
-      const provider = await options.provider();
+      const cachedProvider = options.provider.peek();
+
+      if (!cachedProvider) {
+        return;
+      }
+
+      const provider = await cachedProvider;
       await provider.dispose();
     },
   };

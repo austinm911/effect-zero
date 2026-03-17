@@ -1,7 +1,6 @@
 import { execSync } from "node:child_process";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   createMusicFixtureApiFixtures,
   createMusicFixtureApiPerformanceFixtureCatalog,
@@ -15,14 +14,23 @@ import {
   defaultBenchmarkScenarios,
   summarizeBenchmarkMeasurements,
 } from "../packages/test-utils/src/index.ts";
+import {
+  formatPayload,
+  invokeFixture,
+  isObject,
+  parseArgs,
+  parseCsvFilter,
+  parsePositiveInteger,
+  resolveRepoRoot,
+  trimTrailingSlash,
+  withRepoLock,
+} from "../tools/fixture-verification.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = resolveRepoRoot(import.meta.url);
 
 const args = parseArgs(process.argv.slice(2));
 const baseUrl = trimTrailingSlash(
-  args["base-url"] ?? process.env.BENCH_BASE_URL ?? "http://effect-zero-ztunes.localhost:1355",
+  args["base-url"] ?? process.env.BENCH_BASE_URL ?? "http://localhost:4310",
 );
 const outputDir = path.resolve(repoRoot, args["output-dir"] ?? "benchmarks/results");
 const requestTimeoutMs = parsePositiveInteger(
@@ -42,9 +50,16 @@ const scenarios = defaultBenchmarkScenarios.filter((scenario) =>
   scenarioFilter === null ? true : scenarioFilter.has(scenario.id),
 );
 const packageMetadata = await loadPackageMetadata();
-const benchmarkLockDir = path.resolve(repoRoot, "benchmarks/.api-benchmark.lock");
-
-await withBenchmarkLock(async () => {
+await withRepoLock({
+  conflictMessage:
+    "Another API benchmark run is already active. Do not run package and web benchmark commands concurrently against the shared local fixture database.",
+  importMetaUrl: import.meta.url,
+  lockRelativePath: "benchmarks/.api-benchmark.lock",
+  metadata: {
+    baseUrl,
+    outputDir,
+  },
+  operation: async () => {
   if (selectedTargets.length === 0) {
     throw new Error("No benchmark targets selected. Check --target filters.");
   }
@@ -97,7 +112,7 @@ await withBenchmarkLock(async () => {
       const measurements = [];
 
       for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
-        await invokeFixture(
+        await invokeBenchmarkFixture(
           baseUrl,
           createMusicFixtureApiFixtures({
             target: fixture.target,
@@ -185,41 +200,12 @@ await withBenchmarkLock(async () => {
 
   console.log(`Wrote ${path.relative(repoRoot, runPath)}`);
   console.log(`Updated ${path.relative(repoRoot, latestPath)}`);
+  },
 });
-
-async function withBenchmarkLock(operation) {
-  await acquireBenchmarkLock();
-
-  try {
-    return await operation();
-  } finally {
-    await rm(benchmarkLockDir, { force: true, recursive: true });
-  }
-}
-
-async function acquireBenchmarkLock() {
-  try {
-    await mkdir(benchmarkLockDir);
-  } catch (error) {
-    if (isNodeError(error) && error.code === "EEXIST") {
-      throw new Error(
-        "Another API benchmark run is already active. Do not run package and web benchmark commands concurrently against the shared local fixture database.",
-      );
-    }
-
-    throw error;
-  }
-
-  await writeFile(
-    path.join(benchmarkLockDir, "owner.json"),
-    `${JSON.stringify({ baseUrl, outputDir, pid: process.pid, startedAt: new Date().toISOString() }, null, 2)}\n`,
-    "utf8",
-  );
-}
 
 async function ensureApiReady(baseUrl, stateFixture) {
   try {
-    await invokeFixture(baseUrl, stateFixture);
+    await invokeBenchmarkFixture(baseUrl, stateFixture);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(
@@ -238,7 +224,7 @@ async function runScenarioIteration(baseUrl, fixture, scenario, sampleIndex, run
       runContext.phase,
     );
     const startedAt = performance.now();
-    await invokeFixture(baseUrl, requestFixture);
+    await invokeBenchmarkFixture(baseUrl, requestFixture);
     return {
       durationMs: performance.now() - startedAt,
       iterations: 1,
@@ -311,40 +297,8 @@ function createRequestFixtureForIteration(fixture, scenario, sampleIndex, iterat
   });
 }
 
-async function invokeFixture(baseUrl, fixture) {
-  const abortController = new AbortController();
-  const timeout = setTimeout(() => {
-    abortController.abort(
-      new Error(`Timed out after ${requestTimeoutMs}ms calling ${fixture.method} ${fixture.path}`),
-    );
-  }, requestTimeoutMs);
-
-  let response;
-
-  try {
-    response = await fetch(`${baseUrl}${fixture.path}`, {
-      body: fixture.body === undefined ? undefined : JSON.stringify(fixture.body),
-      headers: fixture.body === undefined ? undefined : { "content-type": "application/json" },
-      method: fixture.method,
-      signal: abortController.signal,
-    });
-  } catch (error) {
-    throw new Error(
-      `${fixture.id} request failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  const contentType = response.headers.get("content-type") ?? "";
-  const payload = contentType.includes("application/json")
-    ? await response.json()
-    : await response.text();
-
-  if (!response.ok) {
-    throw new Error(`${fixture.id} failed with ${response.status}: ${formatPayload(payload)}`);
-  }
-
+async function invokeBenchmarkFixture(baseUrl, fixture) {
+  const payload = await invokeFixture(baseUrl, fixture, { requestTimeoutMs });
   validateFixtureResponse(fixture, payload);
   return payload;
 }
@@ -461,57 +415,6 @@ async function readPackageJson(relativePath) {
   return JSON.parse(await readFile(packagePath, "utf8"));
 }
 
-function parseArgs(argv) {
-  const parsed = {};
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const token = argv[index];
-    if (!token?.startsWith("--")) {
-      continue;
-    }
-
-    const key = token.slice(2);
-    const nextToken = argv[index + 1];
-
-    if (!nextToken || nextToken.startsWith("--")) {
-      parsed[key] = "true";
-      continue;
-    }
-
-    parsed[key] = nextToken;
-    index += 1;
-  }
-
-  return parsed;
-}
-
-function parseCsvFilter(rawValue) {
-  if (!rawValue) {
-    return null;
-  }
-
-  return new Set(
-    String(rawValue)
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
-}
-
-function parsePositiveInteger(rawValue, fallback, label) {
-  if (rawValue === undefined) {
-    return fallback;
-  }
-
-  const parsed = Number.parseInt(String(rawValue), 10);
-
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`Expected --${label} to be a positive integer.`);
-  }
-
-  return parsed;
-}
-
 function parseBoolean(rawValue, fallback) {
   if (rawValue === undefined) {
     return fallback;
@@ -529,11 +432,6 @@ function parseBoolean(rawValue, fallback) {
 
   throw new Error(`Expected a boolean value, received ${String(rawValue)}.`);
 }
-
-function trimTrailingSlash(value) {
-  return value.endsWith("/") ? value.slice(0, -1) : value;
-}
-
 function readGitSha() {
   try {
     return execSync("git rev-parse HEAD", {
@@ -544,16 +442,4 @@ function readGitSha() {
   } catch {
     return "uncommitted-worktree";
   }
-}
-
-function formatPayload(payload) {
-  return typeof payload === "string" ? payload : JSON.stringify(payload);
-}
-
-function isObject(value) {
-  return typeof value === "object" && value !== null;
-}
-
-function isNodeError(value) {
-  return value instanceof Error && "code" in value;
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import type { RouterContext } from "#app/router.tsx";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -13,7 +14,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
-const zeroCacheURL = import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL as string | undefined;
+const zeroCacheURL = import.meta.env.VITE_PUBLIC_ZERO_CACHE_URL || "http://localhost:4848";
 
 function RootComponent() {
   return (
@@ -50,6 +51,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster closeButton position="bottom-right" richColors />
         <Scripts />
       </body>
     </html>

@@ -127,38 +127,34 @@ export function trimTrailingSlash(value) {
   return value.endsWith("/") ? value.slice(0, -1) : value;
 }
 
-export async function withFixtureVerificationLock({
-  baseUrl,
+export async function withRepoLock({
+  conflictMessage,
   importMetaUrl,
+  lockRelativePath,
   metadata = {},
   operation,
-  task,
 }) {
   const repoRoot = resolveRepoRoot(importMetaUrl);
-  const verificationLockDir = path.resolve(repoRoot, "verification/.fixture-db.lock");
+  const lockDir = path.resolve(repoRoot, lockRelativePath);
 
-  await mkdir(path.dirname(verificationLockDir), { recursive: true });
+  await mkdir(path.dirname(lockDir), { recursive: true });
 
   try {
-    await mkdir(verificationLockDir);
+    await mkdir(lockDir);
   } catch (error) {
     if (isNodeError(error) && error.code === "EEXIST") {
-      throw new Error(
-        "Another local fixture verification run is already active. Do not run API verification, mutation stress, or other fixture-resetting checks concurrently.",
-      );
+      throw new Error(conflictMessage);
     }
 
     throw error;
   }
 
   await writeFile(
-    path.join(verificationLockDir, "owner.json"),
+    path.join(lockDir, "owner.json"),
     `${JSON.stringify(
       {
-        baseUrl,
         pid: process.pid,
         startedAt: new Date().toISOString(),
-        task,
         ...metadata,
       },
       null,
@@ -168,10 +164,32 @@ export async function withFixtureVerificationLock({
   );
 
   try {
-    return await operation({ repoRoot, verificationLockDir });
+    return await operation({ lockDir, repoRoot });
   } finally {
-    await rm(verificationLockDir, { force: true, recursive: true });
+    await rm(lockDir, { force: true, recursive: true });
   }
+}
+
+export async function withFixtureVerificationLock({
+  baseUrl,
+  importMetaUrl,
+  metadata = {},
+  operation,
+  task,
+}) {
+  return withRepoLock({
+    conflictMessage:
+      "Another local fixture verification run is already active. Do not run API verification, mutation stress, or other fixture-resetting checks concurrently.",
+    importMetaUrl,
+    lockRelativePath: "verification/.fixture-db.lock",
+    metadata: {
+      baseUrl,
+      task,
+      ...metadata,
+    },
+    operation: async ({ lockDir, repoRoot }) =>
+      operation({ repoRoot, verificationLockDir: lockDir }),
+  });
 }
 
 function isNodeError(value) {

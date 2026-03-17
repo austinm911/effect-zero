@@ -1,42 +1,29 @@
 import { type CSSProperties, useEffect, useState } from "react";
-
-export type BrowserTarget = "control" | "v3-drizzle" | "v4-drizzle";
-
-const targetLabels: Record<BrowserTarget, string> = {
-  control: "Promise",
-  "v3-drizzle": "Effect v3 (Drizzle)",
-  "v4-drizzle": "Effect v4 (Drizzle)",
-};
-
-const allTargets: readonly BrowserTarget[] = ["control", "v3-drizzle", "v4-drizzle"];
-
-function readTargetFromCookie(): BrowserTarget {
-  const match = document.cookie.match(/effect-zero-target=([^;]+)/);
-  const value = match?.[1]?.trim();
-  if (value === "control" || value === "v3-drizzle" || value === "v4-drizzle") return value;
-  return "control";
-}
-
-function setTargetCookie(target: BrowserTarget) {
-  document.cookie = `effect-zero-target=${target}; path=/; samesite=lax; max-age=31536000`;
-}
+import {
+  browserTargetLabels,
+  browserTargets,
+  createTargetCookieValue,
+  defaultBrowserTarget,
+  readBrowserTargetFromCookieString,
+  type BrowserTarget,
+} from "#app/shared/targets.ts";
 
 export function TargetTabs({ onChange }: { onChange?: (target: BrowserTarget) => void }) {
-  const [active, setActive] = useState<BrowserTarget>("control");
+  const [active, setActive] = useState<BrowserTarget>(defaultBrowserTarget);
 
   useEffect(() => {
-    setActive(readTargetFromCookie());
+    setActive(readBrowserTargetFromCookieString(document.cookie));
   }, []);
 
   function handleSelect(target: BrowserTarget) {
     setActive(target);
-    setTargetCookie(target);
+    document.cookie = createTargetCookieValue(target);
     onChange?.(target);
   }
 
   return (
     <div style={tabsContainerStyle}>
-      {allTargets.map((target) => (
+      {browserTargets.map((target) => (
         <button
           key={target}
           onClick={() => handleSelect(target)}
@@ -46,7 +33,7 @@ export function TargetTabs({ onChange }: { onChange?: (target: BrowserTarget) =>
           }}
           type="button"
         >
-          {targetLabels[target]}
+          {browserTargetLabels[target]}
         </button>
       ))}
     </div>

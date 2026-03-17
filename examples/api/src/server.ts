@@ -31,15 +31,7 @@ app.get("/", (c) =>
   c.json({
     name: "@effect-zero/example-api",
     ok: true,
-    targets: [
-      "control",
-      "v3-drizzle",
-      "v3-pg",
-      "v3-postgresjs",
-      "v4-drizzle",
-      "v4-pg",
-      "v4-postgresjs",
-    ],
+    targets: musicFixtureApiTargetIds,
   }),
 );
 
@@ -274,16 +266,10 @@ function readExplicitTargetFromRequest(request: Request) {
 
 function createTargetHeaders(target: ReturnType<typeof readTargetFromRequest>, serverDbApi: string) {
   const spec = getMusicFixtureApiTargetSpec(target);
-  const authoringMode =
-    target === "control"
-      ? "shared-client-mutator"
-      : target.endsWith("-drizzle")
-        ? "service-workflow"
-        : "raw-sql";
 
   return {
     "x-effect-zero-adapter": spec.adapter,
-    "x-effect-zero-authoring-mode": authoringMode,
+    "x-effect-zero-authoring-mode": readTargetAuthoringState(target).mode,
     "x-effect-zero-runtime": spec.runtime,
     "x-effect-zero-server-db-api": serverDbApi,
     "x-effect-zero-target": target,

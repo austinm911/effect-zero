@@ -6,30 +6,8 @@ set -euo pipefail
 
 ZERO_PORT="${ZERO_PORT:-4848}"
 ZERO_CVR_PORT="${ZERO_CVR_PORT:-4849}"
-ZERO_APP_ROUTE="${ZERO_APP_ROUTE:-effect-zero-ztunes.localhost:1355}"
-ZERO_FALLBACK_APP_ORIGIN="${ZERO_FALLBACK_APP_ORIGIN:-http://localhost:4558}"
-
-resolve_zero_api_origin() {
-  if [ -n "${ZERO_API_ORIGIN:-}" ]; then
-    printf '%s' "$ZERO_API_ORIGIN"
-    return
-  fi
-
-  if command -v portless >/dev/null 2>&1; then
-    local route_line
-    local upstream
-    route_line=$(portless list 2>/dev/null | grep -F "http://$ZERO_APP_ROUTE" | head -1 || true)
-    upstream=$(printf '%s\n' "$route_line" | awk '{print $3}')
-    if [ -n "$upstream" ]; then
-      printf 'http://localhost:%s' "${upstream##*:}"
-      return
-    fi
-  fi
-
-  printf '%s' "$ZERO_FALLBACK_APP_ORIGIN"
-}
-
-ZERO_API_ORIGIN="$(resolve_zero_api_origin)"
+ZERO_APP_ROUTE="${ZERO_APP_ROUTE:-localhost:4310}"
+ZERO_API_ORIGIN="${ZERO_API_ORIGIN:-http://$ZERO_APP_ROUTE}"
 
 # ─── Env defaults (match infra/alchemy postgres config) ─────────────────────
 export ZERO_UPSTREAM_DB="${ZERO_UPSTREAM_DB:-postgres://postgres:postgres@localhost:5438/effect_zero}"

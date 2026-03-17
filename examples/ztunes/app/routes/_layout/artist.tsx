@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@rocicorp/zero/react";
 import { queries } from "#app/zero/queries.ts";
 import { mutators } from "#app/zero/mutators.ts";
+import { runLoggedMutation } from "#app/components/mutation-log.ts";
 import type { CSSProperties } from "react";
 
 export const Route = createFileRoute("/_layout/artist")({
@@ -43,11 +44,13 @@ function ArtistPage() {
                 type="button"
                 style={inCart ? removeButtonStyle : addButtonStyle}
                 onClick={() => {
-                  if (inCart) {
-                    zero.mutate(mutators.cart.remove({ albumId: album.id }));
-                  } else {
-                    zero.mutate(mutators.cart.add({ albumId: album.id, addedAt: Date.now() }));
-                  }
+                  void runLoggedMutation({
+                    action: inCart ? "cart.remove" : "cart.add",
+                    run: () =>
+                      inCart
+                        ? zero.mutate(mutators.cart.remove({ albumId: album.id }))
+                        : zero.mutate(mutators.cart.add({ albumId: album.id, addedAt: Date.now() })),
+                  });
                 }}
               >
                 {inCart ? "Remove from cart" : "Add to cart"}

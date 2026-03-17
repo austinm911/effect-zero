@@ -1,6 +1,6 @@
 import { env as workerEnv } from "cloudflare:workers";
 
-const defaultApiBaseUrl = "http://effect-zero-api.localhost:1355";
+const defaultApiBaseUrl = "http://localhost:4311";
 
 export function getExampleApiBaseUrl() {
   return (
@@ -24,16 +24,21 @@ export async function proxyExampleApiRequest(request: Request) {
   const headers = new Headers(request.headers);
   headers.delete("host");
 
-  const body =
-    request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
+  const hasBody = request.method !== "GET" && request.method !== "HEAD";
+  const upstreamRequest: RequestInit & { duplex?: "half" } = {
+    headers,
+    method: request.method,
+  };
+
+  if (hasBody) {
+    upstreamRequest.body = request.body;
+    upstreamRequest.duplex = "half";
+  }
+
   let response: Response;
 
   try {
-    response = await fetch(upstreamUrl, {
-      body,
-      headers,
-      method: request.method,
-    });
+    response = await fetch(upstreamUrl, upstreamRequest);
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -46,8 +51,9 @@ export async function proxyExampleApiRequest(request: Request) {
     throw error;
   }
 
-  return new Response(await response.arrayBuffer(), {
-    headers: response.headers,
+  return new Response(response.body, {
+    headers: new Headers(response.headers),
     status: response.status,
+    statusText: response.statusText,
   });
 }
