@@ -7,6 +7,11 @@ This repo publishes two npm packages:
 
 Keep releases on `0.x` for now. Avoid majors until the API is stable. Prefer beta prereleases for experimental `@effect-zero/v4` changes.
 
+Keep one root [CHANGELOG.md](/Users/am/Coding/2026/effect-zero/CHANGELOG.md). Do not maintain
+separate changelog files inside each package directory.
+
+For each release, add or move bullets under the package-specific section in the root changelog.
+
 ## Commands
 
 ```bash
