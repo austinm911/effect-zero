@@ -1,0 +1,386 @@
+{
+  "baseUrl": "http://localhost:4311",
+  "durationMs": 13732.05,
+  "generatedAt": "2026-03-17T05:04:53.069Z",
+  "kind": "mutation-stress-verification",
+  "targetResults": [
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 151.53,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 662.94,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 159.58,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 598.68,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 64.4,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 116.81,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 91.69,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "control"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 105.82,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 452.7,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 89.52,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 526.85,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 73.85,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 59.54,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 82.99,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v3-drizzle"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 98.74,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 653.61,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 134.55,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 622.53,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 66.56,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 61.38,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 81.17,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v3-pg"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 151.65,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 732.26,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 128.35,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 1047.36,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 122.85,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 57.94,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 109.27,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v3-postgresjs"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 102.74,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 830.98,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 112.48,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 657.8,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 145.28,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 68.32,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 89.84,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v4-drizzle"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 110.17,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 600.55,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 146.79,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 870.78,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 125.33,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 180.4,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 345.71,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v4-pg"
+    },
+    {
+      "scenarioResults": [
+        {
+          "durationMs": 234.24,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        },
+        {
+          "durationMs": 750.59,
+          "finalCartItemCount": 0,
+          "id": "sequential.requests.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 100
+        },
+        {
+          "durationMs": 145.84,
+          "finalCartItemCount": 0,
+          "id": "batched.request.10.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 618.91,
+          "finalCartItemCount": 0,
+          "id": "batched.request.100.alternating",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 81.54,
+          "finalCartItemCount": 1,
+          "id": "duplicate.replay.single",
+          "mutationResultCount": 0,
+          "requestCount": 2
+        },
+        {
+          "durationMs": 62.01,
+          "finalCartItemCount": 0,
+          "id": "out-of-order.single",
+          "mutationResultCount": 0,
+          "requestCount": 1
+        },
+        {
+          "durationMs": 145.07,
+          "finalCartItemCount": 1,
+          "id": "parallel.clients.10.same-user",
+          "mutationResultCount": 0,
+          "requestCount": 10
+        }
+      ],
+      "target": "v4-postgresjs"
+    }
+  ]
+}
