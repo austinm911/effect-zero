@@ -10,6 +10,7 @@ if (!packageDirArg) {
 }
 
 const packageDir = resolve(process.cwd(), packageDirArg);
-execFileSync("pnpm", ["--dir", packageDir, "publish", ...rest], {
+execFileSync("npm", ["publish", ...rest], {
+  cwd: packageDir,
   stdio: "inherit",
 });
