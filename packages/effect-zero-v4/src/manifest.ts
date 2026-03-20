@@ -43,9 +43,12 @@ export const adapter = {
   },
   plannedCapabilities: [
     "clientEntryPoint",
+    "createInlinePostCommitScheduler",
     "createDbConnection",
+    "createMutationExecutor",
     "createRestMutatorHandler",
     "createServerMutatorHandler",
+    "createWaitUntilPostCommitScheduler",
     "createZeroDbProvider",
     "extendServerMutator",
     "serverEntryPoint",

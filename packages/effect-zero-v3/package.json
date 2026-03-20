@@ -23,27 +23,27 @@
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch",
+    "prepack": "vp pack",
     "test": "vp test",
-    "typecheck": "tsgo --noEmit",
-    "prepublishOnly": "vp pack"
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@effect/experimental": "0.57.7",
     "@effect/platform": "0.93.5",
     "@effect/sql": "0.48.5",
-    "@effect/sql-pg": "0.49.7",
-    "@rocicorp/zero": "0.26.1",
-    "effect": "3.19.19"
+    "@effect/sql-pg": "0.49.7"
   },
   "devDependencies": {
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/tsconfig": "workspace:*",
+    "@rocicorp/zero": "0.26.1",
     "@types/node": "^25.3.5",
     "@types/pg": "^8.15.5",
     "@typescript/native-preview": "7.0.0-dev.20260309.1",
     "bumpp": "^10.4.1",
     "drizzle-orm": "1.0.0-beta.17-67b1795",
+    "effect": "3.19.19",
     "pg": "8.20.0",
     "postgres": "catalog:",
     "tsdown": "catalog:",
@@ -52,7 +52,9 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@rocicorp/zero": ">=0.26.0 <1",
     "drizzle-orm": "1.0.0-beta.17-67b1795",
+    "effect": ">=3.19.19 <4",
     "pg": "8.20.0",
     "postgres": "catalog:"
   },

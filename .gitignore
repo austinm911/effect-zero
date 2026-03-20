@@ -33,6 +33,7 @@ dist-ssr
 
 # Local runtime artifacts
 tmp/
+.local-packs/
 .osgrep
 .desloppify/
 benchmarks/results/api-*.json

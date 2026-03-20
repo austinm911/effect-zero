@@ -57,15 +57,18 @@ return handleMutateRequest(provider.zql, handler, request);
 That's it. `handleMutateRequest` is the same Zero function. Client code is
 untouched.
 
+This remains the recommended path. Reach for `createMutationExecutor(...)` only
+when you need a custom request shell or route-specific response mapping.
+
 ## Entrypoints
 
-| Import                                              | Environment | What                                                                            |
-| --------------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
-| `@awstin/effect-zero-v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@awstin/effect-zero-v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`        |
-| `@awstin/effect-zero-v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
-| `@awstin/effect-zero-v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                              |
-| `@awstin/effect-zero-v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                          |
+| Import                                              | Environment | What                                                                                                                         |
+| --------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `@awstin/effect-zero-v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers |
+| `@awstin/effect-zero-v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`                                                     |
+| `@awstin/effect-zero-v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`                                                            |
+| `@awstin/effect-zero-v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                                                                           |
+| `@awstin/effect-zero-v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                                                                       |
 
 ## Adapters
 
@@ -317,11 +320,12 @@ The override can return `void`, `Promise<void>`, or `Effect<void>`.
 
 Creates a handler compatible with `handleMutateRequest`.
 
-| Option          | Description                                                                 |
-| --------------- | --------------------------------------------------------------------------- |
-| `mutators`      | Server mutator registry (from `defineMutators`)                             |
-| `getContext`    | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
-| `executeEffect` | Optional. Runs Effect overrides with your service layers provided           |
+| Option                | Description                                                                 |
+| --------------------- | --------------------------------------------------------------------------- |
+| `mutators`            | Server mutator registry (from `defineMutators`)                             |
+| `getContext`          | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
+| `executeEffect`       | Optional. Runs Effect overrides with your service layers provided           |
+| `postCommitScheduler` | Optional. Defaults to inline scheduling after commit                        |
 
 ```ts
 const handler = createServerMutatorHandler({
@@ -340,6 +344,53 @@ REST-style calls outside of Zero's sync protocol.
 ```ts
 const handler = createRestMutatorHandler({ mutators, getContext });
 await handler({ db: provider.zql, mutation: { name: "cart.add", args } });
+```
+
+### `createMutationExecutor(options)`
+
+Advanced API. Returns the shared mutation core without any route shell.
+
+Use this when you need to:
+
+- keep Zero transaction semantics
+- keep `extendServerMutator(...)` composition and deferred effects
+- own route-level logging, metrics, and error mapping outside the package
+
+```ts
+const executeMutation = createMutationExecutor({
+  mutators: serverMutators,
+  getContext: (mutation) => ({ userId: session.user.id }),
+  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, myLayers)),
+});
+
+const result = await executeMutation({
+  mutation,
+  runTransaction: (execute) => transact((tx, name, args) => execute(tx, name, args)),
+});
+```
+
+### `createInlinePostCommitScheduler()`
+
+Runs deferred effects inline and awaits completion before the mutation response
+returns. This is the default scheduler.
+
+### `createWaitUntilPostCommitScheduler({ waitUntil, onDeferredError })`
+
+Hands deferred effects to a worker/runtime background queue and resolves as soon
+as the handoff completes.
+
+```ts
+const handler = createServerMutatorHandler({
+  mutators: serverMutators,
+  getContext: () => ({ userId: session.user.id }),
+  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, myLayers)),
+  postCommitScheduler: createWaitUntilPostCommitScheduler({
+    waitUntil,
+    onDeferredError: ({ error, task }) => {
+      console.error("Deferred mutation effect failed", task.mutation.name, error);
+    },
+  }),
+});
 ```
 
 ### `createZeroDbProvider(options)` — Drizzle adapter
@@ -407,6 +458,11 @@ try {
   await provider.dispose();
 }
 ```
+
+To return before deferred post-commit work settles, pair the handler with
+`createWaitUntilPostCommitScheduler(...)`. Keep the provider request-scoped; the
+background effect should rely on request context plus app services, not on a
+committed transaction handle.
 
 ---
 

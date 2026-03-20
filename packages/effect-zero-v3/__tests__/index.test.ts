@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "vite-plus/test";
 import {
   defaultBenchmarkScenarios,
@@ -22,9 +23,12 @@ test("stable track satisfies the shared adapter contract scaffold", () => {
     contextRepoNames: ["effect-v3", "rocicorp-mono", "rocicorp-ztunes", "rocicorp-drizzle-zero"],
     plannedCapabilities: [
       "clientEntryPoint",
+      "createInlinePostCommitScheduler",
       "createDbConnection",
+      "createMutationExecutor",
       "createRestMutatorHandler",
       "createServerMutatorHandler",
+      "createWaitUntilPostCommitScheduler",
       "createZeroDbProvider",
       "extendServerMutator",
       "serverEntryPoint",
@@ -57,4 +61,31 @@ test("stable track root entrypoint stays adapter-agnostic", () => {
   expect(rootEntryPoint).not.toHaveProperty("createDbConnection");
   expect(rootEntryPoint).not.toHaveProperty("createZeroDbProvider");
   expect(rootEntryPoint).not.toHaveProperty("zeroEffectDrizzle");
+});
+
+test("stable track exports the mutation executor helpers", () => {
+  expect(rootEntryPoint).toHaveProperty("createInlinePostCommitScheduler");
+  expect(rootEntryPoint).toHaveProperty("createMutationExecutor");
+  expect(rootEntryPoint).toHaveProperty("createWaitUntilPostCommitScheduler");
+});
+
+test("stable track keeps Zero and Effect as peers instead of runtime dependencies", () => {
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+  ) as {
+    readonly dependencies?: Record<string, string>;
+    readonly devDependencies?: Record<string, string>;
+    readonly peerDependencies?: Record<string, string>;
+  };
+
+  expect(packageJson.dependencies).not.toHaveProperty("@rocicorp/zero");
+  expect(packageJson.dependencies).not.toHaveProperty("effect");
+  expect(packageJson.devDependencies).toMatchObject({
+    "@rocicorp/zero": "0.26.1",
+    effect: "3.19.19",
+  });
+  expect(packageJson.peerDependencies).toMatchObject({
+    "@rocicorp/zero": ">=0.26.0 <1",
+    effect: ">=3.19.19 <4",
+  });
 });

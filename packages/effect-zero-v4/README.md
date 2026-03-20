@@ -76,13 +76,13 @@ import { createZeroDbProvider } from "@awstin/effect-zero-v4/server/adapters/dri
 
 All entrypoints mirror v3:
 
-| Import                                              | Peer dep      | What                                                                            |
-| --------------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
-| `@awstin/effect-zero-v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler` |
-| `@awstin/effect-zero-v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                |
-| `@awstin/effect-zero-v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`               |
-| `@awstin/effect-zero-v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                              |
-| `@awstin/effect-zero-v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                          |
+| Import                                              | Peer dep      | What                                                                                                                         |
+| --------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `@awstin/effect-zero-v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers |
+| `@awstin/effect-zero-v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                                                             |
+| `@awstin/effect-zero-v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`                                                            |
+| `@awstin/effect-zero-v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                                                                           |
+| `@awstin/effect-zero-v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                                                                       |
 
 ## Effect v4 Service Pattern
 
@@ -143,11 +143,17 @@ const handler = createServerMutatorHandler({
 });
 ```
 
+The recommended path is still `createServerMutatorHandler(...)` with the default
+inline scheduler. For custom shells, use `createMutationExecutor(...)`. For
+worker-style background delivery, add `postCommitScheduler:
+createWaitUntilPostCommitScheduler({ waitUntil, onDeferredError })`.
+
 ## Everything Else
 
 Mutator definitions, `extendServerMutator`, `createServerMutatorHandler`,
-`createRestMutatorHandler`, adapter factories, override patterns, deployment
-rules, and migration steps are all identical to v3.
+`createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers,
+adapter factories, override patterns, deployment rules, and migration steps are
+all identical to v3.
 
 See the [v3 README](../effect-zero-v3/README.md) for:
 

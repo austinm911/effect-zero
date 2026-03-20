@@ -51,6 +51,12 @@ pnpm add postgres
   Plug a mutator registry into `handleMutateRequest(...)`.
 - `createRestMutatorHandler(...)`
   Run the same registry through ordinary REST endpoints.
+- `createMutationExecutor(...)`
+  Reuse the mutation core directly when your app needs a custom request shell.
+- `createInlinePostCommitScheduler(...)`
+  Keep the existing "await deferred work after commit" behavior.
+- `createWaitUntilPostCommitScheduler(...)`
+  Hand deferred work to worker runtimes without blocking the response.
 - `server/adapters/postgresjs`
   Wrap `postgres.js`.
 - `server/adapters/pg`
@@ -75,6 +81,15 @@ server overrides move to effect-zero.
 The server adapter API is intentionally the same across both lines. The main
 difference is the underlying Effect version and the service/layer style you
 provide to `executeEffect(...)`.
+
+The recommended default path is still:
+
+- `extendServerMutator(...)`
+- `createServerMutatorHandler(...)`
+- inline post-commit scheduling
+
+Use `createMutationExecutor(...)` only when your app needs a custom route shell,
+custom response mapping, or non-Zero transport behavior.
 
 The minimal example below uses `@awstin/effect-zero-v3` with the Drizzle lane because
 that is the shortest end-to-end path. Swap the package import to `v4` if your
@@ -152,6 +167,22 @@ const handler = createServerMutatorHandler({
 });
 
 return await handleMutateRequest(provider.zql, handler, request);
+```
+
+Advanced worker runtimes can swap the scheduler without rewriting the route:
+
+```ts
+const handler = createServerMutatorHandler({
+  mutators: serverMutators,
+  getContext: () => ({ userId }),
+  executeEffect: ({ effect }) => Effect.runPromise(effect),
+  postCommitScheduler: createWaitUntilPostCommitScheduler({
+    waitUntil,
+    onDeferredError: ({ error, task }) => {
+      console.error("Deferred mutation effect failed", task.mutation.name, error);
+    },
+  }),
+});
 ```
 
 ## Production Notes
