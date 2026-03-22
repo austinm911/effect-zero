@@ -124,6 +124,53 @@ interface QueryCapableDatabase {
 
 type EffectRunner = <A, E>(effect: Effect.Effect<A, E, never>) => Promise<A>;
 
+export interface EffectV4TransactionEffectRunner {
+  runEffect<A, E>(effect: Effect.Effect<A, E, never>): Promise<A>;
+}
+
+export function hasTransactionEffectRunner(
+  value: unknown,
+): value is EffectV4TransactionEffectRunner {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "runEffect" in value &&
+    typeof (value as { runEffect?: unknown }).runEffect === "function"
+  );
+}
+
+function attachEffectRunnerToWrappedTransaction<TWrappedTransaction extends object>(
+  wrappedTransaction: TWrappedTransaction,
+  runEffect: EffectRunner,
+): TWrappedTransaction {
+  if (hasTransactionEffectRunner(wrappedTransaction)) {
+    return wrappedTransaction;
+  }
+
+  try {
+    if (Object.isExtensible(wrappedTransaction)) {
+      Object.defineProperty(wrappedTransaction, "runEffect", {
+        configurable: true,
+        enumerable: false,
+        value: runEffect,
+      });
+      return wrappedTransaction;
+    }
+  } catch {
+    // Fall back to a proxy when the wrapped transaction cannot be mutated.
+  }
+
+  return new Proxy(wrappedTransaction, {
+    get(target, property, receiver) {
+      if (property === "runEffect") {
+        return runEffect;
+      }
+
+      return Reflect.get(target, property, receiver);
+    },
+  });
+}
+
 type EffectPostgresModule = typeof import("drizzle-orm/effect-postgres");
 
 let loadedEffectPostgresModule: Promise<EffectPostgresModule> | undefined;
@@ -175,9 +222,9 @@ export class EffectV4DbConnection<
   }
 }
 
-class EffectV4DbTransaction<
-  TWrappedTransaction extends QueryCapableTransaction,
-> implements DBTransaction<TWrappedTransaction> {
+class EffectV4DbTransaction<TWrappedTransaction extends QueryCapableTransaction>
+  implements DBTransaction<TWrappedTransaction>, EffectV4TransactionEffectRunner
+{
   readonly wrappedTransaction: TWrappedTransaction;
   readonly #fallbackSession: QuerySession;
   readonly #runEffect: EffectRunner;
@@ -187,7 +234,7 @@ class EffectV4DbTransaction<
     runEffect: EffectRunner,
     fallbackSession: QuerySession,
   ) {
-    this.wrappedTransaction = wrappedTransaction;
+    this.wrappedTransaction = attachEffectRunnerToWrappedTransaction(wrappedTransaction, runEffect);
     this.#runEffect = runEffect;
     this.#fallbackSession = fallbackSession;
   }
@@ -208,6 +255,10 @@ class EffectV4DbTransaction<
     serverSchema,
   ) => {
     return executePostgresQuery(this, ast, format, schema, serverSchema);
+  };
+
+  readonly runEffect: EffectV4TransactionEffectRunner["runEffect"] = (effect) => {
+    return this.#runEffect(effect);
   };
 }
 
@@ -473,7 +524,22 @@ function replaceLink(linkPath: string, targetPath: string) {
     }
   } catch {}
 
-  symlinkSync(targetPath, linkPath, "dir");
+  try {
+    symlinkSync(targetPath, linkPath, "dir");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+      throw error;
+    }
+
+    try {
+      if (existsSync(linkPath) && realpathSync(linkPath) === resolvedTargetPath) {
+        return;
+      }
+    } catch {}
+
+    rmSync(linkPath, { force: true, recursive: true });
+    symlinkSync(targetPath, linkPath, "dir");
+  }
 }
 
 function ensureEffectableShim(modulePath: string) {
@@ -628,22 +694,63 @@ function ensurePatchedDrizzleEffectLogger(modulePath: string) {
   );
 }
 
+// Restores first-class Effect semantics for query builders (harrysolovay/drizzle-orm#2)
 function ensurePatchedDrizzleEffectQuery(modulePath: string) {
-  if (fileContains(modulePath, "FIX_DRIZZLE_V4_BETA")) {
+  if (fileContains(modulePath, "FIX_DRIZZLE_V4_BETA_QUERY_EFFECT_V2")) {
     return;
   }
 
   writeFileSync(
     modulePath,
     [
-      'import * as Effectable from "effect/Effectable";',
+      "// FIX_DRIZZLE_V4_BETA_QUERY_EFFECT_V2",
+      'import { pipeArguments } from "effect/Pipeable";',
       "",
-      "// FIX_DRIZZLE_V4_BETA",
-      "function applyEffectWrapper(baseClass) {",
-      "  Object.assign(baseClass.prototype, Effectable.CommitPrototype);",
-      "  baseClass.prototype.commit = function() {",
+      "const EffectTypeId = '~effect/Effect';",
+      "const EffectIdentifier = `${EffectTypeId}/identifier`;",
+      "const EffectEvaluate = `${EffectTypeId}/evaluate`;",
+      "",
+      "const effectVariance = {",
+      "  _A: (v) => v,",
+      "  _E: (v) => v,",
+      "  _R: (v) => v,",
+      "};",
+      "",
+      "const QueryEffectProto = {",
+      "  [EffectTypeId]: effectVariance,",
+      "  pipe() {",
+      "    return pipeArguments(this, arguments);",
+      "  },",
+      "  [Symbol.iterator]() {",
+      "    let done = false;",
+      "    const self = this;",
+      "",
+      "    return {",
+      "      next(value) {",
+      "        if (done) {",
+      "          return { done: true, value };",
+      "        }",
+      "",
+      "        done = true;",
+      "        return { done: false, value: self };",
+      "      },",
+      "      [Symbol.iterator]() {",
+      "        return this;",
+      "      },",
+      "    };",
+      "  },",
+      "  [EffectIdentifier]: 'DrizzleQuery',",
+      "  [EffectEvaluate]() {",
       "    return this.execute();",
-      "  };",
+      "  },",
+      "};",
+      "",
+      "function applyEffectWrapper(baseClass) {",
+      "  // Make query builders real Effect values so direct combinators such as",
+      "  // `query.pipe(...)` and `Effect.map(query, ...)` behave the same way as `yield* query`.",
+      "  Object.assign(baseClass.prototype, QueryEffectProto);",
+      "  baseClass.prototype.asEffect = function() { return this.execute(); };",
+      "  baseClass.prototype.commit = function() { return this.execute(); };",
       "}",
       "",
       "export { applyEffectWrapper };",

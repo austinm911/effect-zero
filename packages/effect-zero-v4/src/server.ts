@@ -8,6 +8,13 @@ import {
 import * as Effect from "effect/Effect";
 
 export type { EffectPgConfig, EffectZeroProvider } from "./server/types.js";
+export {
+  asErrorShape,
+  isPushResponseLike,
+  type ErrorShape,
+  type PushResponseLike,
+  type PushResponseMutation,
+} from "./server/push.js";
 
 export interface ServerMutationLike {
   readonly args?: ReadonlyJSONValue;
@@ -43,7 +50,50 @@ export interface ExecuteEffectInput<
   readonly ctx: TContext;
   readonly effect: Effect.Effect<A, E, R>;
   readonly mutation: ServerMutationLike;
+  runWithExecutionContext<A2, E2>(effect: Effect.Effect<A2, E2, never>): Promise<A2>;
   readonly tx?: ServerTransaction<TSchema, TWrappedTransaction>;
+}
+
+export type EffectExecutionPhase = "inline" | "deferred";
+
+export interface ObserveMutationInput<
+  TContext,
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+> {
+  readonly ctx: TContext;
+  readonly mutation: ServerMutationLike;
+  readonly tx: ServerTransaction<TSchema, TWrappedTransaction>;
+}
+
+export interface ObserveEffectInput<
+  TContext,
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+  A,
+  E,
+  R,
+> {
+  readonly ctx: TContext;
+  readonly effect: Effect.Effect<A, E, R>;
+  readonly mutation: ServerMutationLike;
+  readonly phase: EffectExecutionPhase;
+  readonly tx?: ServerTransaction<TSchema, TWrappedTransaction>;
+}
+
+export interface MutationExecutorInstrumentation<
+  TContext,
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+> {
+  observeMutation?<A>(
+    input: ObserveMutationInput<TContext, TSchema, TWrappedTransaction>,
+    run: () => Promise<A>,
+  ): Promise<A>;
+  observeEffect?<A, E, R>(
+    input: ObserveEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
+    run: () => Promise<A>,
+  ): Promise<A>;
 }
 
 export interface PostCommitTask<TContext> {
@@ -66,6 +116,11 @@ export interface CreateMutationExecutorOptions<
   readonly executeEffect?: <A, E, R>(
     input: ExecuteEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
   ) => Promise<A>;
+  readonly instrumentation?: MutationExecutorInstrumentation<
+    TContext,
+    TSchema,
+    TWrappedTransaction
+  >;
   readonly postCommitScheduler?: PostCommitScheduler<TContext>;
 }
 
@@ -223,6 +278,53 @@ export function extendServerMutator<
   return define(runOverride);
 }
 
+interface EffectExecutionRunner {
+  runEffect<A, E>(effect: Effect.Effect<A, E, never>): Promise<A>;
+}
+
+function hasEffectExecutionRunner(value: unknown): value is EffectExecutionRunner {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "runEffect" in value &&
+    typeof (value as { runEffect?: unknown }).runEffect === "function"
+  );
+}
+
+function getWrappedTransaction(value: unknown): unknown {
+  if (typeof value !== "object" || value === null || !("wrappedTransaction" in value)) {
+    return undefined;
+  }
+
+  return (value as { readonly wrappedTransaction?: unknown }).wrappedTransaction;
+}
+
+function getEffectExecutionRunner(value: unknown): EffectExecutionRunner | undefined {
+  if (hasEffectExecutionRunner(value)) {
+    return value;
+  }
+
+  const wrappedTransaction = getWrappedTransaction(value);
+  return hasEffectExecutionRunner(wrappedTransaction) ? wrappedTransaction : undefined;
+}
+
+function resolveTransactionEffectRunner<
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+>(tx?: ServerTransaction<TSchema, TWrappedTransaction>) {
+  const dbTransaction = (tx as { readonly dbTransaction?: unknown } | undefined)?.dbTransaction;
+  return getEffectExecutionRunner(dbTransaction);
+}
+
+function createRunWithExecutionContext<
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+>(tx?: ServerTransaction<TSchema, TWrappedTransaction>) {
+  const transactionRunner = resolveTransactionEffectRunner(tx);
+  return <A, E>(effect: Effect.Effect<A, E, never>) =>
+    transactionRunner ? transactionRunner.runEffect(effect) : Effect.runPromise(effect);
+}
+
 function executeEffectWithOptions<
   TMutators,
   TSchema extends import("@rocicorp/zero").Schema,
@@ -234,12 +336,35 @@ function executeEffectWithOptions<
 >(
   options: CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction>,
   input: ExecuteEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
+  phase: EffectExecutionPhase,
 ): Promise<A> {
-  if (options.executeEffect) {
-    return options.executeEffect(input);
+  const runWithExecutionContext = createRunWithExecutionContext(input.tx);
+
+  const run = () => {
+    if (options.executeEffect) {
+      return options.executeEffect({
+        ...input,
+        runWithExecutionContext,
+      });
+    }
+
+    return runWithExecutionContext(input.effect as Effect.Effect<A, E, never>);
+  };
+
+  if (options.instrumentation?.observeEffect) {
+    return options.instrumentation.observeEffect(
+      {
+        ctx: input.ctx,
+        effect: input.effect,
+        mutation: input.mutation,
+        phase,
+        tx: input.tx,
+      },
+      run,
+    );
   }
 
-  return Effect.runPromise(input.effect as Effect.Effect<A, E, never>);
+  return run();
 }
 
 function createPostCommitTask<
@@ -264,12 +389,17 @@ function createPostCommitTask<
     run: () => {
       if (!runPromise) {
         runPromise = (async () => {
-          await executeEffectWithOptions(options, {
-            ctx: input.ctx,
-            effect: input.effect,
-            mutation: input.mutation,
-            tx: undefined,
-          });
+          await executeEffectWithOptions(
+            options,
+            {
+              ctx: input.ctx,
+              effect: input.effect,
+              mutation: input.mutation,
+              tx: undefined,
+              runWithExecutionContext: (effect) => Effect.runPromise(effect),
+            },
+            "deferred",
+          );
         })();
       }
 
@@ -304,12 +434,17 @@ export function createMutationExecutor<
         mutationExecutionStateByTransaction.set(tx, {
           deferredEffects,
           executeEffect: (effect) =>
-            executeEffectWithOptions(options, {
-              ctx,
-              effect,
-              mutation: input.mutation,
-              tx: serverTx,
-            }),
+            executeEffectWithOptions(
+              options,
+              {
+                ctx,
+                effect,
+                mutation: input.mutation,
+                tx: serverTx,
+                runWithExecutionContext: createRunWithExecutionContext(serverTx),
+              },
+              "inline",
+            ),
         });
 
         try {
@@ -321,11 +456,25 @@ export function createMutationExecutor<
             }): Promise<void>;
           };
 
-          await mutator.fn({
-            args: mutatorArgs,
-            ctx,
-            tx: serverTx,
-          });
+          const runMutation = () =>
+            mutator.fn({
+              args: mutatorArgs,
+              ctx,
+              tx: serverTx,
+            });
+
+          if (options.instrumentation?.observeMutation) {
+            await options.instrumentation.observeMutation(
+              {
+                ctx,
+                mutation: input.mutation,
+                tx: serverTx,
+              },
+              runMutation,
+            );
+          } else {
+            await runMutation();
+          }
         } finally {
           mutationExecutionStateByTransaction.delete(tx);
         }

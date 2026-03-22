@@ -11,14 +11,14 @@ import * as rootEntryPoint from "../src/index.js";
 
 test("beta track manifest points at Effect v4", () => {
   expect(manifest.effectLine).toBe("v4");
-  expect(manifest.effectVersion).toBe("4.0.0-beta.31");
+  expect(manifest.effectVersion).toBe("4.0.0-beta.36");
   expect(describePackage()).toContain("0.26.1");
 });
 
 test("beta track satisfies the shared adapter contract scaffold", () => {
   const report = evaluateAdapterContract(adapter, {
     effectLine: "v4",
-    effectVersion: "4.0.0-beta.31",
+    effectVersion: "4.0.0-beta.36",
     zeroVersion: "0.26.1",
     contextRepoNames: [
       "effect-v4-beta",
@@ -69,9 +69,15 @@ test("beta track root entrypoint stays adapter-agnostic", () => {
 });
 
 test("beta track exports the mutation executor helpers", () => {
+  expect(rootEntryPoint).toHaveProperty("asErrorShape");
   expect(rootEntryPoint).toHaveProperty("createInlinePostCommitScheduler");
   expect(rootEntryPoint).toHaveProperty("createMutationExecutor");
   expect(rootEntryPoint).toHaveProperty("createWaitUntilPostCommitScheduler");
+  expect(rootEntryPoint).toHaveProperty("convertFieldsToDate");
+  expect(rootEntryPoint).toHaveProperty("convertFieldsToEpoch");
+  expect(rootEntryPoint).toHaveProperty("dateToEpoch");
+  expect(rootEntryPoint).toHaveProperty("epochToDate");
+  expect(rootEntryPoint).toHaveProperty("isPushResponseLike");
 });
 
 test("beta track keeps Zero and Effect as peers instead of runtime dependencies", () => {
@@ -87,10 +93,10 @@ test("beta track keeps Zero and Effect as peers instead of runtime dependencies"
   expect(packageJson.dependencies).not.toHaveProperty("effect");
   expect(packageJson.devDependencies).toMatchObject({
     "@rocicorp/zero": "0.26.1",
-    effect: "4.0.0-beta.31",
+    effect: "4.0.0-beta.36",
   });
   expect(packageJson.peerDependencies).toMatchObject({
     "@rocicorp/zero": ">=0.26.0 <1",
-    effect: "4.0.0-beta.31",
+    effect: "4.0.0-beta.36",
   });
 });

@@ -17,11 +17,13 @@ type TestContext = {
 
 type TestWrappedTransaction = {
   readonly label: string;
+  runEffect?<A, E>(effect: Effect.Effect<A, E, never>): Promise<A>;
 };
 
 type TestTx = {
   readonly dbTransaction: {
     readonly wrappedTransaction: TestWrappedTransaction;
+    runEffect?<A, E>(effect: Effect.Effect<A, E, never>): Promise<A>;
   };
   readonly events: string[];
   readonly location: "server";
@@ -59,7 +61,7 @@ describe("Effect v4 mutation executor", () => {
           txLabel: input.tx?.dbTransaction.wrappedTransaction.label,
         });
 
-        return Effect.runPromise(input.effect as Effect.Effect<any, any, never>);
+        return input.runWithExecutionContext(input.effect as Effect.Effect<any, any, never>);
       },
       override: (input) =>
         Effect.gen(function* () {
@@ -93,6 +95,71 @@ describe("Effect v4 mutation executor", () => {
         txLabel: undefined,
       },
     ]);
+  });
+
+  test("runWithExecutionContext uses the dbTransaction runner when available", async () => {
+    const tx = createTestTx({
+      dbTransactionRunEffect: async (effect) => {
+        tx.events.push("runner:db");
+        return Effect.runPromise(effect);
+      },
+    });
+    const executor = createTestExecutor({
+      executeEffect: async (input) =>
+        input.runWithExecutionContext(input.effect as Effect.Effect<any, any, never>),
+      override: () =>
+        Effect.sync(() => {
+          tx.events.push("effect:inline");
+        }),
+    });
+
+    await expect(runExecutor(executor, { tx })).resolves.toEqual({ ok: true });
+    expect(tx.events).toEqual([
+      "transaction:start",
+      "runner:db",
+      "effect:inline",
+      "transaction:commit",
+    ]);
+  });
+
+  test("runWithExecutionContext uses the wrappedTransaction runner when available", async () => {
+    const tx = createTestTx({
+      wrappedTransactionRunEffect: async (effect) => {
+        tx.events.push("runner:wrapped");
+        return Effect.runPromise(effect);
+      },
+    });
+    const executor = createTestExecutor({
+      executeEffect: async (input) =>
+        input.runWithExecutionContext(input.effect as Effect.Effect<any, any, never>),
+      override: () =>
+        Effect.sync(() => {
+          tx.events.push("effect:inline");
+        }),
+    });
+
+    await expect(runExecutor(executor, { tx })).resolves.toEqual({ ok: true });
+    expect(tx.events).toEqual([
+      "transaction:start",
+      "runner:wrapped",
+      "effect:inline",
+      "transaction:commit",
+    ]);
+  });
+
+  test("runWithExecutionContext falls back to the default runner when no transaction runner exists", async () => {
+    const tx = createTestTx();
+    const executor = createTestExecutor({
+      executeEffect: async (input) =>
+        input.runWithExecutionContext(input.effect as Effect.Effect<any, any, never>),
+      override: () =>
+        Effect.sync(() => {
+          tx.events.push("effect:inline");
+        }),
+    });
+
+    await expect(runExecutor(executor, { tx })).resolves.toEqual({ ok: true });
+    expect(tx.events).toEqual(["transaction:start", "effect:inline", "transaction:commit"]);
   });
 
   test("supports full replacement overrides without calling runDefaultMutation", async () => {
@@ -327,6 +394,101 @@ describe("Effect v4 mutation executor", () => {
       status: 409,
     });
   });
+
+  test("wraps mutation execution with instrumentation hooks on success and failure", async () => {
+    const successTx = createTestTx();
+    const successEvents: string[] = [];
+    const successExecutor = createTestExecutor({
+      instrumentation: {
+        observeMutation: async (input, run) => {
+          successEvents.push(`start:${input.mutation.name}:${input.ctx.requestId}`);
+          try {
+            const result = await run();
+            successEvents.push(`success:${input.tx.dbTransaction.wrappedTransaction.label}`);
+            return result;
+          } catch (error) {
+            successEvents.push(`error:${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+          }
+        },
+      },
+    });
+
+    await expect(runExecutor(successExecutor, { tx: successTx })).resolves.toEqual({ ok: true });
+    expect(successEvents).toEqual(["start:cart.add:request-1", "success:tx-1"]);
+
+    const failureEvents: string[] = [];
+    const failureExecutor = createTestExecutor({
+      baseMutator: define<{ albumId: string }>(async () => {
+        throw new Error("mutation boom");
+      }),
+      instrumentation: {
+        observeMutation: async (input, run) => {
+          failureEvents.push(`start:${input.mutation.name}:${input.ctx.requestId}`);
+          try {
+            return await run();
+          } catch (error) {
+            failureEvents.push(`error:${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+          }
+        },
+      },
+    });
+
+    await expect(runExecutor(failureExecutor, { tx: createTestTx() })).rejects.toThrow(
+      "mutation boom",
+    );
+    expect(failureEvents).toEqual(["start:cart.add:request-1", "error:mutation boom"]);
+  });
+
+  test("wraps inline and deferred effect execution with instrumentation hooks", async () => {
+    const tx = createTestTx();
+    const effectEvents: string[] = [];
+    const executor = createTestExecutor({
+      instrumentation: {
+        observeEffect: async (input, run) => {
+          effectEvents.push(
+            `start:${input.phase}:${input.tx?.dbTransaction.wrappedTransaction.label ?? "none"}`,
+          );
+          try {
+            const result = await run();
+            effectEvents.push(`success:${input.phase}`);
+            return result;
+          } catch (error) {
+            effectEvents.push(
+              `error:${input.phase}:${error instanceof Error ? error.message : String(error)}`,
+            );
+            throw error;
+          }
+        },
+      },
+      override: (input) =>
+        Effect.gen(function* () {
+          yield* Effect.sync(() => {
+            tx.events.push("effect:inline");
+          });
+          input.defer(
+            Effect.sync(() => {
+              tx.events.push("effect:deferred");
+            }),
+          );
+        }),
+    });
+
+    await expect(runExecutor(executor, { tx })).resolves.toEqual({ ok: true });
+    expect(effectEvents).toEqual([
+      "start:inline:tx-1",
+      "success:inline",
+      "start:deferred:none",
+      "success:deferred",
+    ]);
+    expect(tx.events).toEqual([
+      "transaction:start",
+      "effect:inline",
+      "transaction:commit",
+      "effect:deferred",
+    ]);
+  });
 });
 
 function createDeferred<T>() {
@@ -368,6 +530,12 @@ function createTestExecutor(options?: {
     TestContext,
     TestWrappedTransaction
   >["executeEffect"];
+  readonly instrumentation?: CreateMutationExecutorOptions<
+    any,
+    any,
+    TestContext,
+    TestWrappedTransaction
+  >["instrumentation"];
   readonly override?: Parameters<
     typeof extendServerMutator<
       { albumId: string },
@@ -396,17 +564,23 @@ function createTestExecutor(options?: {
       requestId: `request-${mutation.id}`,
       userId: "user-1",
     }),
+    instrumentation: options?.instrumentation,
     mutators,
     postCommitScheduler: options?.postCommitScheduler,
   });
 }
 
-function createTestTx(): TestTx {
+function createTestTx(options?: {
+  readonly dbTransactionRunEffect?: TestTx["dbTransaction"]["runEffect"];
+  readonly wrappedTransactionRunEffect?: TestWrappedTransaction["runEffect"];
+}): TestTx {
   return {
     dbTransaction: {
       wrappedTransaction: {
         label: "tx-1",
+        runEffect: options?.wrappedTransactionRunEffect,
       },
+      runEffect: options?.dbTransactionRunEffect,
     },
     events: [],
     location: "server",

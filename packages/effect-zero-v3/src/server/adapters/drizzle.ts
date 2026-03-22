@@ -9,11 +9,8 @@ import {
   executePostgresQuery,
   ZQLDatabase,
 } from "@rocicorp/zero/server";
-import {
-  makeWithDefaults,
-  type EffectDrizzleConfig,
-  type EffectPgDatabase,
-} from "drizzle-orm/effect-postgres";
+import * as PgDrizzle from "drizzle-orm/effect-postgres";
+import type { EffectDrizzleConfig, EffectPgDatabase } from "drizzle-orm/effect-postgres";
 import {
   buildRelations,
   extractTablesFromSchema,
@@ -114,6 +111,53 @@ interface QueryCapableDatabase {
 
 type EffectRunner = <A, E>(effect: Effect.Effect<A, E, never>) => Promise<A>;
 
+export interface EffectV3TransactionEffectRunner {
+  runEffect<A, E>(effect: Effect.Effect<A, E, never>): Promise<A>;
+}
+
+export function hasTransactionEffectRunner(
+  value: unknown,
+): value is EffectV3TransactionEffectRunner {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "runEffect" in value &&
+    typeof (value as { runEffect?: unknown }).runEffect === "function"
+  );
+}
+
+function attachEffectRunnerToWrappedTransaction<TWrappedTransaction extends object>(
+  wrappedTransaction: TWrappedTransaction,
+  runEffect: EffectRunner,
+): TWrappedTransaction {
+  if (hasTransactionEffectRunner(wrappedTransaction)) {
+    return wrappedTransaction;
+  }
+
+  try {
+    if (Object.isExtensible(wrappedTransaction)) {
+      Object.defineProperty(wrappedTransaction, "runEffect", {
+        configurable: true,
+        enumerable: false,
+        value: runEffect,
+      });
+      return wrappedTransaction;
+    }
+  } catch {
+    // Fall back to a proxy when the wrapped transaction cannot be mutated.
+  }
+
+  return new Proxy(wrappedTransaction, {
+    get(target, property, receiver) {
+      if (property === "runEffect") {
+        return runEffect;
+      }
+
+      return Reflect.get(target, property, receiver);
+    },
+  });
+}
+
 export class EffectV3DbConnection<
   TDrizzle extends EffectV3DrizzleDatabase<any, any>,
 > implements DBConnection<EffectV3DrizzleTransaction<TDrizzle>> {
@@ -161,9 +205,9 @@ export class EffectV3DbConnection<
   }
 }
 
-class EffectV3DbTransaction<
-  TWrappedTransaction extends QueryCapableTransaction,
-> implements DBTransaction<TWrappedTransaction> {
+class EffectV3DbTransaction<TWrappedTransaction extends QueryCapableTransaction>
+  implements DBTransaction<TWrappedTransaction>, EffectV3TransactionEffectRunner
+{
   readonly wrappedTransaction: TWrappedTransaction;
   readonly #fallbackSession: QuerySession;
   readonly #runEffect: EffectRunner;
@@ -173,7 +217,7 @@ class EffectV3DbTransaction<
     runEffect: EffectRunner,
     fallbackSession: QuerySession,
   ) {
-    this.wrappedTransaction = wrappedTransaction;
+    this.wrappedTransaction = attachEffectRunnerToWrappedTransaction(wrappedTransaction, runEffect);
     this.#runEffect = runEffect;
     this.#fallbackSession = fallbackSession;
   }
@@ -194,6 +238,10 @@ class EffectV3DbTransaction<
     serverSchema,
   ) => {
     return executePostgresQuery(this, ast, format, schema, serverSchema);
+  };
+
+  readonly runEffect: EffectV3TransactionEffectRunner["runEffect"] = (effect) => {
+    return this.#runEffect(effect);
   };
 }
 
@@ -222,7 +270,7 @@ export async function createDbConnection<
   try {
     const relations = buildDrizzleRelations(options.drizzleSchema);
     const drizzleDatabase = await runtime.runPromise(
-      makeWithDefaults<TSchema, TRelations>({
+      PgDrizzle.makeWithDefaults<TSchema, TRelations>({
         ...options.drizzleConfig,
         ...(relations ? { relations: relations as unknown as TRelations } : {}),
         schema: options.drizzleSchema,

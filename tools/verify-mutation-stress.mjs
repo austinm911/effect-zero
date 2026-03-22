@@ -462,7 +462,7 @@ async function ensureApiReady(baseUrl, target) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Mutation stress verification could not reach ${baseUrl}. Start the local app with \`pnpm dev\`, the Node harness with \`pnpm dev:api\`, the local Postgres stack with \`pnpm dev:db\`, and Zero Cache with \`pnpm dev:zero\`. Cause: ${message}`,
+      `Mutation stress verification could not reach ${baseUrl}. Start the local app with \`pnpm dev\`, the Node harness with \`pnpm dev:api\`, the local Postgres stack with \`pnpm dev:db\`, run \`pnpm db:push\` after a fresh local Postgres replacement, and Zero Cache with \`pnpm dev:zero\`. Cause: ${message}`,
     );
   }
 }

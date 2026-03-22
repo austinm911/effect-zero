@@ -14,6 +14,7 @@ import { handleMutateRequest, handleQueryRequest, ZQLDatabase } from "@rocicorp/
 import {
   createDbConnection,
   createZeroDbProvider,
+  hasTransactionEffectRunner,
   toIterableRows,
 } from "../src/server/adapters/drizzle.js";
 import { zeroEffectNodePg } from "../src/server/adapters/pg.js";
@@ -97,6 +98,58 @@ describe("Effect v3 DBConnection", () => {
       ]);
       expect(resultDrizzle?.id).toBe(seed.artist.id);
       expect(resultDrizzle?.name).toBe(seed.artist.name);
+    } finally {
+      await connection.dispose();
+    }
+  }, 20_000);
+
+  test("exposes a transaction-scoped Effect runner for service-style work inside Zero transactions", async () => {
+    testDatabase = await createTestDatabase({
+      databaseNamePrefix: "effect_zero_v3",
+    });
+    const seed = await testDatabase.seedBaseMusicRows();
+    const connection = await createDbConnection({
+      connectionString: testDatabase.connectionString,
+      drizzleSchema,
+    });
+
+    try {
+      const zql = new ZQLDatabase(connection, zeroSchema);
+
+      const result = await zql.transaction(async (tx) => {
+        if (!hasTransactionEffectRunner(tx.dbTransaction)) {
+          throw new Error("Expected drizzle transaction to expose runEffect");
+        }
+        if (!hasTransactionEffectRunner(tx.dbTransaction.wrappedTransaction)) {
+          throw new Error("Expected wrapped drizzle transaction to expose runEffect");
+        }
+
+        const resultViaWrappedTransaction = await tx.dbTransaction.wrappedTransaction.runEffect(
+          tx.dbTransaction.wrappedTransaction.query.artist
+            .findFirst({
+              where: {
+                id: seed.artist.id,
+              } as never,
+            })
+            .execute(),
+        );
+
+        const resultViaDbTransaction = await tx.dbTransaction.runEffect(
+          tx.dbTransaction.wrappedTransaction.query.artist
+            .findFirst({
+              where: {
+                id: seed.artist.id,
+              } as never,
+            })
+            .execute(),
+        );
+
+        expect(resultViaWrappedTransaction).toEqual(resultViaDbTransaction);
+        return resultViaDbTransaction;
+      }, mockTransactionInput);
+
+      expect(result?.id).toBe(seed.artist.id);
+      expect(result?.name).toBe(seed.artist.name);
     } finally {
       await connection.dispose();
     }

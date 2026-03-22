@@ -39,6 +39,7 @@ const schemaModulePath = path.join(effectPackageRoot, "dist/Schema.js");
 const drizzleDriverModulePath = path.join(drizzlePackageRoot, "effect-postgres/driver.js");
 const drizzleSessionModulePath = path.join(drizzlePackageRoot, "effect-postgres/session.js");
 const drizzlePgCoreSessionModulePath = path.join(drizzlePackageRoot, "pg-core/effect/session.js");
+const drizzleQueryEffectModulePath = path.join(drizzlePackageRoot, "effect-core/query-effect.js");
 
 ensureDirectory(path.dirname(effectLinkPath));
 replaceLink(effectLinkPath, effectLinkTarget);
@@ -47,6 +48,7 @@ ensureEffectServiceShim(effectModulePath);
 ensureEffectableShim(effectableModulePath);
 ensureTaggedErrorShim(schemaModulePath);
 ensureSqlPgAliasImport(drizzleDriverModulePath);
+ensurePatchedQueryEffect(drizzleQueryEffectModulePath);
 ensurePatchedDrizzlePgCoreSession(drizzlePgCoreSessionModulePath);
 ensurePatchedDrizzleSession(drizzleSessionModulePath);
 
@@ -81,7 +83,22 @@ function replaceLink(linkPath, targetPath) {
     }
   } catch {}
 
-  symlinkSync(targetPath, linkPath, "dir");
+  try {
+    symlinkSync(targetPath, linkPath, "dir");
+  } catch (error) {
+    if (error?.code !== "EEXIST") {
+      throw error;
+    }
+
+    try {
+      if (existsSync(linkPath) && realpathSync(linkPath) === resolvedTargetPath) {
+        return;
+      }
+    } catch {}
+
+    rmSync(linkPath, { force: true, recursive: true });
+    symlinkSync(targetPath, linkPath, "dir");
+  }
 }
 
 function ensureEffectServiceCompatShim(modulePath) {
@@ -238,6 +255,70 @@ function ensureSqlPgAliasImport(modulePath) {
   if (nextSource !== currentSource) {
     writeFileSync(modulePath, nextSource, "utf8");
   }
+}
+
+// Restores first-class Effect semantics for query builders (harrysolovay/drizzle-orm#2)
+function ensurePatchedQueryEffect(modulePath) {
+  const MARKER = "FIX_QUERY_EFFECT_V4_V2";
+  if (existsSync(modulePath) && readFileSync(modulePath, "utf8").includes(MARKER)) return;
+  writeFileSync(
+    modulePath,
+    [
+      `// ${MARKER}`,
+      'import { pipeArguments } from "effect/Pipeable";',
+      "",
+      "const EffectTypeId = '~effect/Effect';",
+      "const EffectIdentifier = `${EffectTypeId}/identifier`;",
+      "const EffectEvaluate = `${EffectTypeId}/evaluate`;",
+      "",
+      "const effectVariance = {",
+      "  _A: (v) => v,",
+      "  _E: (v) => v,",
+      "  _R: (v) => v,",
+      "};",
+      "",
+      "const QueryEffectProto = {",
+      "  [EffectTypeId]: effectVariance,",
+      "  pipe() {",
+      "    return pipeArguments(this, arguments);",
+      "  },",
+      "  [Symbol.iterator]() {",
+      "    let done = false;",
+      "    const self = this;",
+      "",
+      "    return {",
+      "      next(value) {",
+      "        if (done) {",
+      "          return { done: true, value };",
+      "        }",
+      "",
+      "        done = true;",
+      "        return { done: false, value: self };",
+      "      },",
+      "      [Symbol.iterator]() {",
+      "        return this;",
+      "      },",
+      "    };",
+      "  },",
+      "  [EffectIdentifier]: 'DrizzleQuery',",
+      "  [EffectEvaluate]() {",
+      "    return this.execute();",
+      "  },",
+      "};",
+      "",
+      "function applyEffectWrapper(baseClass) {",
+      "  // Make query builders real Effect values so direct combinators such as",
+      "  // `query.pipe(...)` and `Effect.map(query, ...)` behave the same way as `yield* query`.",
+      "  Object.assign(baseClass.prototype, QueryEffectProto);",
+      "  baseClass.prototype.asEffect = function() { return this.execute(); };",
+      "  baseClass.prototype.commit = function() { return this.execute(); };",
+      "}",
+      "",
+      "export { applyEffectWrapper };",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
 }
 
 function ensurePatchedDrizzleSession(modulePath) {

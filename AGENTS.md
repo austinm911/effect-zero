@@ -45,6 +45,7 @@ Everything under [`.context`](/Users/am/Coding/2026/effect-zero/.context/README.
 pnpm install
 vp config
 pnpm dev:db
+pnpm db:push
 pnpm dev
 pnpm dev:api
 pnpm dev:stack
@@ -64,7 +65,7 @@ pnpm verify:mutation-stress:package
 
 Run `vp config` once after cloning to point your local Git hooks path at the committed `.vite-hooks` directory.
 
-`pnpm dev` starts only the ztunes app. For DB-backed checks, start `pnpm dev:db` and then run `pnpm dev:api`, `pnpm dev:zero`, or `pnpm dev:stack` as needed.
+`pnpm dev` starts only the ztunes app. For DB-backed checks, start `pnpm dev:db`, run `pnpm db:push` after a fresh local Postgres replacement, and then run `pnpm dev:api`, `pnpm dev:zero`, or `pnpm dev:stack` as needed.
 
 Use `pnpm desloppify:scan` to bootstrap repo-local excludes and run a full Desloppify scan. Use `pnpm desloppify:queue` to work the current queue.
 

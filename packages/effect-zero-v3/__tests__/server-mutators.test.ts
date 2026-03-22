@@ -395,9 +395,6 @@ describe("Effect v3 server mutator helpers", () => {
               id: addMutation.id,
             },
             result: {
-              details: {
-                name: "(FiberFailure) Error",
-              },
               error: "app",
               message: "runDefaultMutation() may only be called once per server mutation.",
             },

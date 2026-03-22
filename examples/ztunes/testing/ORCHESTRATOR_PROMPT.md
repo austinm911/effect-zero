@@ -17,6 +17,7 @@ Constraints:
   - `v4-drizzle` (`Effect v4 (Drizzle)`)
 - The full adapter matrix lives in the package harness, not in the browser UI.
 - If the local database stack is not running, start it with `pnpm dev:db` from the repo root in a background terminal and leave it running.
+- After a fresh local Postgres replacement, run `pnpm db:push` from the repo root before starting the API or app processes.
 - If Zero Cache is not running on `http://localhost:4848`, start it with `pnpm dev:zero` from the repo root in a background terminal and leave it running.
 - If the example API harness is not running, start it with `pnpm dev:api` from the repo root in a background terminal and leave it running.
 - If the ztunes dev server is not running, start it with `pnpm dev` from the repo root in a background terminal and leave it running.
@@ -34,6 +35,7 @@ Workflow:
    - `curl -I http://localhost:4311`
 2. If the database or app processes are not live, start:
    - `pnpm dev:db`
+   - `pnpm db:push`
    - `pnpm dev:api`
    - `pnpm dev`
    - `pnpm dev:zero`

@@ -21,9 +21,9 @@ Then install the peer dependency for your chosen adapter:
 | `pg`         | `pg`                          | `pnpm add pg`               |
 | `drizzle`    | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` |
 
-> The `drizzle` adapter requires `drizzle-orm` 1.0.0-beta.17+ for the
-> `drizzle-orm/effect-postgres` entrypoint. The `pg` and `postgresjs` adapters
-> do not need drizzle-orm at all.
+> The `drizzle` adapter requires the Drizzle 1.0 beta line for the
+> `drizzle-orm/effect-postgres` entrypoint and `makeWithDefaults()` API used by
+> this package. The `pg` and `postgresjs` adapters do not need drizzle-orm at all.
 
 ## Quick Start
 
@@ -42,16 +42,36 @@ export const addServer = extendServerMutator(add, ({ runDefaultMutation, defer }
 ```
 
 ```ts
-// 2. Wire the handler in your mutate route
+// 2. Wire the handler directly into your app mutate route
+import { handleMutateRequest } from "@rocicorp/zero/server";
 import { createServerMutatorHandler } from "@awstin/effect-zero-v3/server";
+import { Effect } from "effect";
 
-const handler = createServerMutatorHandler({
-  mutators: serverMutators,
-  getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
-});
+export async function POST(request: Request) {
+  const session = await auth.api.getSession(request);
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-return handleMutateRequest(provider.zql, handler, request);
+  const handler = createServerMutatorHandler({
+    mutators: serverMutators,
+    getContext: () => ({ userId: session.user.id }),
+    executeEffect: ({ effect, runWithExecutionContext }) =>
+      // Provide app/request layers, then let effect-zero execute inside the
+      // active Zero request or transaction context.
+      runWithExecutionContext(Effect.provide(effect, CartWorkflow.Default)),
+    instrumentation: {
+      observeMutation: ({ mutation }, run) =>
+        // Optional: add OTEL spans, structured logs, or metrics here.
+        run(),
+      observeEffect: ({ phase }, run) =>
+        // Optional: distinguish inline vs deferred post-commit work.
+        run(),
+    },
+  });
+
+  return handleMutateRequest(provider.zql, handler, request);
+}
 ```
 
 That's it. `handleMutateRequest` is the same Zero function. Client code is
@@ -60,15 +80,29 @@ untouched.
 This remains the recommended path. Reach for `createMutationExecutor(...)` only
 when you need a custom request shell or route-specific response mapping.
 
+If `getContext(...)` and `executeEffect(...)` do not depend on the request, you
+can create the handler once at module scope. If they depend on auth, request
+headers, request-scoped layers, or per-request OTEL/logging context, create the
+handler inside the route like the example above.
+
 ## Entrypoints
 
-| Import                                              | Environment | What                                                                                                                         |
-| --------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `@awstin/effect-zero-v3/server`                     | Server      | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers |
-| `@awstin/effect-zero-v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`                                                     |
-| `@awstin/effect-zero-v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`                                                            |
-| `@awstin/effect-zero-v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                                                                           |
-| `@awstin/effect-zero-v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                                                                       |
+Use the root package for shared helpers that are not adapter-specific:
+
+- timestamp conversion helpers like `dateToEpoch(...)` and `convertFieldsToEpoch(...)`
+- push/error helpers like `isPushResponseLike(...)` and `asErrorShape(...)`
+
+Use `@awstin/effect-zero-v3/server` for server mutator APIs, and keep adapter
+imports on their adapter subpaths.
+
+| Import                                              | Environment | What                                                                                                                                                                                       |
+| --------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@awstin/effect-zero-v3`                            | Shared      | Shared helpers re-exported from the server/root surface: timestamp conversion helpers, push/error guards, scheduler helpers                                                                |
+| `@awstin/effect-zero-v3/server`                     | Server      | `defineServerMutatorWithType`, `extendServerMutator`, `extendServerMutatorWithType`, `createServerMutatorHandler`, `createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers |
+| `@awstin/effect-zero-v3/client`                     | Browser     | Re-exports `defineMutator`, `defineMutators`, etc. from `@rocicorp/zero`                                                                                                                   |
+| `@awstin/effect-zero-v3/server/adapters/drizzle`    | Server      | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`                                                                                                                          |
+| `@awstin/effect-zero-v3/server/adapters/pg`         | Server      | `zeroEffectNodePg`                                                                                                                                                                         |
+| `@awstin/effect-zero-v3/server/adapters/postgresjs` | Server      | `zeroEffectPostgresJS`                                                                                                                                                                     |
 
 ## Adapters
 
@@ -206,17 +240,37 @@ return handleMutateRequest(
 **After (with effect-zero):**
 
 ```ts
+import { handleMutateRequest } from "@rocicorp/zero/server";
 import { createServerMutatorHandler } from "@awstin/effect-zero-v3/server";
+import { Effect } from "effect";
 import { serverMutators } from "zero/mutators.server";
 import { provider } from "zero/db.server";
 
-const handler = createServerMutatorHandler({
-  mutators: serverMutators,
-  getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
-});
+export async function POST(request: Request) {
+  const session = await auth.api.getSession(request);
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-return handleMutateRequest(provider.zql, handler, request);
+  const handler = createServerMutatorHandler({
+    mutators: serverMutators,
+    getContext: () => ({ userId: session.user.id }),
+    executeEffect: ({ effect, runWithExecutionContext }) =>
+      // Provide app services first, then run in the active Zero execution
+      // context so service calls stay transaction-aware.
+      runWithExecutionContext(Effect.provide(effect, CartWorkflow.Default)),
+    instrumentation: {
+      observeMutation: ({ mutation }, run) =>
+        // Optional: add per-mutation OTEL spans, logs, or metrics here.
+        run(),
+      observeEffect: ({ phase }, run) =>
+        // Optional: split inline vs deferred telemetry here.
+        run(),
+    },
+  });
+
+  return handleMutateRequest(provider.zql, handler, request);
+}
 ```
 
 Three things changed:
@@ -266,6 +320,35 @@ extendServerMutator(add, ({ runDefaultMutation, defer }) =>
 );
 ```
 
+### Declarative sequencing — before, default, program, defer, after
+
+```ts
+extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
+  Effect.gen(function* () {
+    yield* Effect.logInfo("cart.add.before", { userId: ctx.userId, albumId: args.albumId });
+
+    yield* runDefaultMutation();
+
+    const workflow = yield* CartWorkflow;
+    const result = yield* workflow.plan({
+      albumId: args.albumId,
+      userId: ctx.userId,
+    });
+
+    defer(analytics.track("cart.added", { albumId: result.albumId }));
+
+    yield* Effect.logInfo("cart.add.after", { albumId: result.albumId });
+  }),
+);
+```
+
+Use normal `Effect.gen(...)` ordering:
+
+- code before `yield* runDefaultMutation()` runs first
+- `yield* program` runs immediately inside the current mutation execution
+- `defer(effect)` registers post-commit work after successful commit
+- code after `defer(...)` still runs immediately in the current mutation
+
 ### Full replacement — skip `runDefaultMutation`
 
 ```ts
@@ -277,6 +360,9 @@ extendServerMutator(finalize, ({ ctx, defer }) =>
   }),
 );
 ```
+
+If you do not call `runDefaultMutation()`, the server override completely replaces
+the shared client mutator on the authoritative server path.
 
 ### Raw SQL in override
 
@@ -298,9 +384,89 @@ extendServerMutator(add, ({ args, ctx, tx }) =>
 Most mutators don't need one. The shared `defineMutator` runs on both client and
 server automatically — no `.server.ts` file required.
 
+### Typed app-local server helpers
+
+If your app wants one server-only binding for its authoritative schema,
+request context, and wrapped transaction type, create it once and reuse it:
+
+```ts
+import {
+  defineServerMutatorWithType,
+  extendServerMutatorWithType,
+} from "@awstin/effect-zero-v3/server";
+
+type AppSchema = typeof schema;
+type AuthContext = { userId: string };
+type WrappedTransaction = {
+  readonly drizzle: unknown;
+  readonly runEffect: <A, E, R>(effect: Effect.Effect<A, E, R>) => Promise<A>;
+};
+
+export const defineAppServerMutator = defineServerMutatorWithType<
+  AppSchema,
+  AuthContext,
+  WrappedTransaction
+>();
+
+export const extendAppServerMutator = extendServerMutatorWithType<
+  AppSchema,
+  AuthContext,
+  WrappedTransaction
+>();
+```
+
+Use `extendAppServerMutator(clientMutator, override)` when the base mutator came
+from your browser-safe registry and you want server overrides with app-specific
+types.
+
+If you want the same declarative Effect return style for server-only mutators,
+bind a typed `defineEffectMutatorWithType(...)` helper once and reuse it:
+
+```ts
+import { defineEffectMutatorWithType } from "@awstin/effect-zero-v3/server";
+
+export const defineAppEffectMutator = defineEffectMutatorWithType<
+  AppSchema,
+  AuthContext,
+  WrappedTransaction
+>();
+
+export const createServerOnly = defineAppEffectMutator(
+  createWidgetSchema,
+  ({ args, ctx, defer, tx }) =>
+    Effect.gen(function* () {
+      yield* Effect.logInfo("widget.create.before", { userId: ctx.userId });
+      yield* Effect.promise(() => tx.mutate.widgets.insert(args));
+      defer(Effect.sync(() => auditWidgetCreate(args.id)));
+    }),
+);
+```
+
 ---
 
 ## API Reference
+
+### `defineServerMutatorWithType<Schema, Context, WrappedTransaction>()`
+
+Returns a server-only `defineMutator` binding for your app's authoritative
+types. This is a thin public wrapper over Zero's `defineMutatorWithType(...)`,
+so consumers can stay on the `effect-zero` surface instead of importing type
+helpers from multiple packages.
+
+### `defineEffectMutatorWithType<Schema, Context, WrappedTransaction>()`
+
+Returns the same typed server-only binding, but allows the mutator body to
+return `void`, `Promise<void>`, or `Effect<void>`. Returned Effects are executed
+through the same `executeEffect(...)` runtime path used by
+`extendServerMutator(...)`. The mutator input also includes `defer(effect)` for
+post-commit work.
+
+### `extendServerMutatorWithType<Schema, Context, WrappedTransaction>()`
+
+Returns a typed wrapper around `extendServerMutator(...)` for apps whose shared
+client mutators were defined without server context or wrapped transaction
+types. This is the recommended way to build app-local aliases like
+`extendAppServerMutator(...)`.
 
 ### `extendServerMutator(baseMutator, override)`
 
@@ -325,16 +491,63 @@ Creates a handler compatible with `handleMutateRequest`.
 | `mutators`            | Server mutator registry (from `defineMutators`)                             |
 | `getContext`          | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
 | `executeEffect`       | Optional. Runs Effect overrides with your service layers provided           |
+| `instrumentation`     | Optional. Wraps mutation/effect execution for logging, metrics, or OTEL     |
 | `postCommitScheduler` | Optional. Defaults to inline scheduling after commit                        |
 
 ```ts
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: (mutation) => ({ userId: "..." }),
-  executeEffect: ({ effect, ctx, mutation, tx }) =>
-    Effect.runPromise(Effect.provide(effect, myLayers)),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(effect, myLayers)),
 });
 ```
+
+### Observability hooks
+
+Use `instrumentation` for request-local logs, metrics, and OTEL wrappers without
+coupling the package to any logger implementation:
+
+```ts
+const runCartMutationEffect = Effect.fn("cart.mutation.effect")(function* <A, E>(
+  effect: Effect.Effect<A, E, never>,
+) {
+  return yield* effect;
+});
+
+const handler = createServerMutatorHandler({
+  mutators: serverMutators,
+  getContext: (mutation) => ({ userId: "..." }),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(runCartMutationEffect(effect), myLayers)),
+  instrumentation: {
+    observeMutation: ({ mutation, ctx }, run) => {
+      console.info("mutation", mutation.name, ctx.userId);
+      return run();
+    },
+    observeEffect: ({ mutation, phase }, run) => {
+      console.debug("effect", mutation.name, phase);
+      return run();
+    },
+  },
+});
+```
+
+Using `Effect.fn(...)` for your wrapper is the easiest way to get an OTEL span
+for the execution helper today.
+
+`observeEffect` receives `phase: "inline" | "deferred"`, and
+`runWithExecutionContext(...)` runs the fully-provided Effect inside the active
+mutation execution context. If a transaction-scoped Effect runner exists, it is
+used automatically.
+
+For most apps, OTEL/logging belongs in two places:
+
+- route boundary: auth, request ID, timeout handling, one request-level summary
+- `instrumentation`: per-mutation spans/logs/metrics and deferred-effect spans
+
+Keep `handleMutateRequest(...)` as the center of the route. Avoid wrapping it in
+custom parse/dispatch shells unless you need non-standard transport behavior.
 
 ### `createRestMutatorHandler(options)`
 
@@ -360,7 +573,8 @@ Use this when you need to:
 const executeMutation = createMutationExecutor({
   mutators: serverMutators,
   getContext: (mutation) => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, myLayers)),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(effect, myLayers)),
 });
 
 const result = await executeMutation({
@@ -383,7 +597,8 @@ as the handoff completes.
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, myLayers)),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(effect, myLayers)),
   postCommitScheduler: createWaitUntilPostCommitScheduler({
     waitUntil,
     onDeferredError: ({ error, task }) => {
@@ -492,8 +707,8 @@ export class CartWorkflow extends Effect.Service<CartWorkflow>()("CartWorkflow",
 Provide via `executeEffect`:
 
 ```ts
-executeEffect: ({ effect }) =>
-  Effect.runPromise(Effect.provide(effect, CartWorkflow.Default)),
+executeEffect: ({ effect, runWithExecutionContext }) =>
+  runWithExecutionContext(Effect.provide(effect, CartWorkflow.Default)),
 ```
 
 ---

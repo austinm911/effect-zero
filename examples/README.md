@@ -34,8 +34,12 @@ Shared prerequisites from the workspace root:
 
 ```bash
 pnpm dev:db
+pnpm db:push
 pnpm seed:ztunes
 ```
+
+`pnpm db:push` is required after a fresh local Postgres replacement so the
+shared fixture schema exists before the app or harness connects.
 
 `pnpm seed:ztunes` is required on a clean database. The demo and verification
 routes fail if the fixture catalog is empty.

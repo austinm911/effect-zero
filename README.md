@@ -34,7 +34,7 @@ Choose peer deps that match your adapter:
 pnpm add @rocicorp/zero effect
 
 # Drizzle lane
-pnpm add drizzle-orm
+pnpm add drizzle-orm@beta
 
 # node-postgres lane
 pnpm add pg
@@ -47,6 +47,8 @@ pnpm add postgres
 
 - `extendServerMutator(...)`
   Wrap a shared Zero mutator with server-only Effect logic.
+- `defineServerMutatorWithType(...)` / `extendServerMutatorWithType(...)`
+  Bind app-specific server context and wrapped transaction types once.
 - `createServerMutatorHandler(...)`
   Plug a mutator registry into `handleMutateRequest(...)`.
 - `createRestMutatorHandler(...)`
@@ -76,7 +78,8 @@ server overrides move to effect-zero.
 - For the v4 Drizzle adapter specifically, read the
   [`@awstin/effect-zero-v4` README](./packages/effect-zero-v4/README.md) for the
   compatibility notes around [drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484)
-  and the optional install-time patch helper (`bun pm untrusted`, `pnpm approve-builds`, etc.).
+  and the runtime patch behavior. Normal installs do not require a manual
+  `postinstall` step.
 
 The server adapter API is intentionally the same across both lines. The main
 difference is the underlying Effect version and the service/layer style you

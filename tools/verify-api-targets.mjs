@@ -67,7 +67,7 @@ async function ensureApiReady(baseUrl, target) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `API verification could not reach ${baseUrl}. Start the local app with \`pnpm dev\`, the local Postgres stack with \`pnpm dev:alchemy\`, the Node harness with \`pnpm dev:api\`, and seed the catalog with \`pnpm seed:ztunes\`. Cause: ${message}`,
+      `API verification could not reach ${baseUrl}. Start the local app with \`pnpm dev\`, the local Postgres stack with \`pnpm dev:db\`, run \`pnpm db:push\` after a fresh local Postgres replacement, start the Node harness with \`pnpm dev:api\`, and seed the catalog with \`pnpm seed:ztunes\`. Cause: ${message}`,
     );
   }
 }

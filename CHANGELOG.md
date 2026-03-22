@@ -22,11 +22,17 @@ maintaining separate changelog files in each package directory.
 
 - Simplify manifest/test-utils scaffolding and remove identity wrapper helpers.
 - Clarify `extendServerMutator(...)` request-scope guard messaging.
+- Add a reusable mutation execution core with pluggable post-commit schedulers.
+- Add typed server mutator helpers and shared push/error utilities.
+- Keep Zero and Effect as peer dependencies and add install smoke checks.
 
 ### `@awstin/effect-zero-v4`
 
 - Simplify manifest/test-utils scaffolding and remove identity wrapper helpers.
 - Clarify `extendServerMutator(...)` request-scope guard messaging.
+- Add a reusable mutation execution core with pluggable post-commit schedulers.
+- Restore Drizzle query-builder Effect semantics from the follow-up v4 patch work.
+- Keep runtime Drizzle patching inside the adapter and document the manual fallback helper.
 
 ### Examples and Harness
 
@@ -35,6 +41,21 @@ maintaining separate changelog files in each package directory.
 - Clarify that `/api/zql/read` is a harness-only integration and benchmarking surface.
 - Quiet expected Zero bootstrap `NOTICE` spam in the example API logs.
 - Add current mutation-stress verification snapshots and scorecard artifact.
+- Split `pnpm dev:db` from `pnpm db:push` and document the fresh-Postgres flow.
+
+## `@awstin/effect-zero-v3` 0.2.0 - 2026-03-21
+
+- Add `createMutationExecutor(...)`, `createInlinePostCommitScheduler(...)`, and `createWaitUntilPostCommitScheduler(...)`.
+- Add typed server mutator helpers including `defineEffectMutatorWithType(...)` and `extendServerMutatorWithType(...)`.
+- Export shared timestamp conversion helpers and push/error guards from the root entrypoint.
+- Move Zero and Effect to peer dependencies and add package install verification tooling.
+
+## `@awstin/effect-zero-v4` 0.2.0-beta.0 - 2026-03-21
+
+- Add `createMutationExecutor(...)`, `createInlinePostCommitScheduler(...)`, and `createWaitUntilPostCommitScheduler(...)`.
+- Update the Drizzle Effect v4 patch layer to include the query-builder semantics follow-up from the v4 migration work.
+- Keep runtime patching in the Drizzle adapter and ship a manual helper only for restricted environments.
+- Move Zero and Effect to peer dependencies and add package install verification tooling.
 
 ## `@awstin/effect-zero-v3` 0.1.0 - 2026-03-16
 

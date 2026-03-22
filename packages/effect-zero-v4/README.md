@@ -5,8 +5,9 @@ Effect v4 adapter for [Zero](https://zero.rocicorp.dev) server mutators.
 > **Effect v4 is in beta.** This package tracks `effect@4.0.0-beta.*`.
 > For the stable line, use [`@awstin/effect-zero-v3`](../effect-zero-v3).
 
-The API surface is identical to `@awstin/effect-zero-v3` — same functions, same file
-layout, same patterns. This README covers only what differs. See the
+The core runtime API surface is identical to `@awstin/effect-zero-v3` — same
+handler, executor, scheduler, and override patterns. This README covers only
+what differs. See the
 [v3 README](../effect-zero-v3/README.md) for full documentation.
 
 ## Install
@@ -41,24 +42,24 @@ work covers:
 - updating Effect error/export compatibility points
 - fixing the compiled Effect Postgres session/runtime bindings
 
-`@awstin/effect-zero-v4` applies equivalent compatibility patches automatically inside
-the Drizzle adapter before it loads `drizzle-orm/effect-postgres`, so consumers
-do not need to trust dependency `postinstall` scripts or install the PR build
-manually. This is the behavior tested for `npm`, `pnpm`, and `bun`.
+`@awstin/effect-zero-v4` applies equivalent compatibility patches lazily inside
+the Drizzle adapter before it loads `drizzle-orm/effect-postgres`, so normal
+usage does not require trusting dependency `postinstall` scripts and does not
+require a manual postinstall step.
 
-If you want to pre-patch an install manually, the package still ships
-`node_modules/@awstin/effect-zero-v4/postinstall.mjs`, but it is not required for
-normal usage.
+The package still ships `node_modules/@awstin/effect-zero-v4/postinstall.mjs`
+as an explicit helper for environments that block runtime mutation inside
+`node_modules`. Only Drizzle-adapter users in those restricted environments
+need to run it.
 
-If your environment prefers install-time patching, or blocks runtime mutation
-inside `node_modules`, make sure the helper is allowed to run:
+Manual helper guidance:
 
-- `bun`: run `bun pm untrusted` and trust `@awstin/effect-zero-v4`, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
-- `pnpm`: run `pnpm approve-builds` if you configure build-script approval, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
-- `npm`: do not use `--ignore-scripts` if you want lifecycle hooks to run automatically, or run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` yourself after install
+- `bun`: no extra step for normal usage; only run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` if your environment blocks the runtime patch path
+- `pnpm`: no extra step for normal usage; `pnpm approve-builds` is not required for this package anymore
+- `npm`: no extra step for normal usage; `--ignore-scripts` does not affect the adapter because patching happens at adapter load time
 
-The important requirement is simple: if you rely on the shipped helper, ensure
-it actually runs.
+If you do need the manual helper, run it once after install and before the app
+first imports `@awstin/effect-zero-v4/server/adapters/drizzle`.
 
 If Drizzle merges and releases the PR changes, this package should remove the
 local patch layer and depend on the upstream release directly.
@@ -74,15 +75,67 @@ import { extendServerMutator, createServerMutatorHandler } from "@awstin/effect-
 import { createZeroDbProvider } from "@awstin/effect-zero-v4/server/adapters/drizzle";
 ```
 
+Use the root package for shared helpers that are not adapter-specific:
+
+- timestamp conversion helpers like `dateToEpoch(...)` and `convertFieldsToEpoch(...)`
+- push/error helpers like `isPushResponseLike(...)` and `asErrorShape(...)`
+
+Use `@awstin/effect-zero-v4/server` for server mutator APIs, and keep adapter
+imports on their adapter subpaths.
+
 All entrypoints mirror v3:
 
 | Import                                              | Peer dep      | What                                                                                                                         |
 | --------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `@awstin/effect-zero-v4`                            | —             | Shared helpers re-exported from the server/root surface: timestamp conversion helpers, push/error guards, scheduler helpers  |
 | `@awstin/effect-zero-v4/server`                     | —             | `extendServerMutator`, `createServerMutatorHandler`, `createRestMutatorHandler`, `createMutationExecutor`, scheduler helpers |
 | `@awstin/effect-zero-v4/client`                     | —             | Re-exports from `@rocicorp/zero`                                                                                             |
-| `@awstin/effect-zero-v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection`                                                            |
+| `@awstin/effect-zero-v4/server/adapters/drizzle`    | `drizzle-orm` | `createZeroDbProvider`, `zeroEffectDrizzle`, `createDbConnection` for Effect Drizzle databases                               |
 | `@awstin/effect-zero-v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                                                                           |
 | `@awstin/effect-zero-v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                                                                       |
+
+## Recommended App Route
+
+The recommended app integration is still the stock Zero mutate route shape:
+authenticate in the route, build the handler, then pass it directly to
+`handleMutateRequest(...)`.
+
+```ts
+import { handleMutateRequest } from "@rocicorp/zero/server";
+import { createServerMutatorHandler } from "@awstin/effect-zero-v4/server";
+import { Effect } from "effect";
+
+export async function POST(request: Request) {
+  const session = await auth.api.getSession(request);
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const handler = createServerMutatorHandler({
+    mutators: serverMutators,
+    getContext: () => ({ userId: session.user.id }),
+    executeEffect: ({ effect, runWithExecutionContext }) =>
+      // Provide app/request layers, then let effect-zero execute inside the
+      // active Zero request or transaction context.
+      runWithExecutionContext(Effect.provide(effect, CartWorkflow.layer)),
+    instrumentation: {
+      observeMutation: ({ mutation }, run) =>
+        // Optional: add OTEL spans, structured logs, or metrics here.
+        run(),
+      observeEffect: ({ phase }, run) =>
+        // Optional: distinguish inline vs deferred post-commit work.
+        run(),
+    },
+  });
+
+  return handleMutateRequest(provider.zql, handler, request);
+}
+```
+
+If `getContext(...)` and `executeEffect(...)` do not depend on the request, you
+can create the handler once at module scope. If they depend on auth, request
+headers, request-scoped layers, or per-request OTEL/logging context, create the
+handler inside the route like the example above.
 
 ## Effect v4 Service Pattern
 
@@ -139,7 +192,8 @@ Wire it into the handler the same way:
 const handler = createServerMutatorHandler({
   mutators: serverMutators,
   getContext: () => ({ userId: session.user.id }),
-  executeEffect: ({ effect }) => Effect.runPromise(Effect.provide(effect, CartWorkflow.layer)),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(effect, CartWorkflow.layer)),
 });
 ```
 
@@ -147,6 +201,78 @@ The recommended path is still `createServerMutatorHandler(...)` with the default
 inline scheduler. For custom shells, use `createMutationExecutor(...)`. For
 worker-style background delivery, add `postCommitScheduler:
 createWaitUntilPostCommitScheduler({ waitUntil, onDeferredError })`.
+
+## Declarative Override Pattern
+
+The recommended authoring style is still declarative:
+
+```ts
+extendServerMutator(add, ({ args, ctx, runDefaultMutation, defer }) =>
+  Effect.gen(function* () {
+    yield* Effect.logInfo("cart.add.before", { userId: ctx.userId, albumId: args.albumId });
+
+    yield* runDefaultMutation();
+
+    const workflow = yield* CartWorkflow;
+    const result = yield* workflow.plan({
+      albumId: args.albumId,
+      userId: ctx.userId,
+    });
+
+    defer(analytics.track("cart.added", { albumId: result.albumId }));
+
+    yield* Effect.logInfo("cart.add.after", { albumId: result.albumId });
+  }),
+);
+```
+
+If you do not call `runDefaultMutation()`, the server override completely
+replaces the shared client mutator on the authoritative server path.
+
+## Observability
+
+The v4 package stays logger-free. Use `instrumentation` to wrap mutation/effect
+execution and `runWithExecutionContext(...)` to execute the fully-provided
+Effect inside the active request or transaction context:
+
+```ts
+const runCartMutationEffect = Effect.fn("cart.mutation.effect")(function* <A, E>(
+  effect: Effect.Effect<A, E, never>,
+) {
+  return yield* effect;
+});
+
+const handler = createServerMutatorHandler({
+  mutators: serverMutators,
+  getContext: () => ({ userId: session.user.id }),
+  executeEffect: ({ effect, runWithExecutionContext }) =>
+    runWithExecutionContext(Effect.provide(runCartMutationEffect(effect), CartWorkflow.layer)),
+  instrumentation: {
+    observeMutation: ({ mutation }, run) => {
+      console.info("mutation", mutation.name);
+      return run();
+    },
+    observeEffect: ({ mutation, phase }, run) => {
+      console.debug("effect", mutation.name, phase);
+      return run();
+    },
+  },
+});
+```
+
+Using `Effect.fn(...)` for your wrapper is the easiest way to get an OTEL span
+for the execution helper today.
+
+`observeEffect` receives `phase: "inline" | "deferred"`, so background
+post-commit work can be instrumented separately from in-transaction Effects.
+
+For most apps, OTEL/logging belongs in two places:
+
+- route boundary: auth, request ID, timeout handling, one request-level summary
+- `instrumentation`: per-mutation spans/logs/metrics and deferred-effect spans
+
+Keep `handleMutateRequest(...)` as the center of the route. Avoid wrapping it in
+custom parse/dispatch shells unless you need non-standard transport behavior.
 
 ## Everything Else
 

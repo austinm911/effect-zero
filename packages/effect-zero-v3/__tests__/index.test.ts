@@ -30,7 +30,11 @@ test("stable track satisfies the shared adapter contract scaffold", () => {
       "createServerMutatorHandler",
       "createWaitUntilPostCommitScheduler",
       "createZeroDbProvider",
+      "defineEffectMutatorWithType",
+      "defineServerMutatorWithType",
+      "extendEffectMutatorWithType",
       "extendServerMutator",
+      "extendServerMutatorWithType",
       "serverEntryPoint",
       ...upstreamDrizzleAdapterCapabilities,
       "verifyDrizzleEffectPostgresInteroperability",
@@ -67,6 +71,16 @@ test("stable track exports the mutation executor helpers", () => {
   expect(rootEntryPoint).toHaveProperty("createInlinePostCommitScheduler");
   expect(rootEntryPoint).toHaveProperty("createMutationExecutor");
   expect(rootEntryPoint).toHaveProperty("createWaitUntilPostCommitScheduler");
+  expect(rootEntryPoint).toHaveProperty("asErrorShape");
+  expect(rootEntryPoint).toHaveProperty("convertFieldsToDate");
+  expect(rootEntryPoint).toHaveProperty("convertFieldsToEpoch");
+  expect(rootEntryPoint).toHaveProperty("dateToEpoch");
+  expect(rootEntryPoint).toHaveProperty("epochToDate");
+  expect(rootEntryPoint).toHaveProperty("defineEffectMutatorWithType");
+  expect(rootEntryPoint).toHaveProperty("defineServerMutatorWithType");
+  expect(rootEntryPoint).toHaveProperty("extendEffectMutatorWithType");
+  expect(rootEntryPoint).toHaveProperty("extendServerMutatorWithType");
+  expect(rootEntryPoint).toHaveProperty("isPushResponseLike");
 });
 
 test("stable track keeps Zero and Effect as peers instead of runtime dependencies", () => {
