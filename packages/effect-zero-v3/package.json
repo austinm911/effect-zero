@@ -1,6 +1,6 @@
 {
   "name": "@awstin/effect-zero-v3",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Stable-track Zero DBConnection scaffold for Effect v3.",
   "license": "MIT",
   "files": [

@@ -43,6 +43,16 @@ maintaining separate changelog files in each package directory.
 - Add current mutation-stress verification snapshots and scorecard artifact.
 - Split `pnpm dev:db` from `pnpm db:push` and document the fresh-Postgres flow.
 
+## `@awstin/effect-zero-v3` 0.3.0 - 2026-04-13
+
+- Support `@rocicorp/zero` 1.1.1 and require Zero 1.x peers.
+- Confirm the v3 Drizzle, `pg`, and `postgres.js` adapter matrix against Zero 1.1.1.
+
+## `@awstin/effect-zero-v4` 0.2.0-beta.1 - 2026-04-13
+
+- Support `@rocicorp/zero` 1.1.1 and require Zero 1.x peers.
+- Confirm the v4 Drizzle, `pg`, and `postgres.js` adapter matrix against Zero 1.1.1.
+
 ## `@awstin/effect-zero-v3` 0.2.0 - 2026-03-21
 
 - Add `createMutationExecutor(...)`, `createInlinePostCommitScheduler(...)`, and `createWaitUntilPostCommitScheduler(...)`.

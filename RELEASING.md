@@ -21,11 +21,11 @@ pnpm pack:package -- packages/effect-zero-v4
 pnpm pack:v3
 pnpm pack:v4
 pnpm pack:all
-pnpm release:version -- packages/effect-zero-v3 patch
-pnpm release:version -- packages/effect-zero-v3 minor
-pnpm release:version -- packages/effect-zero-v4 patch
-pnpm release:version -- packages/effect-zero-v4 minor
-pnpm release:version -- packages/effect-zero-v4 prerelease --preid beta
+pnpm release:version packages/effect-zero-v3 patch
+pnpm release:version packages/effect-zero-v3 minor
+pnpm release:version packages/effect-zero-v4 patch
+pnpm release:version packages/effect-zero-v4 minor
+pnpm release:version packages/effect-zero-v4 prerelease --preid beta
 
 pnpm publish:package -- packages/effect-zero-v3
 pnpm publish:package -- packages/effect-zero-v4
@@ -60,7 +60,7 @@ Use `pnpm pack:all` when you want fresh tarballs for both publishable lines.
 ```bash
 pnpm pack:v3
 pnpm release:check
-pnpm release:version -- packages/effect-zero-v3 patch
+pnpm release:version packages/effect-zero-v3 patch
 git add packages/effect-zero-v3/package.json
 git commit -m "release(v3): cut 0.x.y"
 git tag effect-zero-v3@0.x.y
@@ -72,7 +72,7 @@ For experimental v4 work:
 ```bash
 pnpm pack:v4
 pnpm release:check
-pnpm release:version -- packages/effect-zero-v4 prerelease --preid beta
+pnpm release:version packages/effect-zero-v4 prerelease --preid beta
 git add packages/effect-zero-v4/package.json
 git commit -m "release(v4): cut 0.x.y-beta.z"
 git tag effect-zero-v4@0.x.y-beta.z
