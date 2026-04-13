@@ -9,7 +9,7 @@ export const adapter = {
     packageName: "@awstin/effect-zero-v4",
     effectLine: "v4",
     effectVersion: "4.0.0-beta.36",
-    zeroVersion: "0.26.1",
+    zeroVersion: "1.1.1",
     dbConnectionGoal:
       "Implement a publishable Zero DBConnection against the Effect v4 beta line using the pinned Drizzle ORM beta Effect Postgres sources rather than Zero's built-in postgres adapter.",
     status: "implemented",

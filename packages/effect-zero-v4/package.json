@@ -37,7 +37,7 @@
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/tsconfig": "workspace:*",
-    "@rocicorp/zero": "0.26.1",
+    "@rocicorp/zero": "1.1.1",
     "@types/node": "^25.3.5",
     "@types/pg": "^8.15.5",
     "@typescript/native-preview": "7.0.0-dev.20260309.1",
@@ -52,7 +52,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@rocicorp/zero": ">=0.26.0 <1",
+    "@rocicorp/zero": ">=1.0.0 <2",
     "drizzle-orm": ">=1.0.0-beta.17 <2",
     "effect": "4.0.0-beta.36",
     "pg": "8.20.0",

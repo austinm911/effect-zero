@@ -12,14 +12,14 @@ test("formatManifest", () => {
     packageName: "@effect-zero/example",
     effectLine: "v3",
     effectVersion: "3.19.19",
-    zeroVersion: "0.26.1",
+    zeroVersion: "1.1.1",
     dbConnectionGoal: "Smoke-test manifest formatting.",
     status: "scaffolded",
     contextRepos: [],
   } as const;
 
   expect(formatManifest(manifest)).toContain("3.19.19");
-  expect(formatManifest(manifest)).toContain("0.26.1");
+  expect(formatManifest(manifest)).toContain("1.1.1");
 });
 
 test("evaluateAdapterContract reports no failures for a matching scaffold", () => {
@@ -27,7 +27,7 @@ test("evaluateAdapterContract reports no failures for a matching scaffold", () =
     packageName: "@effect-zero/example",
     effectLine: "v3",
     effectVersion: "3.19.19",
-    zeroVersion: "0.26.1",
+    zeroVersion: "1.1.1",
     dbConnectionGoal: "Exercise the shared test harness.",
     status: "scaffolded",
     contextRepos: [
@@ -48,7 +48,7 @@ test("evaluateAdapterContract reports no failures for a matching scaffold", () =
   const report = evaluateAdapterContract(scaffold, {
     effectLine: "v3",
     effectVersion: "3.19.19",
-    zeroVersion: "0.26.1",
+    zeroVersion: "1.1.1",
     contextRepoNames: ["effect-v3"],
     plannedCapabilities: ["createDbConnection"],
     pendingContractTests: ["constructs a Zero DBConnection"],
