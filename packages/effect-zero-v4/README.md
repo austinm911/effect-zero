@@ -94,6 +94,15 @@ All entrypoints mirror v3:
 | `@awstin/effect-zero-v4/server/adapters/pg`         | `pg`          | `zeroEffectNodePg`                                                                                                           |
 | `@awstin/effect-zero-v4/server/adapters/postgresjs` | `postgres`    | `zeroEffectPostgresJS`                                                                                                       |
 
+REST/OpenAPI helper subpaths mirror v3 as well:
+
+| Import                                  | Peer dep | What                                                                |
+| --------------------------------------- | -------- | ------------------------------------------------------------------- |
+| `@awstin/effect-zero-v4/openapi`        | —        | OpenAPI registry, document helpers, and MCP tool definition helpers |
+| `@awstin/effect-zero-v4/openapi/zod`    | `zod`    | `defineOpenapiMutator(...)` for Zod-backed mutator contracts        |
+| `@awstin/effect-zero-v4/openapi/elysia` | `elysia` | Elysia route/plugin helpers that expose OpenAPI mutators as routes  |
+| `@awstin/effect-zero-v4/openapi/hono`   | `hono`   | Hono route helpers and OpenAPI document integration                 |
+
 ## Recommended App Route
 
 The recommended app integration is still the stock Zero mutate route shape:
@@ -136,6 +145,101 @@ If `getContext(...)` and `executeEffect(...)` do not depend on the request, you
 can create the handler once at module scope. If they depend on auth, request
 headers, request-scoped layers, or per-request OTEL/logging context, create the
 handler inside the route like the example above.
+
+## REST/OpenAPI Mutator Contracts
+
+The OpenAPI helper surface is the same as v3 with `v4` import paths. Keep the
+public route contract on the shared/browser-safe mutator and keep server
+overrides optional.
+
+MCP helpers reuse the same OpenAPI metadata for mutator tools:
+`openapi.operationId` becomes the tool name, `openapi.summary` becomes the tool
+description, and `openapi.description` is the fallback description. Omit `mcp`
+for the normal path, use `mcp: false` to keep a REST mutator out of MCP, and use
+`mcp: { name, description }` only when framework-neutral MCP tool definitions
+need wording that differs from the HTTP/OpenAPI wording. Elysia route-discovery
+MCP plugins read the route's `operationId` and `summary`, so put shared
+route/tool wording in `openapi` for that path.
+
+```ts
+import { defineOpenapiMutator } from "@awstin/effect-zero-v4/openapi/zod";
+import { z } from "zod";
+
+export const addCartItemArgs = z.object({
+  albumId: z.string(),
+  addedAt: z.number(),
+});
+
+export const add = defineOpenapiMutator({
+  args: addCartItemArgs,
+  openapi: {
+    operationId: "cart_add",
+    summary: "Add an album to the cart",
+    description: "Adds or updates the current user's cart item.",
+    tags: ["Cart"],
+  },
+  mutate: async ({ args, ctx, tx }) => {
+    await tx.mutate.cartItem.upsert({
+      userId: ctx.userId,
+      albumId: args.albumId,
+      addedAt: tx.location === "client" ? args.addedAt : Date.now(),
+    });
+  },
+});
+```
+
+The `/openapi/zod` subpath keeps the Zod args schema attached to the mutator.
+OpenAPI output for Elysia still depends on the app's `mapJsonSchema` config, so
+the route adapter registers the mutator body schema and lets `@elysiajs/openapi`
+call the configured Zod-to-JSON-Schema mapper.
+
+```ts
+import { openapi } from "@elysiajs/openapi";
+import { zeroMutatorRoutes } from "@awstin/effect-zero-v4/openapi/elysia";
+import { Elysia } from "elysia";
+import { z } from "zod";
+
+const mutatorRoutes = zeroMutatorRoutes({
+  registry: mutatorRegistry,
+  prefix: "/mutators",
+  run: async ({ name, args, request }) => {
+    await restHandler({
+      db: provider.zql,
+      mutation: { name, args },
+    });
+
+    return { ok: true };
+  },
+});
+
+new Elysia({ prefix: "/api" })
+  .use(
+    openapi({
+      mapJsonSchema: {
+        zod: z.toJSONSchema,
+      },
+    }),
+  )
+  .use(mutatorRoutes);
+```
+
+Elysia, Hono, and MCP setup mirrors the v3 package. The boundary is the same:
+effect-zero contributes generated Zero mutator routes and metadata to your
+larger API, while app-owned routes such as `/api/reports/export` stay in your
+Elysia or Hono route layer.
+
+- Elysia: use `@awstin/effect-zero-v4/openapi/elysia` to register mutator REST
+  routes, `@elysiajs/openapi` to read the whole app route graph, and
+  route-discovery MCP plugins such as `@8monkey/elysia-mcp` when you want one
+  MCP endpoint for generated mutator routes plus handwritten API routes.
+- Hono: use `@awstin/effect-zero-v4/openapi/hono` for mutator REST routes and
+  `createOpenapiDocument(...)` for the mutator OpenAPI paths. Compose those
+  paths with any Hono OpenAPI document for app-owned routes. `@hono/mcp` remains
+  the MCP transport layer; register mutator tools from the same registry and
+  app-owned tools on the same MCP server.
+
+See the v3 README for the full REST/OpenAPI/MCP contract guidance. The only
+difference is the underlying Effect runtime used by server overrides.
 
 ## Effect v4 Service Pattern
 

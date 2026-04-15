@@ -44,6 +44,30 @@ const installScenarios = [
     name: "postgresjs",
     peerDependencies: ["postgres"],
   },
+  {
+    imports: ["openapi"],
+    ignoreScripts: true,
+    name: "openapi",
+    peerDependencies: [],
+  },
+  {
+    imports: ["openapi/zod"],
+    ignoreScripts: true,
+    name: "openapi-zod",
+    peerDependencies: ["zod"],
+  },
+  {
+    imports: ["openapi/elysia"],
+    ignoreScripts: true,
+    name: "openapi-elysia",
+    peerDependencies: ["elysia"],
+  },
+  {
+    imports: ["openapi/hono"],
+    ignoreScripts: true,
+    name: "openapi-hono",
+    peerDependencies: ["hono"],
+  },
 ];
 
 const results = [];

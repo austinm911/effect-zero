@@ -12,6 +12,10 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
+    "./openapi": "./dist/openapi.mjs",
+    "./openapi/elysia": "./dist/openapi/elysia.mjs",
+    "./openapi/hono": "./dist/openapi/hono.mjs",
+    "./openapi/zod": "./dist/openapi/zod.mjs",
     "./server": "./dist/server.mjs",
     "./timestamps": "./dist/timestamps.mjs",
     "./server/adapters/drizzle": "./dist/server/adapters/drizzle.mjs",
@@ -31,12 +35,14 @@
   },
   "dependencies": {
     "@effect-zero/sql-pg-v4": "npm:@effect/sql-pg@4.0.0-beta.36",
-    "@effect/platform-node": "4.0.0-beta.36"
+    "@effect/platform-node": "4.0.0-beta.36",
+    "@standard-schema/spec": "^1.1.0"
   },
   "devDependencies": {
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/tsconfig": "workspace:*",
+    "@elysiajs/openapi": "^1.4.14",
     "@rocicorp/zero": "1.1.1",
     "@types/node": "^25.3.5",
     "@types/pg": "^8.15.5",
@@ -44,28 +50,43 @@
     "bumpp": "^10.4.1",
     "drizzle-orm": ">=1.0.0-beta.17 <2",
     "effect": "4.0.0-beta.36",
+    "elysia": "^1.4.28",
+    "hono": "^4.12.12",
     "pg": "8.20.0",
     "postgres": "catalog:",
     "tsdown": "catalog:",
     "typescript": "^5.9.3",
     "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zod": "catalog:"
   },
   "peerDependencies": {
     "@rocicorp/zero": ">=1.0.0 <2",
     "drizzle-orm": ">=1.0.0-beta.17 <2",
     "effect": "4.0.0-beta.36",
+    "elysia": "^1.4.28",
+    "hono": "^4.12.12",
     "pg": "8.20.0",
-    "postgres": "catalog:"
+    "postgres": "catalog:",
+    "zod": "^4.1.5"
   },
   "peerDependenciesMeta": {
     "drizzle-orm": {
+      "optional": true
+    },
+    "elysia": {
+      "optional": true
+    },
+    "hono": {
       "optional": true
     },
     "pg": {
       "optional": true
     },
     "postgres": {
+      "optional": true
+    },
+    "zod": {
       "optional": true
     }
   }

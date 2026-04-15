@@ -195,26 +195,27 @@ export class EffectV4DbConnection<
   readonly transaction: DBConnection<EffectV4DrizzleTransaction<TDrizzle>>["transaction"] = (
     callback,
   ) => {
-    const fallbackSession = resolveQuerySession(this.drizzle as QueryCapableDatabase);
+    const fallbackSession = resolveQuerySession(this.drizzle as unknown as QueryCapableDatabase);
+    const runDrizzleTransaction = this.drizzle.transaction.bind(this.drizzle) as unknown as (
+      callback: (wrappedTransaction: unknown) => unknown,
+    ) => unknown;
+    const transactionEffect = runDrizzleTransaction((wrappedTransaction) =>
+      Effect.gen(function* () {
+        const services = yield* Effect.services<never>();
 
-    return this.#runEffect(
-      this.drizzle.transaction(
-        (wrappedTransaction) =>
-          Effect.gen(function* () {
-            const services = yield* Effect.services<never>();
+        return yield* liftPromise(() =>
+          callback(
+            new EffectV4DbTransaction(
+              wrappedTransaction as unknown as QueryCapableTransaction,
+              (effect) => runEffectWithServices(services, effect),
+              fallbackSession,
+            ) as unknown as DBTransaction<EffectV4DrizzleTransaction<TDrizzle>>,
+          ),
+        ) as unknown as Effect.Effect<Awaited<ReturnType<typeof callback>>, never, never>;
+      }),
+    ) as unknown as Effect.Effect<Awaited<ReturnType<typeof callback>>, never, never>;
 
-            return yield* liftPromise(() =>
-              callback(
-                new EffectV4DbTransaction(
-                  wrappedTransaction as QueryCapableTransaction,
-                  (effect) => runEffectWithServices(services, effect),
-                  fallbackSession,
-                ) as unknown as DBTransaction<EffectV4DrizzleTransaction<TDrizzle>>,
-              ),
-            );
-          }) as Effect.Effect<Awaited<ReturnType<typeof callback>>, never, never>,
-      ),
-    );
+    return this.#runEffect(transactionEffect);
   };
 
   async dispose() {

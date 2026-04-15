@@ -53,6 +53,9 @@ pnpm add postgres
   Plug a mutator registry into `handleMutateRequest(...)`.
 - `createRestMutatorHandler(...)`
   Run the same registry through ordinary REST endpoints.
+- `openapi`, `openapi/zod`, `openapi/elysia`, `openapi/hono`
+  Generate REST routes, OpenAPI documents, and MCP tool definitions from mutator
+  argument schemas.
 - `createMutationExecutor(...)`
   Reuse the mutation core directly when your app needs a custom request shell.
 - `createInlinePostCommitScheduler(...)`
@@ -68,6 +71,64 @@ pnpm add postgres
 
 The shared client mutator stays unchanged. Only the server route and optional
 server overrides move to effect-zero.
+
+## REST/OpenAPI/MCP Contracts
+
+The OpenAPI helper surface keeps the public API contract on the browser-safe
+mutator, not on server overrides. Server overrides stay optional implementation
+details; the shared mutator owns the argument schema and route documentation.
+
+```ts
+import { defineOpenapiMutator } from "@awstin/effect-zero-v3/openapi/zod";
+import { z } from "zod";
+
+export const addCartItemArgs = z.object({
+  albumId: z.string(),
+  addedAt: z.number(),
+});
+
+export const add = defineOpenapiMutator({
+  args: addCartItemArgs,
+  openapi: {
+    operationId: "cart_add",
+    summary: "Add an album to the cart",
+    description: "Adds or updates the current user's cart item.",
+    tags: ["Cart"],
+  },
+  mutate: async ({ args, ctx, tx }) => {
+    await tx.mutate.cartItem.upsert({
+      userId: ctx.userId,
+      albumId: args.albumId,
+      addedAt: tx.location === "client" ? args.addedAt : Date.now(),
+    });
+  },
+});
+```
+
+The `/openapi/zod` helper keeps the Zod args schema attached to the mutator so
+OpenAPI adapters can convert it into the request body schema. For Elysia, the
+adapter attaches each mutator's schema and OpenAPI metadata to the route so
+`@elysiajs/openapi` can read it normally. Hono and plain Fetch routes can serve
+an OpenAPI document from the same registry.
+
+effect-zero contributes generated mutator routes to your existing HTTP app; it
+does not need to be a separate mutator-only API. App-owned routes such as
+`/api/other-routes` should keep using their framework's normal route schemas,
+OpenAPI metadata, and MCP registration. In Elysia, route-discovery MCP plugins
+can expose the generated mutator routes and handwritten routes through one MCP
+endpoint. In Hono, effect-zero can create the mutator REST routes and OpenAPI
+paths, while `@hono/mcp` remains the transport layer for one MCP server that
+registers both mutator tools and app-owned tools.
+
+For mutators, MCP names and descriptions reuse the OpenAPI metadata by default:
+`operationId` becomes the tool name, `summary` becomes the tool description, and
+`description` is the fallback. Argument property descriptions should live on the
+schema itself so OpenAPI and MCP clients see the same parameter help. Use
+`mcp: false` only when a REST mutator should not become an MCP tool, and use
+`mcp: { name, description }` only when framework-neutral MCP tool definitions
+need wording that differs from the HTTP/OpenAPI wording. Elysia route-discovery
+MCP plugins read the route's `operationId` and `summary`, so put shared
+route/tool wording in `openapi` for that path.
 
 ## Choose A Package
 
