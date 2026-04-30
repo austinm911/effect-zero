@@ -106,11 +106,11 @@ function ensureEffectServiceCompatShim(modulePath) {
     modulePath,
     [
       'import * as Layer from "./Layer.js";',
-      'import * as ServiceMap from "./ServiceMap.js";',
+      'import * as Context from "./Context.js";',
       "",
       "export const Service = () => {",
       "  return (key, maker) => {",
-      "    const tag = ServiceMap.Service(key);",
+      "    const tag = Context.Service(key);",
       '    const sample = "sync" in maker ? maker.sync() : "succeed" in maker ? maker.succeed : {};',
       "    class TagClass {",
       "      constructor(service) {",
@@ -156,12 +156,18 @@ function ensureEffectServiceCompatShim(modulePath) {
 
 function ensureEffectServiceShim(modulePath) {
   const currentSource = readFileSync(modulePath, "utf8");
+  const legacyServiceModule = "Service" + "Map";
   const normalizedSource = currentSource
     .replaceAll(
-      '\nimport * as ServiceMap from "./ServiceMap.js";\nexport const Service = ServiceMap.Service;\n',
+      `\nimport * as ${legacyServiceModule} from "./${legacyServiceModule}.js";\nexport const Service = ${legacyServiceModule}.Service;\n`,
       "\n",
     )
-    .replaceAll("\nexport const Service = ServiceMap.Service;\n", "\n")
+    .replaceAll(`\nexport const Service = ${legacyServiceModule}.Service;\n`, "\n")
+    .replaceAll(
+      '\nimport * as Context from "./Context.js";\nexport const Service = Context.Service;\n',
+      "\n",
+    )
+    .replaceAll("\nexport const Service = Context.Service;\n", "\n")
     .replace(/\nexport \{ Service \} from "\.\/ServiceCompat\.js";\n/g, "\n")
     .replace(/\nexport const catchAll = .*;\n/g, "\n")
     .replace(/\nexport const catchAllCause = .*;\n/g, "\n")

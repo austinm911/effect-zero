@@ -16,11 +16,11 @@ import {
   type RelationsBuilderConfigValue,
 } from "drizzle-orm/relations";
 import * as Cause from "effect/Cause";
+import type * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Redacted from "effect/Redacted";
-import type * as ServiceMap from "effect/ServiceMap";
 import type { SqlClient as EffectSqlClient } from "effect/unstable/sql/SqlClient";
 import type { SqlError } from "effect/unstable/sql/SqlError";
 import type { EffectPgConfig, EffectZeroProvider } from "../types.js";
@@ -201,7 +201,7 @@ export class EffectV4DbConnection<
     ) => unknown;
     const transactionEffect = runDrizzleTransaction((wrappedTransaction) =>
       Effect.gen(function* () {
-        const services = yield* Effect.services<never>();
+        const services = yield* Effect.context<never>();
 
         return yield* liftPromise(() =>
           callback(
@@ -655,10 +655,10 @@ function ensurePatchedDrizzleEffectLogger(modulePath: string) {
       'import { entityKind } from "../entity.js";',
       'import * as Effect from "effect/Effect";',
       'import * as Layer from "effect/Layer";',
-      'import * as ServiceMap from "effect/ServiceMap";',
+      'import * as Context from "effect/Context";',
       "",
       "// FIX_DRIZZLE_V4_BETA",
-      'class EffectLogger extends ServiceMap.Service()("drizzle-orm/EffectLogger") {',
+      'class EffectLogger extends Context.Service()("drizzle-orm/EffectLogger") {',
       '  static [entityKind] = "drizzle-orm/EffectLogger";',
       "  static logQuery(query, params) {",
       "    return this.use((logger) => logger.logQuery(query, params));",
@@ -773,10 +773,10 @@ function ensurePatchedDrizzleEffectCache(modulePath: string) {
       'import { entityKind } from "../../entity.js";',
       'import * as Effect from "effect/Effect";',
       'import * as Layer from "effect/Layer";',
-      'import * as ServiceMap from "effect/ServiceMap";',
+      'import * as Context from "effect/Context";',
       "",
       "// FIX_DRIZZLE_V4_BETA",
-      'class EffectCache extends ServiceMap.Service()("drizzle-orm/EffectCache") {',
+      'class EffectCache extends Context.Service()("drizzle-orm/EffectCache") {',
       '  static [entityKind] = "drizzle-orm/EffectCache";',
       "  static strategy() {",
       "    return this.useSync((cache) => cache.strategy());",
@@ -1140,7 +1140,7 @@ async function runEffectWithoutRuntime<A, E>(effect: Effect.Effect<A, E, never>)
 }
 
 async function runEffectWithServices<A, E>(
-  services: ServiceMap.ServiceMap<never>,
+  services: Context.Context<never>,
   effect: Effect.Effect<A, E, never>,
 ) {
   const exit = await Effect.runPromiseExitWith(services)(effect);

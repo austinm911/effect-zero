@@ -37,9 +37,9 @@ import { handleMutateRequest, handleQueryRequest } from "@rocicorp/zero/server";
 import { zeroPostgresJS } from "@rocicorp/zero/server/adapters/postgresjs";
 import { eq } from "drizzle-orm";
 import { Effect } from "effect";
+import * as ContextV4 from "effect-v4/Context";
 import * as EffectV4 from "effect-v4/Effect";
 import * as LayerV4 from "effect-v4/Layer";
-import * as ServiceMapV4 from "effect-v4/ServiceMap";
 import { getDatabaseUrl } from "./config.ts";
 import { getSharedSqlClient } from "./shared-resources.ts";
 
@@ -241,7 +241,7 @@ class V3DrizzleWorkflow extends Effect.Service<V3DrizzleWorkflow>()(
   },
 ) {}
 
-class V4DrizzleWorkflow extends ServiceMapV4.Service<
+class V4DrizzleWorkflow extends ContextV4.Service<
   V4DrizzleWorkflow,
   {
     readonly plan: (input: {

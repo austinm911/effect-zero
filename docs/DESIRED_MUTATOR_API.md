@@ -505,15 +505,15 @@ Per:
 - `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/MIGRATION.md`
 - `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/services.md`
 
-services move to `ServiceMap.Service`, and layers are built explicitly with
+services move to `Context.Service`, and layers are built explicitly with
 `Layer.effect(...)`.
 
 Example workflow service:
 
 ```ts
-import { Effect, Layer, ServiceMap } from "effect";
+import { Context, Effect, Layer } from "effect";
 
-export class AddToCartWorkflow extends ServiceMap.Service<
+export class AddToCartWorkflow extends Context.Service<
   AddToCartWorkflow,
   {
     readonly execute: (input: { userId: string; albumId: string }) => Effect.Effect<{

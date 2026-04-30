@@ -30,14 +30,14 @@ Then install the peer dependency for your chosen adapter:
 
 The `drizzle` adapter uses `drizzle-orm/effect-postgres`, which was built
 against Effect v3 internals. On Effect v4, the Drizzle beta requires runtime
-patches to bridge API changes (`ServiceMap`, `Effectable`, session binding).
+patches to bridge API changes (`Context`, `Effectable`, session binding).
 
 Those patches correspond to the upstream migration work in
 [drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484),
 which updates Drizzle's Effect integration toward Effect v4. High level, that
 work covers:
 
-- moving service definitions to `ServiceMap`
+- moving service definitions to `Context`
 - replacing deprecated `Schema.TaggedError` usage
 - updating Effect error/export compatibility points
 - fixing the compiled Effect Postgres session/runtime bindings
@@ -243,7 +243,7 @@ difference is the underlying Effect runtime used by server overrides.
 
 ## Effect v4 Service Pattern
 
-The main difference is how you define Effect services. v4 uses `ServiceMap.Service`
+The main difference is how you define Effect services. v4 uses `Context.Service`
 instead of `Effect.Service`:
 
 **Effect v3:**
@@ -269,9 +269,9 @@ Effect.provide(effect, CartWorkflow.Default);
 **Effect v4:**
 
 ```ts
-import { ServiceMap, Layer, Effect } from "effect";
+import { Context, Layer, Effect } from "effect";
 
-export class CartWorkflow extends ServiceMap.Service<
+export class CartWorkflow extends Context.Service<
   CartWorkflow,
   {
     readonly onItemAdded: (input: {

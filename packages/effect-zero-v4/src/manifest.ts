@@ -8,7 +8,7 @@ export const adapter = {
   manifest: {
     packageName: "@awstin/effect-zero-v4",
     effectLine: "v4",
-    effectVersion: "4.0.0-beta.36",
+    effectVersion: "4.0.0-beta.59",
     zeroVersion: "1.1.1",
     dbConnectionGoal:
       "Implement a publishable Zero DBConnection against the Effect v4 beta line using the pinned Drizzle ORM beta Effect Postgres sources rather than Zero's built-in postgres adapter.",
@@ -17,7 +17,7 @@ export const adapter = {
       {
         name: "effect-v4-beta",
         path: ".context/effect-v4-beta",
-        ref: "effect@4.0.0-beta.36",
+        ref: "effect@4.0.0-beta.59",
       },
       {
         name: "drizzle-orm-v1.0.0-beta.17",

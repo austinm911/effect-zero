@@ -83,7 +83,7 @@ importers:
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: 'catalog:'
-        version: 1.27.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+        version: 1.27.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
       '@cloudflare/workers-types':
         specifier: 'catalog:'
         version: 4.20260313.1
@@ -95,7 +95,7 @@ importers:
         version: 4.21.0
       vite-plus:
         specifier: 'catalog:'
-        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
   examples/api:
     dependencies:
@@ -124,8 +124,8 @@ importers:
         specifier: 3.19.19
         version: 3.19.19
       effect-v4:
-        specifier: npm:effect@4.0.0-beta.31
-        version: effect@4.0.0-beta.31
+        specifier: npm:effect@4.0.0-beta.59
+        version: effect@4.0.0-beta.59
       hono:
         specifier: ^4.8.3
         version: 4.12.8
@@ -174,10 +174,10 @@ importers:
         version: 1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-start':
         specifier: 'catalog:'
-        version: 1.166.7(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.166.7(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       alchemy:
         specifier: 'catalog:'
-        version: 0.87.0(@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(pg@8.20.0)(postgres@3.4.7)(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+        version: 0.87.0(@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(pg@8.20.0)(postgres@3.4.7)(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.44.1(@cloudflare/workers-types@4.20260313.1)(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.20.0)(postgres@3.4.7)
@@ -202,7 +202,7 @@ importers:
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: 'catalog:'
-        version: 1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+        version: 1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
       '@cloudflare/workers-types':
         specifier: 'catalog:'
         version: 4.20260313.1
@@ -223,16 +223,16 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 5.2.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+        version: 5.2.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@latest
-        version: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
       vite-tsconfig-paths:
         specifier: 'catalog:'
-        version: 6.1.1(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(typescript@5.9.3)
+        version: 6.1.1(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(typescript@5.9.3)
       wrangler:
         specifier: 'catalog:'
         version: 4.73.0(@cloudflare/workers-types@4.20260313.1)
@@ -241,7 +241,7 @@ importers:
     dependencies:
       alchemy:
         specifier: 'catalog:'
-        version: 0.87.0(@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.20.0)(postgres@3.4.7)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+        version: 0.87.0(@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.20.0)(postgres@3.4.7)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
     devDependencies:
       '@effect-zero/tsconfig':
         specifier: workspace:*
@@ -324,10 +324,10 @@ importers:
         version: 5.9.3
       vite-plus:
         specifier: 'catalog:'
-        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@latest
-        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)'
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -335,11 +335,11 @@ importers:
   packages/effect-zero-v4:
     dependencies:
       '@effect-zero/sql-pg-v4':
-        specifier: npm:@effect/sql-pg@4.0.0-beta.36
-        version: '@effect/sql-pg@4.0.0-beta.36(effect@4.0.0-beta.36)'
+        specifier: npm:@effect/sql-pg@4.0.0-beta.59
+        version: '@effect/sql-pg@4.0.0-beta.59(effect@4.0.0-beta.59)'
       '@effect/platform-node':
-        specifier: 4.0.0-beta.36
-        version: 4.0.0-beta.36(effect@4.0.0-beta.36)(ioredis@5.10.0)
+        specifier: 4.0.0-beta.59
+        version: 4.0.0-beta.59(effect@4.0.0-beta.59)(ioredis@5.10.0)
       '@standard-schema/spec':
         specifier: ^1.1.0
         version: 1.1.0
@@ -373,10 +373,10 @@ importers:
         version: 10.4.1
       drizzle-orm:
         specifier: '>=1.0.0-beta.17 <2'
-        version: 1.0.0-beta.17-67b1795(@cloudflare/workers-types@4.20260313.1)(@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.49)(@types/mssql@9.1.9(@azure/core-client@1.10.1))(@types/pg@8.15.5)(mssql@11.0.1(@azure/core-client@1.10.1))(pg@8.20.0)(postgres@3.4.7)(zod@4.3.6)
+        version: 1.0.0-beta.17-67b1795(@cloudflare/workers-types@4.20260313.1)(@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.49)(@types/mssql@9.1.9(@azure/core-client@1.10.1))(@types/pg@8.15.5)(mssql@11.0.1(@azure/core-client@1.10.1))(pg@8.20.0)(postgres@3.4.7)(zod@4.3.6)
       effect:
-        specifier: 4.0.0-beta.36
-        version: 4.0.0-beta.36
+        specifier: 4.0.0-beta.59
+        version: 4.0.0-beta.59
       elysia:
         specifier: ^1.4.28
         version: 1.4.28(@sinclair/typebox@0.34.49)(exact-mirror@1.0.0)(file-type@22.0.1)(openapi-types@12.1.3)(typescript@5.9.3)
@@ -397,10 +397,10 @@ importers:
         version: 5.9.3
       vite-plus:
         specifier: 'catalog:'
-        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@latest
-        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)'
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -446,10 +446,10 @@ importers:
         version: 5.9.3
       vite-plus:
         specifier: 'catalog:'
-        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@latest
-        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)'
 
   packages/test-utils:
     dependencies:
@@ -477,10 +477,10 @@ importers:
         version: 5.9.3
       vite-plus:
         specifier: 'catalog:'
-        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+        version: 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@latest
-        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)'
 
   packages/tsconfig: {}
 
@@ -938,17 +938,17 @@ packages:
       lmdb:
         optional: true
 
-  '@effect/platform-node-shared@4.0.0-beta.36':
-    resolution: {integrity: sha512-QRK+B2tzMJ4L6uQXj4c1r9cRSCspPPuCF+ptJXWoZXO+fR3mIu1h4rTefTvtPVdiED5t3IhIm252FoMVBWwuZQ==}
+  '@effect/platform-node-shared@4.0.0-beta.59':
+    resolution: {integrity: sha512-fGwFJuG0Te9U/ZeqeDZ2HcSKZBhX5wLjX2/Rxb5+yaOkvvFAN9MvIh05R0QQK5DCcERvnbhHSl1CjSIAN4aEwQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.36
+      effect: ^4.0.0-beta.59
 
-  '@effect/platform-node@4.0.0-beta.36':
-    resolution: {integrity: sha512-S7hMDf+vvWgK/KwW0FRxQ4zEtoThFA6HQVRp6oaKdm+j4zaXEDxg+WF5OoYiM5bwHc4h+hkbHRcCx1FIiZypvw==}
+  '@effect/platform-node@4.0.0-beta.59':
+    resolution: {integrity: sha512-jHRW0l953FjYNhQHexr48jFiBu5iGEZH5nmKD6Ha+lPtm1MrKG2V4njfWA3Fv0nUmd3VN87eBJ557wU0twN1Hg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-beta.36
+      effect: ^4.0.0-beta.59
       ioredis: ^5.7.0
 
   '@effect/platform@0.93.5':
@@ -964,10 +964,10 @@ packages:
       '@effect/sql': ^0.48.1
       effect: ^3.19.6
 
-  '@effect/sql-pg@4.0.0-beta.36':
-    resolution: {integrity: sha512-y1+pIP3EAN/LyPTXjnvQmuvBrzyAa5WDFmctxUPduBAWHbOrdHE7+aKUS/63kIvnwHxvlb39GRTY1TEf0X3Faw==}
+  '@effect/sql-pg@4.0.0-beta.59':
+    resolution: {integrity: sha512-DFSzlRR8o6ugaSQDBeiGPBkPL4qlUPcZRc+BB+mWA6R7STHBpqIN2eNAYaf61Rm85rhSh426O04FgZSsI5y7/Q==}
     peerDependencies:
-      effect: ^4.0.0-beta.36
+      effect: ^4.0.0-beta.59
 
   '@effect/sql@0.48.5':
     resolution: {integrity: sha512-OhmqA4zaajZc5F4M30W/5UjnjnhW+Z3MIbdTn6KihYOywXG+uSD2RVDhW4HiMWlysD4jv2mapbYSzi+IowYqOg==}
@@ -4310,11 +4310,8 @@ packages:
   effect@3.19.19:
     resolution: {integrity: sha512-Yc8U/SVXo2dHnaP7zNBlAo83h/nzSJpi7vph6Hzyl4ulgMBIgPmz3UzOjb9sBgpFE00gC0iETR244sfXDNLHRg==}
 
-  effect@4.0.0-beta.31:
-    resolution: {integrity: sha512-w3QwJnlaLtWWiUSzhCXUTIisnULPsxLzpO6uqaBFjXybKx6FvCqsLJT6v4dV7G9eA9jeTtG6Gv7kF+jGe3HxzA==}
-
-  effect@4.0.0-beta.36:
-    resolution: {integrity: sha512-It0ivpQrAi7cTAISEVPLbPjGGLSN90dZ1Y6iDhYbUdBj/QH8rf/AZVx1tGYLgA++Jfs+5ONrxA88gpNYWXxXKA==}
+  effect@4.0.0-beta.59:
+    resolution: {integrity: sha512-xyUDLeHSe8d6lWGOvR6Fgn2HL6gYeTZ/S4Jzk9uc4ZUxMPPsNZlNXrvk0C7/utQFzeX7uAWcVnG2BjbA0SRoAA==}
 
   electron-to-chromium@1.5.313:
     resolution: {integrity: sha512-QBMrTWEf00GXZmJyx2lbYD45jpI3TUFnNIzJ5BBc8piGUDwMPa1GV6HJWTZVvY/eiN3fSopl7NRbgGp9sZ9LTA==}
@@ -5291,9 +5288,6 @@ packages:
   pg-cloudflare@1.3.0:
     resolution: {integrity: sha512-6lswVVSztmHiRtD6I8hw4qP/nDm1EJbKMRhf3HCYaqud7frGysPv7FYJ5noZQdhQtN2xJnimfMtvQq21pdbzyQ==}
 
-  pg-connection-string@2.11.0:
-    resolution: {integrity: sha512-kecgoJwhOpxYU21rZjULrmrBJ698U2RxXofKVzOn5UDj61BPj/qMb7diYUR1nLScCDbrztQFl1TaQZT0t1EtzQ==}
-
   pg-connection-string@2.12.0:
     resolution: {integrity: sha512-U7qg+bpswf3Cs5xLzRqbXbQl85ng0mfSV/J0nnA31MCLgvEaAo7CIhmeyrmJpOr7o+zm0rXK+hNnT5l9RHkCkQ==}
 
@@ -5849,8 +5843,9 @@ packages:
     resolution: {integrity: sha512-dRXchy+C0IgK8WPC6xvCHFRIWYUbqqdEIKPaKo/AcTUNzwLTK6AH7RjdLWsEZcAN/TBdtfUw3PYEgPr5VPr6ww==}
     engines: {node: '>=14.16'}
 
-  toml@3.0.0:
-    resolution: {integrity: sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w==}
+  toml@4.1.1:
+    resolution: {integrity: sha512-EBJnVBr3dTXdA89WVFoAIPUqkBjxPMwRqsfuo1r240tKFHXv3zgca4+NJib/h6TyvGF7vOawz0jGuryJCdNHrw==}
+    engines: {node: '>=20'}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -5948,6 +5943,10 @@ packages:
     resolution: {integrity: sha512-5xoBibbmnjlcR3jdqtY2Lnx7WbrD/tHlT01TmvqZUFVc9Q1w4+j5hbnapTqbcXITMH1ovjq/W7BkqBilHiVAaA==}
     engines: {node: '>=20.18.1'}
 
+  undici@8.1.0:
+    resolution: {integrity: sha512-E9MkTS4xXLnRPYqxH2e6Hr2/49e7WFDKczKcCaFH4VaZs2iNvHMqeIkyUAD9vM8kujy9TjVrRlQ5KkdEJxB2pw==}
+    engines: {node: '>=22.19.0'}
+
   unenv@2.0.0-rc.21:
     resolution: {integrity: sha512-Wj7/AMtE9MRnAXa6Su3Lk0LNCfqDYgfwVjwRFVum9U7wsto1imuHqk4kTm7Jni+5A0Hn7dttL6O/zjvUvoo+8A==}
 
@@ -6009,10 +6008,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vite-plus@0.1.11:
@@ -6167,6 +6168,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.20.0:
+    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   wsl-utils@0.1.0:
     resolution: {integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==}
     engines: {node: '>=18'}
@@ -6188,6 +6201,11 @@ packages:
 
   yaml@2.8.2:
     resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
+  yaml@2.8.3:
+    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -6890,12 +6908,12 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260312.1
 
-  '@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
+  '@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
     dependencies:
       '@cloudflare/unenv-preset': 2.15.0(unenv@2.0.0-rc.24)(workerd@1.20260312.1)
       miniflare: 4.20260310.0
       unenv: 2.0.0-rc.24
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
       wrangler: 4.73.0(@cloudflare/workers-types@4.20260313.1)
       ws: 8.18.0
     transitivePeerDependencies:
@@ -6903,12 +6921,12 @@ snapshots:
       - utf-8-validate
       - workerd
 
-  '@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
+  '@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
     dependencies:
       '@cloudflare/unenv-preset': 2.15.0(unenv@2.0.0-rc.24)(workerd@1.20260312.1)
       miniflare: 4.20260310.0
       unenv: 2.0.0-rc.24
-      vite: 8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
       wrangler: 4.73.0(@cloudflare/workers-types@4.20260313.1)
       ws: 8.18.0
     transitivePeerDependencies:
@@ -6917,12 +6935,12 @@ snapshots:
       - workerd
     optional: true
 
-  '@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
+  '@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))':
     dependencies:
       '@cloudflare/unenv-preset': 2.15.0(unenv@2.0.0-rc.24)(workerd@1.20260312.1)
       miniflare: 4.20260310.0
       unenv: 2.0.0-rc.24
-      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
       wrangler: 4.73.0(@cloudflare/workers-types@4.20260313.1)
       ws: 8.18.0
     transitivePeerDependencies:
@@ -7002,31 +7020,31 @@ snapshots:
     optionalDependencies:
       ioredis: 5.10.0
 
-  '@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0)':
+  '@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0)':
     dependencies:
-      '@effect/platform': 0.93.5(effect@4.0.0-beta.36)
-      effect: 4.0.0-beta.36
+      '@effect/platform': 0.93.5(effect@4.0.0-beta.59)
+      effect: 4.0.0-beta.59
       uuid: 11.1.0
     optionalDependencies:
       ioredis: 5.10.0
     optional: true
 
-  '@effect/platform-node-shared@4.0.0-beta.36(effect@4.0.0-beta.36)':
+  '@effect/platform-node-shared@4.0.0-beta.59(effect@4.0.0-beta.59)':
     dependencies:
       '@types/ws': 8.18.1
-      effect: 4.0.0-beta.36
-      ws: 8.19.0
+      effect: 4.0.0-beta.59
+      ws: 8.20.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.0-beta.36(effect@4.0.0-beta.36)(ioredis@5.10.0)':
+  '@effect/platform-node@4.0.0-beta.59(effect@4.0.0-beta.59)(ioredis@5.10.0)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.36(effect@4.0.0-beta.36)
-      effect: 4.0.0-beta.36
+      '@effect/platform-node-shared': 4.0.0-beta.59(effect@4.0.0-beta.59)
+      effect: 4.0.0-beta.59
       ioredis: 5.10.0
       mime: 4.1.0
-      undici: 7.24.1
+      undici: 8.1.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -7038,9 +7056,9 @@ snapshots:
       msgpackr: 1.11.9
       multipasta: 0.2.7
 
-  '@effect/platform@0.93.5(effect@4.0.0-beta.36)':
+  '@effect/platform@0.93.5(effect@4.0.0-beta.59)':
     dependencies:
-      effect: 4.0.0-beta.36
+      effect: 4.0.0-beta.59
       find-my-way-ts: 0.1.6
       msgpackr: 1.11.9
       multipasta: 0.2.7
@@ -7060,12 +7078,12 @@ snapshots:
     transitivePeerDependencies:
       - pg-native
 
-  '@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)':
+  '@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)':
     dependencies:
-      '@effect/experimental': 0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0)
-      '@effect/platform': 0.93.5(effect@4.0.0-beta.36)
-      '@effect/sql': 0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)
-      effect: 4.0.0-beta.36
+      '@effect/experimental': 0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0)
+      '@effect/platform': 0.93.5(effect@4.0.0-beta.59)
+      '@effect/sql': 0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)
+      effect: 4.0.0-beta.59
       pg: 8.20.0
       pg-connection-string: 2.9.1
       pg-cursor: 2.19.0(pg@8.20.0)
@@ -7075,11 +7093,11 @@ snapshots:
       - pg-native
     optional: true
 
-  '@effect/sql-pg@4.0.0-beta.36(effect@4.0.0-beta.36)':
+  '@effect/sql-pg@4.0.0-beta.59(effect@4.0.0-beta.59)':
     dependencies:
-      effect: 4.0.0-beta.36
+      effect: 4.0.0-beta.59
       pg: 8.20.0
-      pg-connection-string: 2.11.0
+      pg-connection-string: 2.12.0
       pg-cursor: 2.19.0(pg@8.20.0)
       pg-pool: 3.13.0(pg@8.20.0)
       pg-types: 4.1.0
@@ -7093,11 +7111,11 @@ snapshots:
       effect: 3.19.19
       uuid: 11.1.0
 
-  '@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)':
+  '@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)':
     dependencies:
-      '@effect/experimental': 0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0)
-      '@effect/platform': 0.93.5(effect@4.0.0-beta.36)
-      effect: 4.0.0-beta.36
+      '@effect/experimental': 0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0)
+      '@effect/platform': 0.93.5(effect@4.0.0-beta.59)
+      effect: 4.0.0-beta.59
       uuid: 11.1.0
     optional: true
 
@@ -9078,19 +9096,19 @@ snapshots:
     transitivePeerDependencies:
       - crossws
 
-  '@tanstack/react-start@1.166.7(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-start@1.166.7(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@tanstack/react-router': 1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-start-client': 1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-start-server': 1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/router-utils': 1.161.4
       '@tanstack/start-client-core': 1.166.7
-      '@tanstack/start-plugin-core': 1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+      '@tanstack/start-plugin-core': 1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))
       '@tanstack/start-server-core': 1.166.7
       pathe: 2.0.3
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
     transitivePeerDependencies:
       - '@rsbuild/core'
       - crossws
@@ -9136,7 +9154,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))':
+  '@tanstack/router-plugin@1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.29.0)
@@ -9153,7 +9171,7 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       '@tanstack/react-router': 1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
     transitivePeerDependencies:
       - supports-color
 
@@ -9182,7 +9200,7 @@ snapshots:
 
   '@tanstack/start-fn-stubs@1.161.4': {}
 
-  '@tanstack/start-plugin-core@1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))':
+  '@tanstack/start-plugin-core@1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))':
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/core': 7.29.0
@@ -9190,7 +9208,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.40
       '@tanstack/router-core': 1.166.7
       '@tanstack/router-generator': 1.166.7
-      '@tanstack/router-plugin': 1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+      '@tanstack/router-plugin': 1.166.7(@tanstack/react-router@1.166.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))
       '@tanstack/router-utils': 1.161.4
       '@tanstack/start-client-core': 1.166.7
       '@tanstack/start-server-core': 1.166.7
@@ -9202,8 +9220,8 @@ snapshots:
       srvx: 0.11.9
       tinyglobby: 0.2.15
       ufo: 1.6.3
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
-      vitefu: 1.1.2(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
+      vitefu: 1.1.2(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))
       xmlbuilder2: 4.0.3
       zod: 3.25.76
     transitivePeerDependencies:
@@ -9400,7 +9418,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@5.2.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))':
+  '@vitejs/plugin-react@5.2.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -9408,11 +9426,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
     transitivePeerDependencies:
       - supports-color
 
-  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)':
+  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)':
     dependencies:
       '@oxc-project/runtime': 0.115.0
       '@oxc-project/types': 0.115.0
@@ -9425,9 +9443,9 @@ snapshots:
       jiti: 2.6.1
       tsx: 4.21.0
       typescript: 5.9.3
-      yaml: 2.8.2
+      yaml: 2.8.3
 
-  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)':
+  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)':
     dependencies:
       '@oxc-project/runtime': 0.115.0
       '@oxc-project/types': 0.115.0
@@ -9440,9 +9458,9 @@ snapshots:
       jiti: 2.6.1
       tsx: 4.21.0
       typescript: 5.9.3
-      yaml: 2.8.2
+      yaml: 2.8.3
 
-  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)':
+  '@voidzero-dev/vite-plus-core@0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)':
     dependencies:
       '@oxc-project/runtime': 0.115.0
       '@oxc-project/types': 0.115.0
@@ -9455,7 +9473,7 @@ snapshots:
       jiti: 2.6.1
       tsx: 4.21.0
       typescript: 5.9.3
-      yaml: 2.8.2
+      yaml: 2.8.3
 
   '@voidzero-dev/vite-plus-darwin-arm64@0.1.11':
     optional: true
@@ -9469,11 +9487,11 @@ snapshots:
   '@voidzero-dev/vite-plus-linux-x64-gnu@0.1.11':
     optional: true
 
-  '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)':
+  '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@types/chai': 5.2.3
-      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
       es-module-lexer: 1.7.0
       obug: 2.1.1
       pixelmatch: 7.1.0
@@ -9483,7 +9501,7 @@ snapshots:
       tinybench: 2.9.0
       tinyexec: 1.0.4
       tinyglobby: 0.2.15
-      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
       ws: 8.19.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
@@ -9509,11 +9527,11 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)':
+  '@voidzero-dev/vite-plus-test@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@types/chai': 5.2.3
-      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
       es-module-lexer: 1.7.0
       obug: 2.1.1
       pixelmatch: 7.1.0
@@ -9523,7 +9541,7 @@ snapshots:
       tinybench: 2.9.0
       tinyexec: 1.0.4
       tinyglobby: 0.2.15
-      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
       ws: 8.19.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
@@ -9584,7 +9602,7 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alchemy@0.87.0(@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(pg@8.20.0)(postgres@3.4.7)(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)):
+  alchemy@0.87.0(@cloudflare/vite-plugin@1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(pg@8.20.0)(postgres@3.4.7)(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)):
     dependencies:
       '@aws-sdk/credential-providers': 3.1009.0
       '@cloudflare/unenv-preset': 2.7.7(unenv@2.0.0-rc.21)(workerd@1.20260312.1)
@@ -9617,8 +9635,8 @@ snapshots:
       ws: 8.19.0
       yaml: 2.8.2
     optionalDependencies:
-      '@cloudflare/vite-plugin': 1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      '@cloudflare/vite-plugin': 1.27.0(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@electric-sql/pglite'
@@ -9652,7 +9670,7 @@ snapshots:
       - utf-8-validate
       - workerd
 
-  alchemy@0.87.0(@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.20.0)(postgres@3.4.7)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)):
+  alchemy@0.87.0(@cloudflare/vite-plugin@1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)))(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.20.0)(postgres@3.4.7)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1)):
     dependencies:
       '@aws-sdk/credential-providers': 3.1009.0
       '@cloudflare/unenv-preset': 2.7.7(unenv@2.0.0-rc.21)(workerd@1.20260312.1)
@@ -9685,8 +9703,8 @@ snapshots:
       ws: 8.19.0
       yaml: 2.8.2
     optionalDependencies:
-      '@cloudflare/vite-plugin': 1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
-      vite: 8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      '@cloudflare/vite-plugin': 1.27.0(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))
+      vite: 8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@electric-sql/pglite'
@@ -10156,14 +10174,14 @@ snapshots:
       postgres: 3.4.7
       zod: 4.3.6
 
-  drizzle-orm@1.0.0-beta.17-67b1795(@cloudflare/workers-types@4.20260313.1)(@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.49)(@types/mssql@9.1.9(@azure/core-client@1.10.1))(@types/pg@8.15.5)(mssql@11.0.1(@azure/core-client@1.10.1))(pg@8.20.0)(postgres@3.4.7)(zod@4.3.6):
+  drizzle-orm@1.0.0-beta.17-67b1795(@cloudflare/workers-types@4.20260313.1)(@effect/sql-pg@0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.49)(@types/mssql@9.1.9(@azure/core-client@1.10.1))(@types/pg@8.15.5)(mssql@11.0.1(@azure/core-client@1.10.1))(pg@8.20.0)(postgres@3.4.7)(zod@4.3.6):
     dependencies:
       '@types/mssql': 9.1.9(@azure/core-client@1.10.1)
       mssql: 11.0.1(@azure/core-client@1.10.1)
     optionalDependencies:
       '@cloudflare/workers-types': 4.20260313.1
-      '@effect/sql': 0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)
-      '@effect/sql-pg': 0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.36))(effect@4.0.0-beta.36))(effect@4.0.0-beta.36)
+      '@effect/sql': 0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)
+      '@effect/sql-pg': 0.49.7(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(@effect/sql@0.48.5(@effect/experimental@0.57.7(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)(ioredis@5.10.0))(@effect/platform@0.93.5(effect@4.0.0-beta.59))(effect@4.0.0-beta.59))(effect@4.0.0-beta.59)
       '@opentelemetry/api': 1.9.0
       '@sinclair/typebox': 0.34.49
       '@types/pg': 8.15.5
@@ -10219,7 +10237,7 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
 
-  effect@4.0.0-beta.31:
+  effect@4.0.0-beta.59:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 4.6.0
@@ -10228,22 +10246,9 @@ snapshots:
       kubernetes-types: 1.30.0
       msgpackr: 1.11.9
       multipasta: 0.2.7
-      toml: 3.0.0
+      toml: 4.1.1
       uuid: 13.0.0
-      yaml: 2.8.2
-
-  effect@4.0.0-beta.36:
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-      fast-check: 4.6.0
-      find-my-way-ts: 0.1.6
-      ini: 6.0.0
-      kubernetes-types: 1.30.0
-      msgpackr: 1.11.9
-      multipasta: 0.2.7
-      toml: 3.0.0
-      uuid: 13.0.0
-      yaml: 2.8.2
+      yaml: 2.8.3
 
   electron-to-chromium@1.5.313: {}
 
@@ -11289,8 +11294,6 @@ snapshots:
   pg-cloudflare@1.3.0:
     optional: true
 
-  pg-connection-string@2.11.0: {}
-
   pg-connection-string@2.12.0: {}
 
   pg-connection-string@2.9.1: {}
@@ -11885,7 +11888,7 @@ snapshots:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
 
-  toml@3.0.0: {}
+  toml@4.1.1: {}
 
   totalist@3.0.1: {}
 
@@ -11963,6 +11966,8 @@ snapshots:
 
   undici@7.24.1: {}
 
+  undici@8.1.0: {}
+
   unenv@2.0.0-rc.21:
     dependencies:
       defu: 6.1.4
@@ -12022,11 +12027,11 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  vite-plus@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2):
+  vite-plus@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3):
     dependencies:
       '@oxc-project/types': 0.115.0
-      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
-      '@voidzero-dev/vite-plus-test': 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
+      '@voidzero-dev/vite-plus-test': 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       cac: 6.7.14
       cross-spawn: 7.0.6
       oxfmt: 0.40.0
@@ -12068,11 +12073,11 @@ snapshots:
       - vite
       - yaml
 
-  vite-plus@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2):
+  vite-plus@0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3):
     dependencies:
       '@oxc-project/types': 0.115.0
-      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
-      '@voidzero-dev/vite-plus-test': 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)
+      '@voidzero-dev/vite-plus-core': 0.1.11(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
+      '@voidzero-dev/vite-plus-test': 0.1.11(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
       cac: 6.7.14
       cross-spawn: 7.0.6
       oxfmt: 0.40.0
@@ -12114,17 +12119,17 @@ snapshots:
       - vite
       - yaml
 
-  vite-tsconfig-paths@6.1.1(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(typescript@5.9.3):
+  vite-tsconfig-paths@6.1.1(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3))(typescript@5.9.3):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2):
+  vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@oxc-project/runtime': 0.115.0
       lightningcss: 1.32.0
@@ -12138,10 +12143,10 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
       tsx: 4.21.0
-      yaml: 2.8.2
+      yaml: 2.8.3
     optional: true
 
-  vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2):
+  vite@8.0.0(@types/node@25.5.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@oxc-project/runtime': 0.115.0
       lightningcss: 1.32.0
@@ -12155,9 +12160,9 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
       tsx: 4.21.0
-      yaml: 2.8.2
+      yaml: 2.8.3
 
-  vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2):
+  vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@oxc-project/runtime': 0.115.0
       lightningcss: 1.32.0
@@ -12171,11 +12176,11 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
       tsx: 4.21.0
-      yaml: 2.8.2
+      yaml: 2.8.3
 
-  vitefu@1.1.2(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
+  vitefu@1.1.2(@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)):
     optionalDependencies:
-      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.11(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
 
   webidl-conversions@3.0.1: {}
 
@@ -12263,6 +12268,8 @@ snapshots:
 
   ws@8.19.0: {}
 
+  ws@8.20.0: {}
+
   wsl-utils@0.1.0:
     dependencies:
       is-wsl: 3.1.1
@@ -12281,6 +12288,8 @@ snapshots:
   yallist@3.1.1: {}
 
   yaml@2.8.2: {}
+
+  yaml@2.8.3: {}
 
   yargs-parser@21.1.1: {}
 

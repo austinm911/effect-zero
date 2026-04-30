@@ -14,7 +14,7 @@ import {
 } from "@effect-zero/example-data/mutators";
 import { defineMutators } from "@rocicorp/zero";
 import { handleMutateRequest } from "@rocicorp/zero/server";
-import { Effect, Layer, ServiceMap } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import {
   createRestMutatorHandler,
@@ -33,7 +33,7 @@ describe("Effect v4 server mutator helpers", () => {
     testDatabase = undefined;
   });
 
-  test("composes a shared mutator with a v4 ServiceMap-backed server override and deferred post-commit work", async () => {
+  test("composes a shared mutator with a v4 Context-backed server override and deferred post-commit work", async () => {
     testDatabase = await createTestDatabase({
       databaseNamePrefix: "effect_zero_v4_server_mutators",
     });
@@ -47,7 +47,7 @@ describe("Effect v4 server mutator helpers", () => {
     });
     const events: string[] = [];
 
-    class CartMutationWorkflow extends ServiceMap.Service<
+    class CartMutationWorkflow extends Context.Service<
       CartMutationWorkflow,
       {
         readonly plan: (input: {
