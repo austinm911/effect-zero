@@ -1,6 +1,6 @@
 {
   "name": "@awstin/effect-zero-v4",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "description": "Beta-track Zero DBConnection scaffold for Effect v4.",
   "license": "MIT",
   "files": [
@@ -48,7 +48,7 @@
     "@types/pg": "^8.15.5",
     "@typescript/native-preview": "7.0.0-dev.20260309.1",
     "bumpp": "^10.4.1",
-    "drizzle-orm": ">=1.0.0-beta.17 <2",
+    "drizzle-orm": "1.0.0-beta.17-67b1795",
     "effect": "4.0.0-beta.59",
     "elysia": "^1.4.28",
     "hono": "^4.12.12",
@@ -62,7 +62,7 @@
   },
   "peerDependencies": {
     "@rocicorp/zero": ">=1.0.0 <2",
-    "drizzle-orm": ">=1.0.0-beta.17 <2",
+    "drizzle-orm": "1.0.0-beta.17-67b1795",
     "effect": "4.0.0-beta.59",
     "elysia": "^1.4.28",
     "hono": "^4.12.12",
