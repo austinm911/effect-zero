@@ -272,7 +272,7 @@ class V4DrizzleWorkflow extends ContextV4.Service<
   });
 }
 
-const controlZql = zeroPostgresJS(zeroSchema, getSharedSqlClient());
+const controlZql = zeroPostgresJS(zeroSchema, getSharedSqlClient() as never);
 
 const getV3DrizzleProvider = createCachedValue(async () =>
   createV3ZeroDbProvider({

@@ -20,15 +20,15 @@
   },
   "dependencies": {
     "@effect-zero/example-data": "workspace:*",
-    "@rocicorp/zero": "catalog:",
+    "@rocicorp/zero": "1.4.0",
     "pg": "8.20.0"
   },
   "devDependencies": {
     "@effect-zero/tsconfig": "workspace:*",
-    "@types/node": "^25.3.5",
-    "@types/pg": "^8.15.5",
-    "typescript": "^5.9.3",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "^25.6.0",
+    "@types/pg": "^8.20.0",
+    "typescript": "^6.0.3",
+    "vite-plus": "0.1.20",
+    "vitest": "0.1.20"
   }
 }

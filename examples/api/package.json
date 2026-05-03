@@ -15,19 +15,19 @@
     "@awstin/effect-zero-v4": "workspace:*",
     "@effect-zero/example-data": "workspace:*",
     "@effect-zero/test-utils": "workspace:*",
-    "@hono/node-server": "^1.19.5",
-    "@rocicorp/zero": "catalog:",
-    "drizzle-orm": "catalog:",
-    "effect": "3.19.19",
+    "@hono/node-server": "^1.19.14",
+    "@rocicorp/zero": "1.4.0",
+    "drizzle-orm": "0.45.2",
+    "effect": "3.21.2",
     "effect-v4": "npm:effect@4.0.0-beta.59",
-    "hono": "^4.8.3",
+    "hono": "^4.12.16",
     "pg": "8.20.0",
-    "postgres": "catalog:"
+    "postgres": "3.4.9"
   },
   "devDependencies": {
     "@effect-zero/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
+    "@types/node": "24.12.2",
     "tsx": "^4.20.5",
-    "typescript": "catalog:"
+    "typescript": "6.0.3"
   }
 }
