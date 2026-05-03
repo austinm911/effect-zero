@@ -1,6 +1,6 @@
 # Effect v4 Migration References
 
-As of March 13, 2026, the Effect v4 lane in this repo must be built against these pinned local references.
+As of May 3, 2026, the Effect v4 lane in this repo must be built against these references.
 
 This file is the canonical starting point for any work in:
 
@@ -15,17 +15,15 @@ This file is the canonical starting point for any work in:
   `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/runtime.md`
   `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/yieldable.md`
   `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/schema.md`
-- Drizzle ORM pinned beta source
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17`
+- Drizzle ORM RC package
+  `drizzle-orm@1.0.0-rc.1`
 - Drizzle Effect Postgres entrypoints
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/index.ts`
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/driver.ts`
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/session.ts`
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/migrator.ts`
+  `drizzle-orm/effect-postgres`
+  `drizzle-orm/effect-postgres/driver`
+  `drizzle-orm/effect-postgres/session`
+  `drizzle-orm/effect-postgres/migrator`
 - Drizzle lower-level Effect query machinery
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/pg-core/effect/session.ts`
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/pg-core/effect/query.ts`
-  `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/pg-core/effect/raw.ts`
+  `drizzle-orm/pg-core/effect/session`
 
 ## Why These Files Matter
 
@@ -34,16 +32,17 @@ This file is the canonical starting point for any work in:
 - `runtime.md` matters because v4 removes the old `Runtime<R>` model and changes how runtime ownership should be represented.
 - `yieldable.md` matters because some v3 subtyping assumptions no longer hold in v4.
 - `schema.md` matters because schema imports and unstable-module boundaries can move under v4.
-- Drizzle `effect-postgres/driver.ts` shows the actual v4-facing database construction path we need to mirror.
-- Drizzle `effect-postgres/session.ts` shows the transaction, prepared query, and raw execution path that the Zero adapter needs for:
+- Drizzle `effect-postgres/driver` shows the actual v4-facing database construction path we need to mirror.
+- Drizzle `effect-postgres/session` shows the transaction, prepared query, and raw execution path that the Zero adapter needs for:
   - `tx.dbTransaction.query(...)`
   - `tx.dbTransaction.wrappedTransaction`
-- Drizzle `pg-core/effect/*` files show the lower-level effect query builders and raw query behavior when the higher-level adapter path is not enough.
+- Drizzle `pg-core/effect/session` shows the lower-level prepared query behavior when the higher-level adapter path is not enough.
 
 ## Current Migration Constraints For This Repo
 
 - Do not model the v4 adapter from the v3 package by string substitution.
 - Do not assume v3 package versions map to v4 by keeping old `0.x` package versions.
+- Use Drizzle `v1.0.0-rc.1` or newer for the v4 Drizzle adapter.
 - Use matching v4 beta versions across `effect` and `@effect/sql-*`.
 - Treat unstable `effect/unstable/*` modules as unstable inputs if they become necessary.
 - Keep the Zero adapter surface stable even if the Effect runtime construction changes internally.
@@ -57,12 +56,12 @@ This file is the canonical starting point for any work in:
 2. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/MIGRATION.md`
 3. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/runtime.md`
 4. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/services.md`
-5. `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/driver.ts`
-6. `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/session.ts`
+5. `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
+6. `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
 7. `/Users/am/Coding/2026/effect-zero/.context/rocicorp-mono/packages/zero-server/src/adapters/drizzle.ts`
 8. `/Users/am/Coding/2026/effect-zero/.context/rocicorp-mono/packages/zql/src/mutate/custom.ts`
 
 ## Source URLs
 
-- [drizzle-orm `v1.0.0-beta.17`](https://github.com/drizzle-team/drizzle-orm/tree/v1.0.0-beta.17)
+- [drizzle-orm `v1.0.0-rc.1`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.1)
 - [effect-smol `MIGRATION.md`](https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md)

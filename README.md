@@ -35,6 +35,8 @@ pnpm add @rocicorp/zero effect
 
 # Drizzle lane
 pnpm add drizzle-orm@beta
+# Effect v4 Drizzle lane
+pnpm add drizzle-orm@1.0.0-rc.1 @effect/sql-pg@4.0.0-beta
 
 # node-postgres lane
 pnpm add pg
@@ -136,11 +138,9 @@ route/tool wording in `openapi` for that path.
   Effect v3.
 - Use [`@awstin/effect-zero-v4`](./packages/effect-zero-v4) if your app is on Effect
   v4 beta.
-- For the v4 Drizzle adapter specifically, read the
-  [`@awstin/effect-zero-v4` README](./packages/effect-zero-v4/README.md) for the
-  compatibility notes around [drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484)
-  and the runtime patch behavior. Normal installs do not require a manual
-  `postinstall` step.
+- For the v4 Drizzle adapter specifically, use Drizzle `v1.0.0-rc.1` or newer
+  with native Effect v4 support. The v4 package no longer patches Drizzle at
+  runtime and does not require a manual `postinstall` step.
 
 The server adapter API is intentionally the same across both lines. The main
 difference is the underlying Effect version and the service/layer style you

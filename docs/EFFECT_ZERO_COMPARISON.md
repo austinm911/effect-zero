@@ -37,7 +37,7 @@ This repo already provides the low-level adapter layer:
 - `packages/effect-zero-v3`
   real `DBConnection` and `ZQLDatabase` bridge on Drizzle Effect Postgres v3
 - `packages/effect-zero-v4`
-  real `DBConnection` and `ZQLDatabase` bridge on pinned Drizzle beta + Effect v4
+  real `DBConnection` and `ZQLDatabase` bridge on Drizzle RC + Effect v4
 - `examples/api`
   request-level verification and benchmark harness for the full target matrix
 - `examples/ztunes`
@@ -85,7 +85,7 @@ For this repo, the better default is:
 This repo intentionally replaces that lower layer for v3 and v4:
 
 - v3: custom Zero `DBConnection` via Drizzle Effect Postgres
-- v4: custom Zero `DBConnection` via pinned Drizzle beta + Effect v4
+- v4: custom Zero `DBConnection` via Drizzle RC + Effect v4
 
 So their package is complementary to ours, not a substitute for it.
 

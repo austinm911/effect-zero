@@ -76,19 +76,19 @@ Purpose:
 
 Implementation requirement:
 
-- use the pinned Drizzle beta source at `v1.0.0-beta.17`
+- use Drizzle `v1.0.0-rc.1` or newer for native Effect v4 `effect-postgres`
 - use the pinned Effect v4 migration docs from `effect-smol`
 - do not use Zero's `zeroPostgresJS` adapter for the package implementation
 
 Primary source:
 
-- [drizzle-orm `v1.0.0-beta.17`](https://github.com/drizzle-team/drizzle-orm/tree/v1.0.0-beta.17)
+- [drizzle-orm `v1.0.0-rc.1`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.1)
 - [effect-smol `MIGRATION.md`](https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md)
 - [EFFECT_V4_MIGRATION_REFERENCES.md](/Users/am/Coding/2026/effect-zero/docs/EFFECT_V4_MIGRATION_REFERENCES.md)
 
 Important note:
 
-- this lane is still upstream-dependent and should be treated as experimental while the Effect v4 and Drizzle beta surfaces continue moving
+- this lane is still upstream-dependent and should be treated as beta-track while the Effect v4 surface continues moving
 - `packages/effect-zero-v4/src/index.ts` now contains the working adapter implementation.
 - `packages/effect-zero-v4/tests/dbconnection.test.ts` proves:
   - Zero ZQL reads against the shared fixture schema
@@ -96,7 +96,7 @@ Important note:
   - native Drizzle query access through `tx.dbTransaction.wrappedTransaction`
   - request-level `handleMutateRequest(...)` behavior through the v4 provider
   - request-level `handleQueryRequest(...)` behavior for the shared artist query fixture
-- the repo currently depends on a local compatibility rewrite in `tools/fix-drizzle-v4-beta.mjs` to bridge the pinned Drizzle beta to the current Effect v4 beta surface
+- the repo no longer depends on a local Drizzle compatibility rewrite; Drizzle RC provides the Effect v4 integration directly
 
 ## Repository Rules
 

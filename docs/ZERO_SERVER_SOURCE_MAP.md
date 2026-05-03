@@ -22,7 +22,7 @@ These lanes are intentionally not the same implementation.
 - Effect v3 target
   `packages/effect-zero-v3` must implement a custom Zero `DBConnection` backed by Drizzle Effect Postgres on Effect v3.
 - Effect v4 target
-  `packages/effect-zero-v4` must implement a custom Zero `DBConnection` backed by the pinned Drizzle beta Effect Postgres path and the pinned Effect v4 migration guidance.
+  `packages/effect-zero-v4` must implement a custom Zero `DBConnection` backed by Drizzle RC Effect Postgres support and the pinned Effect v4 migration guidance.
 - Local Node harness
   `apps/package-api` is the local-only API surface for exercising the v3 and v4 TCP adapters under one process.
 
@@ -119,12 +119,12 @@ These files are mandatory inputs for the v4 adapter lane.
   Required because runtime ownership changed in v4.
 - `.context/effect-v4-beta/migration/services.md`
   Required because service creation and lookup changed in v4.
-- `.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/driver.ts`
-  Current Drizzle beta database construction path.
-- `.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/session.ts`
-  Current Drizzle beta transaction and raw/prepared query path.
-- `.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/pg-core/effect/session.ts`
-  Lower-level Effect query/session mechanics under the Drizzle beta implementation.
+- `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
+  Current Drizzle RC database construction path.
+- `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
+  Current Drizzle RC transaction and raw/prepared query path.
+- `drizzle-orm@1.0.0-rc.1` `pg-core/effect/session`
+  Lower-level Effect query/session mechanics under the Drizzle RC implementation.
 
 ## 4. Upstream Tests To Port In Spirit
 

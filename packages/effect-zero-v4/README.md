@@ -20,51 +20,26 @@ bun add @awstin/effect-zero-v4 @rocicorp/zero effect@4.0.0-beta
 
 Then install the peer dependency for your chosen adapter:
 
-| Adapter      | Peer dep                      | Install                     | Notes                       |
-| ------------ | ----------------------------- | --------------------------- | --------------------------- |
-| `postgresjs` | `postgres`                    | `pnpm add postgres`         | Stable                      |
-| `pg`         | `pg`                          | `pnpm add pg`               | Stable                      |
-| `drizzle`    | `drizzle-orm` ≥ 1.0.0-beta.17 | `pnpm add drizzle-orm@beta` | ⚠️ Experimental — see below |
+| Adapter      | Peer dep                   | Install                           | Notes  |
+| ------------ | -------------------------- | --------------------------------- | ------ |
+| `postgresjs` | `postgres`                 | `pnpm add postgres`               | Stable |
+| `pg`         | `pg`                       | `pnpm add pg`                     | Stable |
+| `drizzle`    | `drizzle-orm` ≥ 1.0.0-rc.1 | `pnpm add drizzle-orm@1.0.0-rc.1` | Stable |
 
 ### Drizzle Adapter on Effect v4
 
-The `drizzle` adapter uses `drizzle-orm/effect-postgres`, which was built
-against Effect v3 internals. On Effect v4, the Drizzle beta requires runtime
-patches to bridge API changes (`Context`, `Effectable`, session binding).
+The `drizzle` adapter uses `drizzle-orm/effect-postgres` from Drizzle
+`v1.0.0-rc.1` or newer. That RC line has native Effect v4 support, so
+`@awstin/effect-zero-v4` no longer patches Drizzle at runtime and no longer
+ships a postinstall helper.
 
-Those patches correspond to the upstream migration work in
-[drizzle-orm PR #5484](https://github.com/drizzle-team/drizzle-orm/pull/5484),
-which updates Drizzle's Effect integration toward Effect v4. High level, that
-work covers:
+Install `@effect/sql-pg` alongside Drizzle when you use this adapter:
 
-- moving service definitions to `Context`
-- replacing deprecated `Schema.TaggedError` usage
-- updating Effect error/export compatibility points
-- fixing the compiled Effect Postgres session/runtime bindings
+```bash
+pnpm add drizzle-orm@1.0.0-rc.1 @effect/sql-pg@4.0.0-beta
+```
 
-`@awstin/effect-zero-v4` applies equivalent compatibility patches lazily inside
-the Drizzle adapter before it loads `drizzle-orm/effect-postgres`, so normal
-usage does not require trusting dependency `postinstall` scripts and does not
-require a manual postinstall step.
-
-The package still ships `node_modules/@awstin/effect-zero-v4/postinstall.mjs`
-as an explicit helper for environments that block runtime mutation inside
-`node_modules`. Only Drizzle-adapter users in those restricted environments
-need to run it.
-
-Manual helper guidance:
-
-- `bun`: no extra step for normal usage; only run `node node_modules/@awstin/effect-zero-v4/postinstall.mjs` if your environment blocks the runtime patch path
-- `pnpm`: no extra step for normal usage; `pnpm approve-builds` is not required for this package anymore
-- `npm`: no extra step for normal usage; `--ignore-scripts` does not affect the adapter because patching happens at adapter load time
-
-If you do need the manual helper, run it once after install and before the app
-first imports `@awstin/effect-zero-v4/server/adapters/drizzle`.
-
-If Drizzle merges and releases the PR changes, this package should remove the
-local patch layer and depend on the upstream release directly.
-
-**The `pg` and `postgresjs` adapters work with Effect v4 without patches.**
+**The `pg` and `postgresjs` adapters do not need Drizzle or `@effect/sql-pg`.**
 
 ## Import Paths
 

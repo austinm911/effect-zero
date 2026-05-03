@@ -108,12 +108,12 @@ Supporting docs still matter, but they are subordinate:
 
 - [x] `packages/effect-zero-v4` exports a working Zero-compatible `createDbConnection()`.
 - [x] `packages/effect-zero-v4` exports a working Zero-compatible provider bridge.
-- [x] The v4 adapter uses the pinned Drizzle beta Effect Postgres path rather than Zero's built-in postgres adapter.
+- [x] The v4 adapter uses Drizzle RC Effect Postgres support rather than Zero's built-in postgres adapter.
 - [x] The v4 implementation work references:
   - `/Users/am/Coding/2026/effect-zero/docs/EFFECT_V4_MIGRATION_REFERENCES.md`
   - `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/MIGRATION.md`
-  - `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/driver.ts`
-  - `/Users/am/Coding/2026/effect-zero/.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/session.ts`
+  - `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
+  - `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
 - [x] The v4 adapter supports Zero ZQL reads.
 - [x] The v4 adapter supports raw SQL via `tx.dbTransaction.query(...)`.
 - [x] The v4 adapter exposes native Drizzle relational queries through `tx.dbTransaction.wrappedTransaction`.

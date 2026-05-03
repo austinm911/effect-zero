@@ -97,12 +97,9 @@ Keep that same test-first pattern for the next slices:
   - request-level `handleMutateRequest(...)` through a Zero provider
   - request-level `handleQueryRequest(...)` for the shared artist query fixture
 - GREEN
-  `packages/effect-zero-v4/src/index.ts` now implements the adapter and provider on top of the pinned Drizzle beta plus Effect v4.
+  `packages/effect-zero-v4/src/index.ts` now implements the adapter and provider on top of Drizzle RC plus Effect v4.
 - CLEANUP
-  `tools/fix-drizzle-v4-beta.mjs` now rewrites the local Drizzle beta runtime to account for the current Effect v4 migration surface:
-  - Effect export renames such as `catchAll` -> `catch`
-  - missing `Effectable`, `Service`, and `Schema.TaggedError` compatibility points
-  - generator `this` binding breakage in Drizzle's compiled `pg-core/effect/session.js` and `effect-postgres/session.js`
+  The v4 adapter no longer rewrites the local Drizzle runtime because Drizzle RC ships native Effect v4 support.
 
 ### Server Mutator API TDD Slice Completed
 
@@ -291,7 +288,7 @@ Current implementation files:
 
 - [x] Read `EFFECT_V4_MIGRATION_REFERENCES.md` before changing v4 code.
 - [x] Add a dedicated runtime entry module for the v4 line.
-- [x] Implement `createDbConnection()` for v4 against the beta Effect v4 runtime and the pinned Drizzle beta source.
+- [x] Implement `createDbConnection()` for v4 against the beta Effect v4 runtime and Drizzle RC Effect Postgres support.
 - [x] Implement a v4 `DBTransaction` wrapper exposing `wrappedTransaction`, `query`, and `runQuery`.
 - [x] Provide a v4 `dbProvider` that can be passed into `handleMutateRequest`.
 - [x] Add a direct Drizzle Effect v4 interop entrypoint for v4.
@@ -311,8 +308,8 @@ Pinned v4 research inputs:
 - `.context/effect-v4-beta/MIGRATION.md`
 - `.context/effect-v4-beta/migration/runtime.md`
 - `.context/effect-v4-beta/migration/services.md`
-- `.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/driver.ts`
-- `.context/drizzle-orm-v1.0.0-beta.17/drizzle-orm/src/effect-postgres/session.ts`
+- `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
+- `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
 
 ## 4. Package-Level Test Coverage
 
