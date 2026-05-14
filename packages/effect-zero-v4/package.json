@@ -9,17 +9,50 @@
   "type": "module",
   "types": "./dist/index.d.mts",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./client": "./dist/client.mjs",
-    "./openapi": "./dist/openapi.mjs",
-    "./openapi/elysia": "./dist/openapi/elysia.mjs",
-    "./openapi/hono": "./dist/openapi/hono.mjs",
-    "./openapi/zod": "./dist/openapi/zod.mjs",
-    "./server": "./dist/server.mjs",
-    "./timestamps": "./dist/timestamps.mjs",
-    "./server/adapters/drizzle": "./dist/server/adapters/drizzle.mjs",
-    "./server/adapters/pg": "./dist/server/adapters/pg.mjs",
-    "./server/adapters/postgresjs": "./dist/server/adapters/postgresjs.mjs",
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.mts",
+      "default": "./dist/client.mjs"
+    },
+    "./openapi": {
+      "types": "./dist/openapi.d.mts",
+      "default": "./dist/openapi.mjs"
+    },
+    "./openapi/elysia": {
+      "types": "./dist/openapi/elysia.d.mts",
+      "default": "./dist/openapi/elysia.mjs"
+    },
+    "./openapi/hono": {
+      "types": "./dist/openapi/hono.d.mts",
+      "default": "./dist/openapi/hono.mjs"
+    },
+    "./openapi/zod": {
+      "types": "./dist/openapi/zod.d.mts",
+      "default": "./dist/openapi/zod.mjs"
+    },
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "default": "./dist/server.mjs"
+    },
+    "./timestamps": {
+      "types": "./dist/timestamps.d.mts",
+      "default": "./dist/timestamps.mjs"
+    },
+    "./server/adapters/drizzle": {
+      "types": "./dist/server/adapters/drizzle.d.mts",
+      "default": "./dist/server/adapters/drizzle.mjs"
+    },
+    "./server/adapters/pg": {
+      "types": "./dist/server/adapters/pg.d.mts",
+      "default": "./dist/server/adapters/pg.mjs"
+    },
+    "./server/adapters/postgresjs": {
+      "types": "./dist/server/adapters/postgresjs.d.mts",
+      "default": "./dist/server/adapters/postgresjs.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -66,7 +99,7 @@
     "elysia": "^1.4.28",
     "hono": "^4.12.12",
     "pg": "8.20.0",
-    "postgres": "catalog:",
+    "postgres": ">=3 <4",
     "zod": "^4.1.5"
   },
   "peerDependenciesMeta": {

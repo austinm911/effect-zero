@@ -3,8 +3,11 @@ import {
   defineMutatorWithType,
   mustGetMutator,
   type MutatorDefinition,
+  type Schema as ZeroSchema,
   type ServerTransaction,
+  type Transaction,
 } from "@rocicorp/zero";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 import * as Effect from "effect/Effect";
 
 export type { EffectPgConfig, EffectZeroProvider } from "./server/types.js";
@@ -169,6 +172,189 @@ export interface ExtendServerMutatorInput<
 }
 
 type ServerOverrideResult = void | Promise<void> | Effect.Effect<void, unknown, unknown>;
+export type ServerEffectMutatorResult =
+  | void
+  | Promise<void>
+  | Effect.Effect<void, unknown, unknown>;
+
+type StandardSchemaLike = StandardSchemaV1<any, any>;
+
+type InferStandardSchemaInput<TValidator extends StandardSchemaLike> =
+  TValidator extends StandardSchemaV1<infer TInput, any>
+    ? Extract<TInput, ReadonlyJSONValue | undefined>
+    : never;
+
+type InferStandardSchemaOutput<TValidator extends StandardSchemaLike> =
+  TValidator extends StandardSchemaV1<any, infer TOutput>
+    ? Extract<TOutput, ReadonlyJSONValue | undefined>
+    : never;
+
+export type EffectMutatorDefinitionFunction<
+  TOutput extends ReadonlyJSONValue | undefined,
+  TContext,
+  TWrappedTransaction,
+  TSchema extends ZeroSchema,
+> = (input: {
+  readonly args: TOutput;
+  readonly ctx: TContext;
+  defer(effect: DeferredEffect): void;
+  readonly tx: Transaction<TSchema, TWrappedTransaction>;
+}) => ServerEffectMutatorResult;
+
+export type TypedDefineEffectMutator<TSchema extends ZeroSchema, TContext, TWrappedTransaction> = {
+  <TArgs extends ReadonlyJSONValue | undefined>(
+    mutator: EffectMutatorDefinitionFunction<TArgs, TContext, TWrappedTransaction, TSchema>,
+  ): MutatorDefinition<TArgs, TArgs, TContext, TWrappedTransaction>;
+
+  <TValidator extends StandardSchemaLike>(
+    validator: TValidator,
+    mutator: EffectMutatorDefinitionFunction<
+      InferStandardSchemaOutput<TValidator>,
+      TContext,
+      TWrappedTransaction,
+      TSchema
+    >,
+  ): MutatorDefinition<
+    InferStandardSchemaInput<TValidator>,
+    InferStandardSchemaOutput<TValidator>,
+    TContext,
+    TWrappedTransaction
+  >;
+};
+
+export type ExtendServerMutatorOverride<
+  TOutput extends ReadonlyJSONValue | undefined,
+  TSchema extends import("@rocicorp/zero").Schema,
+  TContext,
+  TWrappedTransaction,
+> = (
+  input: ExtendServerMutatorInput<TOutput, TSchema, TContext, TWrappedTransaction>,
+) => ServerOverrideResult;
+
+export type TypedExtendServerMutator<TSchema extends ZeroSchema, TContext, TWrappedTransaction> = <
+  TBaseMutator extends MutatorDefinition<any, any, any, any>,
+>(
+  baseMutator: TBaseMutator,
+  override: ExtendServerMutatorOverride<
+    TBaseMutator["~"]["$output"],
+    TSchema,
+    TContext,
+    TWrappedTransaction
+  >,
+) => MutatorDefinition<
+  TBaseMutator["~"]["$input"],
+  TBaseMutator["~"]["$output"],
+  TContext,
+  TWrappedTransaction
+>;
+
+function executeServerEffectResult<
+  TSchema extends import("@rocicorp/zero").Schema,
+  TWrappedTransaction,
+>(
+  tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>,
+  result: ServerEffectMutatorResult,
+  apiName: "defineEffectMutatorWithType" | "extendServerMutator",
+) {
+  if (!Effect.isEffect(result)) {
+    return Promise.resolve(result);
+  }
+
+  if (tx.location !== "server") {
+    throw new Error(`${apiName} may only run on the authoritative server path.`);
+  }
+
+  const executionState = mutationExecutionStateByTransaction.get(tx);
+
+  if (!executionState) {
+    throw new Error(
+      `${apiName} requires createMutationExecutor, createServerMutatorHandler, or createRestMutatorHandler so deferred effects and Effect execution stay request-scoped.`,
+    );
+  }
+
+  return executionState.executeEffect(result);
+}
+
+export function defineEffectMutatorWithType<
+  TSchema extends ZeroSchema,
+  TContext,
+  TWrappedTransaction,
+>(): TypedDefineEffectMutator<TSchema, TContext, TWrappedTransaction> {
+  const define = defineMutatorWithType<TSchema, TContext, TWrappedTransaction>();
+
+  function wrapMutator<TOutput extends ReadonlyJSONValue | undefined>(
+    mutator: EffectMutatorDefinitionFunction<TOutput, TContext, TWrappedTransaction, TSchema>,
+  ) {
+    return async ({
+      args,
+      ctx,
+      tx,
+    }: {
+      readonly args: TOutput;
+      readonly ctx: TContext;
+      readonly tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>;
+    }) => {
+      const defer = (effect: DeferredEffect) => {
+        if (tx.location !== "server") {
+          throw new Error(
+            "defineEffectMutatorWithType may only run on the authoritative server path.",
+          );
+        }
+
+        const executionState = mutationExecutionStateByTransaction.get(tx);
+
+        if (!executionState) {
+          throw new Error(
+            "defineEffectMutatorWithType requires createMutationExecutor, createServerMutatorHandler, or createRestMutatorHandler so deferred effects and Effect execution stay request-scoped.",
+          );
+        }
+
+        executionState.deferredEffects.push(effect);
+      };
+
+      const result = mutator({
+        args,
+        ctx,
+        defer,
+        tx,
+      });
+
+      await executeServerEffectResult(tx, result, "defineEffectMutatorWithType");
+    };
+  }
+
+  function defineTypedEffectMutator<
+    TValidator extends StandardSchemaLike,
+    TInput extends ReadonlyJSONValue | undefined,
+    TOutput extends ReadonlyJSONValue | undefined,
+  >(
+    validatorOrMutator:
+      | TValidator
+      | EffectMutatorDefinitionFunction<any, TContext, TWrappedTransaction, TSchema>,
+    maybeMutator?: EffectMutatorDefinitionFunction<TOutput, TContext, TWrappedTransaction, TSchema>,
+  ) {
+    if (typeof maybeMutator === "function") {
+      return define(validatorOrMutator as unknown as any, wrapMutator(maybeMutator));
+    }
+
+    return define(
+      wrapMutator(
+        validatorOrMutator as EffectMutatorDefinitionFunction<
+          TInput,
+          TContext,
+          TWrappedTransaction,
+          TSchema
+        >,
+      ),
+    );
+  }
+
+  return defineTypedEffectMutator as TypedDefineEffectMutator<
+    TSchema,
+    TContext,
+    TWrappedTransaction
+  >;
+}
 
 export function createInlinePostCommitScheduler<TContext>(): PostCommitScheduler<TContext> {
   return async (task) => {
@@ -276,6 +462,18 @@ export function extendServerMutator<
   }
 
   return define(runOverride);
+}
+
+export function extendEffectMutatorWithType<
+  TSchema extends ZeroSchema,
+  TContext,
+  TWrappedTransaction,
+>(): TypedExtendServerMutator<TSchema, TContext, TWrappedTransaction> {
+  return extendServerMutator as unknown as TypedExtendServerMutator<
+    TSchema,
+    TContext,
+    TWrappedTransaction
+  >;
 }
 
 interface EffectExecutionRunner {
