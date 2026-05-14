@@ -25,7 +25,8 @@ dist-ssr
 *.sw?
 
 # Read-only upstream context clones
-.context/
+.context
+.repos/
 
 # Alchemy and TanStack Start local state
 .alchemy/
