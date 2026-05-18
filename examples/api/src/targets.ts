@@ -570,9 +570,9 @@ function createControlRuntime(): TargetRuntime {
       });
     },
     async mutate(request) {
-      return handleMutateRequest(
-        controlZql,
-        async (transact) =>
+      return handleMutateRequest({
+        dbProvider: controlZql,
+        handler: async (transact) =>
           transact(async (tx, name, args) => {
             const mutator = mustGetMutator(baseMutators, name);
             await mutator.fn({
@@ -582,14 +582,16 @@ function createControlRuntime(): TargetRuntime {
             });
           }),
         request,
-      );
+        userID: getDemoContext().userId,
+      });
     },
     async query(request) {
-      return handleQueryRequest(
-        (name, args) => mustGetQuery(queries, name).fn({ args, ctx: getDemoContext() }),
-        zeroSchema,
+      return handleQueryRequest({
+        handler: (name, args) => mustGetQuery(queries, name).fn({ args, ctx: getDemoContext() }),
         request,
-      );
+        schema: zeroSchema,
+        userID: getDemoContext().userId,
+      });
     },
     async zqlRead(body) {
       const query = mustGetQuery(queries, body.name);
@@ -624,14 +626,20 @@ function createPackageRuntime(options: {
     },
     async mutate(request) {
       const provider = await options.provider.get();
-      return handleMutateRequest(provider.zql, options.handler, request);
+      return handleMutateRequest({
+        dbProvider: provider.zql,
+        handler: options.handler,
+        request,
+        userID: getDemoContext().userId,
+      });
     },
     async query(request) {
-      return handleQueryRequest(
-        (name, args) => mustGetQuery(queries, name).fn({ args, ctx: getDemoContext() }),
-        zeroSchema,
+      return handleQueryRequest({
+        handler: (name, args) => mustGetQuery(queries, name).fn({ args, ctx: getDemoContext() }),
         request,
-      );
+        schema: zeroSchema,
+        userID: getDemoContext().userId,
+      });
     },
     async zqlRead(body) {
       const provider = await options.provider.get();

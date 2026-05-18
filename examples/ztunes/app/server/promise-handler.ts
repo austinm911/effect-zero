@@ -49,27 +49,29 @@ function getMutationContext(args: ReadonlyJSONValue | undefined) {
 export async function handlePromiseMutate(request: Request) {
   return withSqlClient(async (sql) => {
     const dbProvider = zeroPostgresJS(schema, sql);
-    return handleMutateRequest(
+    return handleMutateRequest({
       dbProvider,
-      async (transact) =>
+      handler: async (transact) =>
         transact(async (tx, name, args) => {
           const mutator = mustGetMutator(mutators, name);
           await mutator.fn({ tx, ctx: getMutationContext(args), args });
         }),
       request,
-    );
+      userID: getContext().userId,
+    });
   });
 }
 
 export async function handlePromiseQuery(request: Request) {
-  return handleQueryRequest(
-    (name, args) => {
+  return handleQueryRequest({
+    handler: (name, args) => {
       const query = mustGetQuery(queries, name);
       return query.fn({ args, ctx: getContext() });
     },
-    schema,
     request,
-  );
+    schema,
+    userID: getContext().userId,
+  });
 }
 
 export async function handlePromiseDirectMutate(

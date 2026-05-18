@@ -169,9 +169,9 @@ describe("Effect v3 DBConnection", () => {
     });
 
     try {
-      const response = await handleMutateRequest(
-        provider.zql,
-        async (transact) =>
+      const response = await handleMutateRequest({
+        dbProvider: provider.zql,
+        handler: async (transact) =>
           transact(async (tx, name, args) => {
             expect(name).toBe("cart.add");
 
@@ -183,11 +183,11 @@ describe("Effect v3 DBConnection", () => {
               userId: seed.userId,
             });
           }),
-        {
+        query: {
           appID: "effect-zero-test",
           schema: ZERO_CONTROL_SCHEMA,
         },
-        {
+        body: {
           clientGroupID: mockTransactionInput.clientGroupID,
           mutations: [
             {
@@ -204,7 +204,8 @@ describe("Effect v3 DBConnection", () => {
           schemaVersion: 1,
           timestamp: 1_743_127_752_952,
         },
-      );
+        userID: seed.userId,
+      });
 
       const cartItems = await provider.zql.run(
         zeroBuilder.cartItem.where("userId", "=", seed.userId).where("albumId", "=", seed.album.id),
@@ -300,8 +301,8 @@ describe("Effect v3 DBConnection", () => {
     });
 
     const calls: Array<{ args: unknown; name: string }> = [];
-    const response = await handleQueryRequest(
-      (name, args) => {
+    const response = await handleQueryRequest({
+      handler: (name, args) => {
         calls.push({ args, name });
 
         if (name !== "getArtist") {
@@ -314,9 +315,10 @@ describe("Effect v3 DBConnection", () => {
           (args as { artistId?: string } | undefined)?.artistId ?? "",
         );
       },
-      zeroSchema,
       request,
-    );
+      schema: zeroSchema,
+      userID: seed.userId,
+    });
 
     expect(calls).toEqual([
       {
@@ -326,9 +328,9 @@ describe("Effect v3 DBConnection", () => {
         name: "getArtist",
       },
     ]);
-    expect(response).toEqual([
-      "transformed",
-      [
+    expect(response).toEqual({
+      kind: "QueryResponse",
+      queries: [
         expect.objectContaining({
           ast: expect.objectContaining({
             table: "artist",
@@ -337,7 +339,8 @@ describe("Effect v3 DBConnection", () => {
           name: "getArtist",
         }),
       ],
-    ]);
+      userID: seed.userId,
+    });
   }, 20_000);
 
   test("wraps a node-postgres pool with raw SQL and native client transaction access", async () => {

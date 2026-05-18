@@ -452,7 +452,7 @@ as ordinary runtime dependencies.
 
 Recommended direction:
 
-- move `@rocicorp/zero` to `peerDependencies` with a `>=0.26.0 <1` range
+- move `@rocicorp/zero` to `peerDependencies` with a `>=1.0.0 <2` range
 - move the matching canonical Effect runtime for each package line to
   `peerDependencies`
 - keep only true implementation-time dependencies as package dependencies
@@ -637,7 +637,7 @@ return mapResultToRouteResponse(result);
 
 Scope:
 
-- move `@rocicorp/zero` to peers with a `>=0.26.0 <1` range
+- move `@rocicorp/zero` to peers with a `>=1.0.0 <2` range
 - move the canonical Effect runtime dependency for each package line to peers
 - verify v3 and v4 package manifests
 - update READMEs and installation docs, with dual-version aliasing documented
@@ -665,7 +665,7 @@ High-level pseudocode:
 
 ```ts
 peerDependencies: {
-  "@rocicorp/zero": ">=0.26.0 <1",
+  "@rocicorp/zero": ">=1.0.0 <2",
   effect: "<matching runtime range for this package line>",
 }
 ```

@@ -70,7 +70,12 @@ export async function POST(request: Request) {
     },
   });
 
-  return handleMutateRequest(provider.zql, handler, request);
+  return handleMutateRequest({
+    dbProvider: provider.zql,
+    handler,
+    request,
+    userID: session.user.id,
+  });
 }
 ```
 
@@ -230,15 +235,16 @@ const provider = await createZeroDbProvider({ db, zeroSchema: schema });
 ```ts
 const dbProvider = zeroPostgresJS(schema, postgres(process.env.PG_URL!));
 
-return handleMutateRequest(
+return handleMutateRequest({
   dbProvider,
-  async (transact) =>
+  handler: async (transact) =>
     transact(async (tx, name, args) => {
       const mutator = mustGetMutator(mutators, name);
       await mutator.fn({ tx, ctx, args });
     }),
   request,
-);
+  userID: ctx.userId,
+});
 ```
 
 **After (with effect-zero):**
@@ -273,7 +279,12 @@ export async function POST(request: Request) {
     },
   });
 
-  return handleMutateRequest(provider.zql, handler, request);
+  return handleMutateRequest({
+    dbProvider: provider.zql,
+    handler,
+    request,
+    userID: session.user.id,
+  });
 }
 ```
 
@@ -1032,7 +1043,14 @@ const provider = await createZeroDbProvider({
 });
 
 try {
-  return json(await handleMutateRequest(provider.zql, handler, request));
+  return json(
+    await handleMutateRequest({
+      dbProvider: provider.zql,
+      handler,
+      request,
+      userID: session.user.id,
+    }),
+  );
 } finally {
   await provider.dispose();
 }

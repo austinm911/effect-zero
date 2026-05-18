@@ -112,7 +112,12 @@ export async function POST(request: Request) {
     },
   });
 
-  return handleMutateRequest(provider.zql, handler, request);
+  return handleMutateRequest({
+    dbProvider: provider.zql,
+    handler,
+    request,
+    userID: session.user.id,
+  });
 }
 ```
 

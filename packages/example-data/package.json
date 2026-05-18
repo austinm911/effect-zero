@@ -30,9 +30,9 @@
     "prepublishOnly": "vp pack"
   },
   "dependencies": {
-    "@rocicorp/zero": "1.4.0",
+    "@rocicorp/zero": "1.5.0",
     "drizzle-orm": "0.45.2",
-    "postgres": "3.4.9",
+    "postgres": "3.4.7",
     "zod": "4.4.2"
   },
   "devDependencies": {

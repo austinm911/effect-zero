@@ -143,12 +143,13 @@ describe("Effect v4 server mutator helpers", () => {
       const addBody = getZeroPushBody(addFixture.body);
       const addMutation = getOnlyZeroMutation(addBody);
 
-      const response = await handleMutateRequest(
-        provider.zql,
+      const response = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        addBody,
-      );
+        query: createZeroControlQuery(),
+        body: addBody,
+        userID: seed.userId,
+      });
 
       const cartRows = await testDatabase.queryRows<{ albumId: string; userId: string }>(
         `
@@ -238,12 +239,13 @@ describe("Effect v4 server mutator helpers", () => {
       const removeBody = getZeroPushBody(removeFixture.body);
       const removeMutation = getOnlyZeroMutation(removeBody);
 
-      const response = await handleMutateRequest(
-        provider.zql,
+      const response = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        removeBody,
-      );
+        query: createZeroControlQuery(),
+        body: removeBody,
+        userID: seed.userId,
+      });
 
       const cartRows = await testDatabase.queryRows<{ albumId: string; userId: string }>(
         `
@@ -377,12 +379,13 @@ describe("Effect v4 server mutator helpers", () => {
       const addBody = getZeroPushBody(addFixture.body);
       const addMutation = getOnlyZeroMutation(addBody);
 
-      const response = await handleMutateRequest(
-        provider.zql,
+      const response = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        addBody,
-      );
+        query: createZeroControlQuery(),
+        body: addBody,
+        userID: seed.userId,
+      });
 
       const cartRows = await testDatabase.queryRows<{ albumId: string; userId: string }>(
         `
@@ -395,6 +398,7 @@ describe("Effect v4 server mutator helpers", () => {
       );
 
       expect(response).toEqual({
+        kind: "MutateResponse",
         mutations: [
           {
             id: {
@@ -406,6 +410,7 @@ describe("Effect v4 server mutator helpers", () => {
             }),
           },
         ],
+        userID: seed.userId,
       });
       expect(cartRows).toEqual([]);
     } finally {
@@ -438,18 +443,20 @@ describe("Effect v4 server mutator helpers", () => {
       const addBody = getZeroPushBody(addFixture.body);
       const addMutation = getOnlyZeroMutation(addBody);
 
-      const firstResponse = await handleMutateRequest(
-        provider.zql,
+      const firstResponse = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        addBody,
-      );
-      const replayResponse = await handleMutateRequest(
-        provider.zql,
+        query: createZeroControlQuery(),
+        body: addBody,
+        userID: seed.userId,
+      });
+      const replayResponse = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        addBody,
-      );
+        query: createZeroControlQuery(),
+        body: addBody,
+        userID: seed.userId,
+      });
       const clientRows = await testDatabase.queryRows<{ lastMutationID: number }>(
         `
           SELECT "lastMutationID"::int AS "lastMutationID"
@@ -461,6 +468,7 @@ describe("Effect v4 server mutator helpers", () => {
       );
 
       expect(firstResponse).toEqual({
+        kind: "MutateResponse",
         mutations: [
           {
             id: {
@@ -470,8 +478,10 @@ describe("Effect v4 server mutator helpers", () => {
             result: {},
           },
         ],
+        userID: seed.userId,
       });
       expect(replayResponse).toEqual({
+        kind: "MutateResponse",
         mutations: [
           {
             id: {
@@ -484,6 +494,7 @@ describe("Effect v4 server mutator helpers", () => {
             },
           },
         ],
+        userID: seed.userId,
       });
       expect(clientRows).toEqual([{ lastMutationID: 1 }]);
     } finally {
@@ -517,12 +528,13 @@ describe("Effect v4 server mutator helpers", () => {
       const addBody = getZeroPushBody(addFixture.body);
       const addMutation = getOnlyZeroMutation(addBody);
 
-      const response = await handleMutateRequest(
-        provider.zql,
+      const response = await handleMutateRequest({
+        dbProvider: provider.zql,
         handler,
-        createZeroControlQuery(),
-        addBody,
-      );
+        query: createZeroControlQuery(),
+        body: addBody,
+        userID: seed.userId,
+      });
 
       expect(response).toEqual({
         kind: "PushFailed",

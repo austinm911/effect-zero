@@ -230,7 +230,12 @@ const handler = createServerMutatorHandler({
   executeEffect: ({ effect }) => Effect.runPromise(effect),
 });
 
-return await handleMutateRequest(provider.zql, handler, request);
+return await handleMutateRequest({
+  dbProvider: provider.zql,
+  handler,
+  request,
+  userID: userId,
+});
 ```
 
 Advanced worker runtimes can swap the scheduler without rewriting the route:
@@ -275,7 +280,14 @@ export const ServerRoute = createServerFileRoute("/api/zero/mutate").methods({
     });
 
     try {
-      return json(await handleMutateRequest(provider.zql, handler, request));
+      return json(
+        await handleMutateRequest({
+          dbProvider: provider.zql,
+          handler,
+          request,
+          userID: session.user.id,
+        }),
+      );
     } finally {
       await provider.dispose();
     }

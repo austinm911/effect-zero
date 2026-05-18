@@ -12,14 +12,14 @@ import * as rootEntryPoint from "../src/index.js";
 test("beta track manifest points at Effect v4", () => {
   expect(manifest.effectLine).toBe("v4");
   expect(manifest.effectVersion).toBe("4.0.0-beta.59");
-  expect(describePackage()).toContain("1.4.0");
+  expect(describePackage()).toContain("1.5.0");
 });
 
 test("beta track satisfies the shared adapter contract scaffold", () => {
   const report = evaluateAdapterContract(adapter, {
     effectLine: "v4",
     effectVersion: "4.0.0-beta.59",
-    zeroVersion: "1.4.0",
+    zeroVersion: "1.5.0",
     contextRepoNames: [
       "effect-v4-beta",
       "drizzle-orm-v1.0.0-rc.1",
@@ -99,7 +99,7 @@ test("beta track keeps Zero and Effect as peers instead of runtime dependencies"
   expect(packageJson.dependencies).not.toHaveProperty("@rocicorp/zero");
   expect(packageJson.dependencies).not.toHaveProperty("effect");
   expect(packageJson.devDependencies).toMatchObject({
-    "@rocicorp/zero": "1.4.0",
+    "@rocicorp/zero": "1.5.0",
     effect: "4.0.0-beta.59",
   });
   expect(packageJson.peerDependencies).toMatchObject({
