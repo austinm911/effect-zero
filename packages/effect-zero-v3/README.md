@@ -836,6 +836,11 @@ through the same `executeEffect(...)` runtime path used by
 `extendServerMutator(...)`. The mutator input also includes `defer(effect)` for
 post-commit work.
 
+Effect service requirements are inferred from returned and deferred Effects. If
+any mutator in the registry requires services, `createServerMutatorHandler(...)`
+and `createMutationExecutor(...)` require `executeEffect` so those services are
+provided at the request boundary.
+
 ### `extendServerMutatorWithType<Schema, Context, WrappedTransaction>()`
 
 Returns a typed wrapper around `extendServerMutator(...)` for apps whose shared
@@ -865,7 +870,7 @@ Creates a handler compatible with `handleMutateRequest`.
 | --------------------- | --------------------------------------------------------------------------- |
 | `mutators`            | Server mutator registry (from `defineMutators`)                             |
 | `getContext`          | Resolves auth context per mutation. Receives `{ name, args, clientID, id }` |
-| `executeEffect`       | Optional. Runs Effect overrides with your service layers provided           |
+| `executeEffect`       | Required when mutators need Effect services; otherwise optional             |
 | `instrumentation`     | Optional. Wraps mutation/effect execution for logging, metrics, or OTEL     |
 | `postCommitScheduler` | Optional. Defaults to inline scheduling after commit                        |
 

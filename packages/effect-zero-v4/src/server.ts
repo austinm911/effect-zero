@@ -33,22 +33,24 @@ export interface RestMutationLike {
   readonly name: string;
 }
 
-type DeferredEffect = Effect.Effect<unknown, unknown, unknown>;
+type MutatorArgs = ReadonlyJSONValue | undefined;
+type DeferredEffect<TServices = unknown> = Effect.Effect<unknown, unknown, TServices>;
 
-interface MutationExecutionState {
-  readonly deferredEffects: DeferredEffect[];
-  readonly executeEffect: (effect: DeferredEffect) => Promise<unknown>;
+interface MutationExecutionState<TServices = unknown> {
+  readonly deferredEffects: DeferredEffect<TServices>[];
+  readonly executeEffect: (effect: DeferredEffect<TServices>) => Promise<unknown>;
 }
 
-const mutationExecutionStateByTransaction = new WeakMap<object, MutationExecutionState>();
+const mutationExecutionStateByTransaction = new WeakMap<object, unknown>();
 
 export interface ExecuteEffectInput<
   TContext,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TWrappedTransaction,
+  TServices,
   A,
   E,
-  R,
+  R extends TServices,
 > {
   readonly ctx: TContext;
   readonly effect: Effect.Effect<A, E, R>;
@@ -57,13 +59,24 @@ export interface ExecuteEffectInput<
   readonly tx?: ServerTransaction<TSchema, TWrappedTransaction>;
 }
 
+type PendingExecuteEffectInput<
+  TContext,
+  TSchema extends ZeroSchema,
+  TWrappedTransaction,
+  TServices,
+  A,
+  E,
+  R extends TServices,
+> = {
+  readonly ctx: TContext;
+  readonly effect: Effect.Effect<A, E, R>;
+  readonly mutation: ServerMutationLike;
+  readonly tx?: ServerTransaction<TSchema, TWrappedTransaction>;
+};
+
 export type EffectExecutionPhase = "inline" | "deferred";
 
-export interface ObserveMutationInput<
-  TContext,
-  TSchema extends import("@rocicorp/zero").Schema,
-  TWrappedTransaction,
-> {
+export interface ObserveMutationInput<TContext, TSchema extends ZeroSchema, TWrappedTransaction> {
   readonly ctx: TContext;
   readonly mutation: ServerMutationLike;
   readonly tx: ServerTransaction<TSchema, TWrappedTransaction>;
@@ -71,11 +84,12 @@ export interface ObserveMutationInput<
 
 export interface ObserveEffectInput<
   TContext,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TWrappedTransaction,
+  TServices,
   A,
   E,
-  R,
+  R extends TServices,
 > {
   readonly ctx: TContext;
   readonly effect: Effect.Effect<A, E, R>;
@@ -86,56 +100,139 @@ export interface ObserveEffectInput<
 
 export interface MutationExecutorInstrumentation<
   TContext,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TWrappedTransaction,
+  TServices = unknown,
 > {
   observeMutation?<A>(
     input: ObserveMutationInput<TContext, TSchema, TWrappedTransaction>,
     run: () => Promise<A>,
   ): Promise<A>;
-  observeEffect?<A, E, R>(
-    input: ObserveEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
+  observeEffect?<A, E, R extends TServices>(
+    input: ObserveEffectInput<TContext, TSchema, TWrappedTransaction, TServices, A, E, R>,
     run: () => Promise<A>,
   ): Promise<A>;
 }
 
-export interface PostCommitTask<TContext> {
+export interface PostCommitTask<TContext, TServices = unknown> {
   readonly ctx: TContext;
-  readonly effect: DeferredEffect;
+  readonly effect: DeferredEffect<TServices>;
   readonly mutation: ServerMutationLike;
   run(): Promise<void>;
 }
 
-export type PostCommitScheduler<TContext> = (task: PostCommitTask<TContext>) => Promise<void>;
+export type PostCommitScheduler<TContext, TServices = unknown> = (
+  task: PostCommitTask<TContext, TServices>,
+) => Promise<void>;
 
-export interface CreateMutationExecutorOptions<
-  TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+const effectMutatorServices: unique symbol = Symbol("effect-zero.services");
+
+type EffectServicesMarker<TServices> = {
+  readonly [effectMutatorServices]: (_: TServices) => TServices;
+};
+
+function addEffectServicesMarker<TServices>() {
+  return <TDefinition extends object>(
+    definition: TDefinition,
+  ): TDefinition & EffectServicesMarker<TServices> =>
+    Object.assign(definition, {
+      [effectMutatorServices]: (services: TServices) => services,
+    });
+}
+
+type EffectMutatorServicesOf<TValue> =
+  TValue extends EffectServicesMarker<infer TServices>
+    ? TServices
+    : TValue extends MutatorDefinition<infer _Input, infer _Output, infer _Context, infer _Tx>
+      ? never
+      : TValue extends object
+        ? { [TKey in keyof TValue]: EffectMutatorServicesOf<TValue[TKey]> }[keyof TValue]
+        : never;
+
+export type EffectMutatorServices<TMutators> = [EffectMutatorServicesOf<TMutators>] extends [never]
+  ? unknown
+  : EffectMutatorServicesOf<TMutators>;
+
+type ExecuteEffectHandler<TContext, TSchema extends ZeroSchema, TWrappedTransaction, TServices> = <
+  A,
+  E,
+  R extends TServices,
+>(
+  input: ExecuteEffectInput<TContext, TSchema, TWrappedTransaction, TServices, A, E, R>,
+) => Promise<A>;
+
+type ExecuteEffectOption<TContext, TSchema extends ZeroSchema, TWrappedTransaction, TServices> = [
+  TServices,
+] extends [never]
+  ? {
+      readonly executeEffect?: ExecuteEffectHandler<
+        TContext,
+        TSchema,
+        TWrappedTransaction,
+        TServices
+      >;
+    }
+  : unknown extends TServices
+    ? {
+        readonly executeEffect?: ExecuteEffectHandler<
+          TContext,
+          TSchema,
+          TWrappedTransaction,
+          TServices
+        >;
+      }
+    : {
+        readonly executeEffect: ExecuteEffectHandler<
+          TContext,
+          TSchema,
+          TWrappedTransaction,
+          TServices
+        >;
+      };
+
+type MutationExecutorRuntimeOptions<
   TContext,
+  TSchema extends ZeroSchema,
   TWrappedTransaction,
-> {
-  readonly getContext: (mutation: ServerMutationLike) => Promise<TContext> | TContext;
-  readonly mutators: TMutators;
-  readonly executeEffect?: <A, E, R>(
-    input: ExecuteEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
-  ) => Promise<A>;
+  TServices,
+> = {
+  readonly executeEffect?: ExecuteEffectHandler<TContext, TSchema, TWrappedTransaction, TServices>;
   readonly instrumentation?: MutationExecutorInstrumentation<
     TContext,
     TSchema,
-    TWrappedTransaction
+    TWrappedTransaction,
+    TServices
   >;
-  readonly postCommitScheduler?: PostCommitScheduler<TContext>;
-}
+};
+
+export type CreateMutationExecutorOptions<
+  TMutators,
+  TSchema extends ZeroSchema,
+  TContext,
+  TWrappedTransaction,
+  TServices = EffectMutatorServices<TMutators>,
+> = {
+  readonly getContext: (mutation: ServerMutationLike) => Promise<TContext> | TContext;
+  readonly mutators: TMutators;
+  readonly instrumentation?: MutationExecutorInstrumentation<
+    TContext,
+    TSchema,
+    TWrappedTransaction,
+    TServices
+  >;
+  readonly postCommitScheduler?: PostCommitScheduler<TContext, TServices>;
+} & ExecuteEffectOption<TContext, TSchema, TWrappedTransaction, TServices>;
 
 export type CreateServerMutatorHandlerOptions<
   TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
-> = CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction>;
+  TServices = EffectMutatorServices<TMutators>,
+> = CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction, TServices>;
 
 export interface MutationExecutorInvocation<
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TWrappedTransaction,
   TResponse,
 > {
@@ -144,127 +241,170 @@ export interface MutationExecutorInvocation<
     execute: (
       tx: ServerTransaction<TSchema, TWrappedTransaction>,
       mutatorName: string,
-      mutatorArgs: ReadonlyJSONValue | undefined,
+      mutatorArgs: MutatorArgs,
     ) => Promise<void>,
   ): Promise<TResponse>;
 }
 
-export interface RestMutatorTransactionHost {
-  transaction<A>(callback: (tx: any) => Promise<A>): Promise<A>;
+export interface RestMutatorTransactionHost<
+  TSchema extends ZeroSchema = ZeroSchema,
+  TWrappedTransaction = unknown,
+> {
+  transaction<A>(
+    callback: (tx: ServerTransaction<TSchema, TWrappedTransaction>) => Promise<A>,
+  ): Promise<A>;
 }
 
-export interface RestMutatorInvocation {
-  readonly db: RestMutatorTransactionHost;
+export interface RestMutatorInvocation<
+  TSchema extends ZeroSchema = ZeroSchema,
+  TWrappedTransaction = unknown,
+> {
+  readonly db: RestMutatorTransactionHost<TSchema, TWrappedTransaction>;
   readonly mutation: RestMutationLike;
 }
 
 export interface ExtendServerMutatorInput<
-  TArgs extends ReadonlyJSONValue | undefined,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TArgs extends MutatorArgs,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
+  TServices = unknown,
 > {
   readonly args: TArgs;
   readonly ctx: TContext;
   readonly tx: ServerTransaction<TSchema, TWrappedTransaction>;
-  defer(effect: DeferredEffect): void;
+  defer(effect: DeferredEffect<TServices>): void;
   runDefaultMutation(): Effect.Effect<void, unknown, never>;
 }
 
-type ServerOverrideResult = void | Promise<void> | Effect.Effect<void, unknown, unknown>;
-export type ServerEffectMutatorResult =
+export type ServerEffectMutatorResult<TServices = unknown> =
   | void
   | Promise<void>
-  | Effect.Effect<void, unknown, unknown>;
+  | Effect.Effect<void, unknown, TServices>;
+type ServerOverrideResult<TServices = unknown> = ServerEffectMutatorResult<TServices>;
+type ServerEffectApiName = "defineEffectMutatorWithType" | "extendServerMutator";
 
-type StandardSchemaLike = StandardSchemaV1<any, any>;
+type StandardSchemaLike = StandardSchemaV1<MutatorArgs, MutatorArgs>;
 
 type InferStandardSchemaInput<TValidator extends StandardSchemaLike> =
-  TValidator extends StandardSchemaV1<infer TInput, any>
-    ? Extract<TInput, ReadonlyJSONValue | undefined>
+  TValidator extends StandardSchemaV1<infer TInput, MutatorArgs>
+    ? Extract<TInput, MutatorArgs>
     : never;
 
 type InferStandardSchemaOutput<TValidator extends StandardSchemaLike> =
-  TValidator extends StandardSchemaV1<any, infer TOutput>
-    ? Extract<TOutput, ReadonlyJSONValue | undefined>
+  TValidator extends StandardSchemaV1<MutatorArgs, infer TOutput>
+    ? Extract<TOutput, MutatorArgs>
     : never;
 
+type AnyMutatorDefinition = MutatorDefinition<MutatorArgs, MutatorArgs, unknown, unknown>;
+
+function isStandardSchemaLike(value: unknown): value is StandardSchemaLike {
+  return (
+    (typeof value === "object" || typeof value === "function") &&
+    value !== null &&
+    "~standard" in value
+  );
+}
+
 export type EffectMutatorDefinitionFunction<
-  TOutput extends ReadonlyJSONValue | undefined,
+  TOutput extends MutatorArgs,
   TContext,
   TWrappedTransaction,
   TSchema extends ZeroSchema,
+  TServices = unknown,
 > = (input: {
   readonly args: TOutput;
   readonly ctx: TContext;
-  defer(effect: DeferredEffect): void;
+  defer(effect: DeferredEffect<TServices>): void;
   readonly tx: Transaction<TSchema, TWrappedTransaction>;
-}) => ServerEffectMutatorResult;
+}) => ServerEffectMutatorResult<TServices>;
 
 export type TypedDefineEffectMutator<TSchema extends ZeroSchema, TContext, TWrappedTransaction> = {
-  <TArgs extends ReadonlyJSONValue | undefined>(
-    mutator: EffectMutatorDefinitionFunction<TArgs, TContext, TWrappedTransaction, TSchema>,
-  ): MutatorDefinition<TArgs, TArgs, TContext, TWrappedTransaction>;
+  <TArgs extends MutatorArgs, TServices = never>(
+    mutator: EffectMutatorDefinitionFunction<
+      TArgs,
+      TContext,
+      TWrappedTransaction,
+      TSchema,
+      TServices
+    >,
+  ): MutatorDefinition<TArgs, TArgs, TContext, TWrappedTransaction> &
+    EffectServicesMarker<TServices>;
 
-  <TValidator extends StandardSchemaLike>(
+  <TValidator extends StandardSchemaLike, TServices = never>(
     validator: TValidator,
     mutator: EffectMutatorDefinitionFunction<
       InferStandardSchemaOutput<TValidator>,
       TContext,
       TWrappedTransaction,
-      TSchema
+      TSchema,
+      TServices
     >,
   ): MutatorDefinition<
     InferStandardSchemaInput<TValidator>,
     InferStandardSchemaOutput<TValidator>,
     TContext,
     TWrappedTransaction
-  >;
+  > &
+    EffectServicesMarker<TServices>;
 };
 
 export type ExtendServerMutatorOverride<
-  TOutput extends ReadonlyJSONValue | undefined,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TOutput extends MutatorArgs,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
+  TServices = unknown,
 > = (
-  input: ExtendServerMutatorInput<TOutput, TSchema, TContext, TWrappedTransaction>,
-) => ServerOverrideResult;
+  input: ExtendServerMutatorInput<TOutput, TSchema, TContext, TWrappedTransaction, TServices>,
+) => ServerOverrideResult<TServices>;
 
 export type TypedExtendServerMutator<TSchema extends ZeroSchema, TContext, TWrappedTransaction> = <
-  TBaseMutator extends MutatorDefinition<any, any, any, any>,
+  TBaseMutator extends AnyMutatorDefinition,
+  TServices = never,
 >(
   baseMutator: TBaseMutator,
   override: ExtendServerMutatorOverride<
     TBaseMutator["~"]["$output"],
     TSchema,
     TContext,
-    TWrappedTransaction
+    TWrappedTransaction,
+    TServices
   >,
 ) => MutatorDefinition<
   TBaseMutator["~"]["$input"],
   TBaseMutator["~"]["$output"],
   TContext,
   TWrappedTransaction
->;
+> &
+  EffectServicesMarker<TServices>;
 
-function executeServerEffectResult<
-  TSchema extends import("@rocicorp/zero").Schema,
-  TWrappedTransaction,
->(
+function executeServerEffectResult<TSchema extends ZeroSchema, TWrappedTransaction, TServices>(
   tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>,
-  result: ServerEffectMutatorResult,
-  apiName: "defineEffectMutatorWithType" | "extendServerMutator",
+  result: ServerEffectMutatorResult<TServices>,
+  apiName: ServerEffectApiName,
 ) {
   if (!Effect.isEffect(result)) {
     return Promise.resolve(result);
   }
 
+  return getServerMutationExecution<TServices, TSchema, TWrappedTransaction>(
+    tx,
+    apiName,
+  ).state.executeEffect(result);
+}
+
+function getServerMutationExecution<TServices, TSchema extends ZeroSchema, TWrappedTransaction>(
+  tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>,
+  apiName: ServerEffectApiName,
+) {
   if (tx.location !== "server") {
     throw new Error(`${apiName} may only run on the authoritative server path.`);
   }
 
-  const executionState = mutationExecutionStateByTransaction.get(tx);
+  const executionState = mutationExecutionStateByTransaction.get(tx) as
+    | MutationExecutionState<TServices>
+    | undefined;
 
   if (!executionState) {
     throw new Error(
@@ -272,7 +412,10 @@ function executeServerEffectResult<
     );
   }
 
-  return executionState.executeEffect(result);
+  return {
+    state: executionState,
+    tx,
+  };
 }
 
 export function defineEffectMutatorWithType<
@@ -282,8 +425,14 @@ export function defineEffectMutatorWithType<
 >(): TypedDefineEffectMutator<TSchema, TContext, TWrappedTransaction> {
   const define = defineMutatorWithType<TSchema, TContext, TWrappedTransaction>();
 
-  function wrapMutator<TOutput extends ReadonlyJSONValue | undefined>(
-    mutator: EffectMutatorDefinitionFunction<TOutput, TContext, TWrappedTransaction, TSchema>,
+  function wrapMutator<TOutput extends MutatorArgs, TServices>(
+    mutator: EffectMutatorDefinitionFunction<
+      TOutput,
+      TContext,
+      TWrappedTransaction,
+      TSchema,
+      TServices
+    >,
   ) {
     return async ({
       args,
@@ -294,22 +443,11 @@ export function defineEffectMutatorWithType<
       readonly ctx: TContext;
       readonly tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>;
     }) => {
-      const defer = (effect: DeferredEffect) => {
-        if (tx.location !== "server") {
-          throw new Error(
-            "defineEffectMutatorWithType may only run on the authoritative server path.",
-          );
-        }
-
-        const executionState = mutationExecutionStateByTransaction.get(tx);
-
-        if (!executionState) {
-          throw new Error(
-            "defineEffectMutatorWithType requires createMutationExecutor, createServerMutatorHandler, or createRestMutatorHandler so deferred effects and Effect execution stay request-scoped.",
-          );
-        }
-
-        executionState.deferredEffects.push(effect);
+      const defer = (effect: DeferredEffect<TServices>) => {
+        getServerMutationExecution<TServices, TSchema, TWrappedTransaction>(
+          tx,
+          "defineEffectMutatorWithType",
+        ).state.deferredEffects.push(effect);
       };
 
       const result = mutator({
@@ -323,30 +461,45 @@ export function defineEffectMutatorWithType<
     };
   }
 
-  function defineTypedEffectMutator<
-    TValidator extends StandardSchemaLike,
-    TInput extends ReadonlyJSONValue | undefined,
-    TOutput extends ReadonlyJSONValue | undefined,
-  >(
+  function defineTypedEffectMutator<TValidator extends StandardSchemaLike, TServices = never>(
     validatorOrMutator:
       | TValidator
-      | EffectMutatorDefinitionFunction<any, TContext, TWrappedTransaction, TSchema>,
-    maybeMutator?: EffectMutatorDefinitionFunction<TOutput, TContext, TWrappedTransaction, TSchema>,
-  ) {
-    if (typeof maybeMutator === "function") {
-      return define(validatorOrMutator as unknown as any, wrapMutator(maybeMutator));
-    }
-
-    return define(
-      wrapMutator(
-        validatorOrMutator as EffectMutatorDefinitionFunction<
-          TInput,
+      | EffectMutatorDefinitionFunction<
+          MutatorArgs,
           TContext,
           TWrappedTransaction,
-          TSchema
+          TSchema,
+          TServices
         >,
-      ),
-    );
+    maybeMutator?: EffectMutatorDefinitionFunction<
+      InferStandardSchemaOutput<TValidator>,
+      TContext,
+      TWrappedTransaction,
+      TSchema,
+      TServices
+    >,
+  ) {
+    if (typeof maybeMutator === "function") {
+      if (!isStandardSchemaLike(validatorOrMutator)) {
+        throw new TypeError("defineEffectMutatorWithType expected a Standard Schema validator.");
+      }
+
+      return addEffectServicesMarker<TServices>()(
+        define(
+          validatorOrMutator as unknown as StandardSchemaV1<
+            MutatorArgs,
+            InferStandardSchemaOutput<TValidator>
+          >,
+          wrapMutator(maybeMutator),
+        ),
+      );
+    }
+
+    if (isStandardSchemaLike(validatorOrMutator)) {
+      throw new TypeError("defineEffectMutatorWithType expected a mutator function.");
+    }
+
+    return addEffectServicesMarker<TServices>()(define(wrapMutator(validatorOrMutator)));
   }
 
   return defineTypedEffectMutator as TypedDefineEffectMutator<
@@ -356,19 +509,22 @@ export function defineEffectMutatorWithType<
   >;
 }
 
-export function createInlinePostCommitScheduler<TContext>(): PostCommitScheduler<TContext> {
+export function createInlinePostCommitScheduler<
+  TContext,
+  TServices = unknown,
+>(): PostCommitScheduler<TContext, TServices> {
   return async (task) => {
     await task.run();
   };
 }
 
-export function createWaitUntilPostCommitScheduler<TContext>(options: {
+export function createWaitUntilPostCommitScheduler<TContext, TServices = unknown>(options: {
   readonly onDeferredError: (input: {
     readonly error: unknown;
-    readonly task: PostCommitTask<TContext>;
+    readonly task: PostCommitTask<TContext, TServices>;
   }) => void | Promise<void>;
   readonly waitUntil: (promise: Promise<unknown>) => void;
-}): PostCommitScheduler<TContext> {
+}): PostCommitScheduler<TContext, TServices> {
   return async (task) => {
     const deferredPromise = Promise.resolve()
       .then(() => task.run())
@@ -384,17 +540,19 @@ export function createWaitUntilPostCommitScheduler<TContext>(options: {
 }
 
 export function extendServerMutator<
-  TInput extends ReadonlyJSONValue | undefined,
-  TOutput extends ReadonlyJSONValue | undefined,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TInput extends MutatorArgs,
+  TOutput extends MutatorArgs,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
+  TServices = never,
 >(
   baseMutator: MutatorDefinition<TInput, TOutput, TContext, TWrappedTransaction>,
   override: (
-    input: ExtendServerMutatorInput<TOutput, TSchema, TContext, TWrappedTransaction>,
-  ) => ServerOverrideResult,
-) {
+    input: ExtendServerMutatorInput<TOutput, TSchema, TContext, TWrappedTransaction, TServices>,
+  ) => ServerOverrideResult<TServices>,
+): MutatorDefinition<TInput, TOutput, TContext, TWrappedTransaction> &
+  EffectServicesMarker<TServices> {
   const define = defineMutatorWithType<TSchema, TContext, TWrappedTransaction>();
   const runOverride = async ({
     args,
@@ -405,17 +563,11 @@ export function extendServerMutator<
     readonly ctx: TContext;
     readonly tx: import("@rocicorp/zero").Transaction<TSchema, TWrappedTransaction>;
   }) => {
-    if (tx.location !== "server") {
-      throw new Error("extendServerMutator may only run on the authoritative server path.");
-    }
-
-    const executionState = mutationExecutionStateByTransaction.get(tx);
-
-    if (!executionState) {
-      throw new Error(
-        "extendServerMutator requires createMutationExecutor, createServerMutatorHandler, or createRestMutatorHandler so deferred effects and Effect execution stay request-scoped.",
-      );
-    }
+    const { state: executionState, tx: serverTx } = getServerMutationExecution<
+      TServices,
+      TSchema,
+      TWrappedTransaction
+    >(tx, "extendServerMutator");
 
     let didRunDefaultMutation = false;
 
@@ -434,7 +586,7 @@ export function extendServerMutator<
             baseMutator.fn({
               args,
               ctx,
-              tx,
+              tx: serverTx,
             }),
         });
       });
@@ -446,22 +598,24 @@ export function extendServerMutator<
         executionState.deferredEffects.push(effect);
       },
       runDefaultMutation,
-      tx,
+      tx: serverTx,
     });
 
-    if (Effect.isEffect(result)) {
-      await executionState.executeEffect(result);
-      return;
-    }
-
-    await result;
+    await executeServerEffectResult(serverTx, result, "extendServerMutator");
   };
 
   if (baseMutator.validator) {
-    return define(baseMutator.validator, runOverride);
+    return addEffectServicesMarker<TServices>()(define(baseMutator.validator, runOverride));
   }
 
-  return define(runOverride);
+  return addEffectServicesMarker<TServices>()(
+    define(runOverride) as unknown as MutatorDefinition<
+      TInput,
+      TOutput,
+      TContext,
+      TWrappedTransaction
+    >,
+  );
 }
 
 export function extendEffectMutatorWithType<
@@ -485,16 +639,8 @@ function hasEffectExecutionRunner(value: unknown): value is EffectExecutionRunne
     typeof value === "object" &&
     value !== null &&
     "runEffect" in value &&
-    typeof (value as { runEffect?: unknown }).runEffect === "function"
+    typeof value.runEffect === "function"
   );
-}
-
-function getWrappedTransaction(value: unknown): unknown {
-  if (typeof value !== "object" || value === null || !("wrappedTransaction" in value)) {
-    return undefined;
-  }
-
-  return (value as { readonly wrappedTransaction?: unknown }).wrappedTransaction;
 }
 
 function getEffectExecutionRunner(value: unknown): EffectExecutionRunner | undefined {
@@ -502,45 +648,47 @@ function getEffectExecutionRunner(value: unknown): EffectExecutionRunner | undef
     return value;
   }
 
-  const wrappedTransaction = getWrappedTransaction(value);
+  if (typeof value !== "object" || value === null || !("wrappedTransaction" in value)) {
+    return undefined;
+  }
+
+  const wrappedTransaction = value.wrappedTransaction;
   return hasEffectExecutionRunner(wrappedTransaction) ? wrappedTransaction : undefined;
 }
 
-function resolveTransactionEffectRunner<
-  TSchema extends import("@rocicorp/zero").Schema,
-  TWrappedTransaction,
->(tx?: ServerTransaction<TSchema, TWrappedTransaction>) {
-  const dbTransaction = (tx as { readonly dbTransaction?: unknown } | undefined)?.dbTransaction;
-  return getEffectExecutionRunner(dbTransaction);
+function resolveTransactionEffectRunner<TSchema extends ZeroSchema, TWrappedTransaction>(
+  tx?: ServerTransaction<TSchema, TWrappedTransaction>,
+) {
+  return getEffectExecutionRunner(tx?.dbTransaction);
 }
 
-function createRunWithExecutionContext<
-  TSchema extends import("@rocicorp/zero").Schema,
-  TWrappedTransaction,
->(tx?: ServerTransaction<TSchema, TWrappedTransaction>) {
+function createRunWithExecutionContext<TSchema extends ZeroSchema, TWrappedTransaction>(
+  tx?: ServerTransaction<TSchema, TWrappedTransaction>,
+) {
   const transactionRunner = resolveTransactionEffectRunner(tx);
   return <A, E>(effect: Effect.Effect<A, E, never>) =>
     transactionRunner ? transactionRunner.runEffect(effect) : Effect.runPromise(effect);
 }
 
 function executeEffectWithOptions<
-  TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
+  TServices,
   A,
   E,
-  R,
+  R extends TServices,
 >(
-  options: CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction>,
-  input: ExecuteEffectInput<TContext, TSchema, TWrappedTransaction, A, E, R>,
+  options: MutationExecutorRuntimeOptions<TContext, TSchema, TWrappedTransaction, TServices>,
+  input: PendingExecuteEffectInput<TContext, TSchema, TWrappedTransaction, TServices, A, E, R>,
   phase: EffectExecutionPhase,
 ): Promise<A> {
   const runWithExecutionContext = createRunWithExecutionContext(input.tx);
+  const executeEffect = options.executeEffect;
 
   const run = () => {
-    if (options.executeEffect) {
-      return options.executeEffect({
+    if (executeEffect) {
+      return executeEffect({
         ...input,
         runWithExecutionContext,
       });
@@ -565,19 +713,14 @@ function executeEffectWithOptions<
   return run();
 }
 
-function createPostCommitTask<
-  TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
-  TContext,
-  TWrappedTransaction,
->(
-  options: CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction>,
+function createPostCommitTask<TSchema extends ZeroSchema, TContext, TWrappedTransaction, TServices>(
+  options: MutationExecutorRuntimeOptions<TContext, TSchema, TWrappedTransaction, TServices>,
   input: {
     readonly ctx: TContext;
-    readonly effect: DeferredEffect;
+    readonly effect: DeferredEffect<TServices>;
     readonly mutation: ServerMutationLike;
   },
-): PostCommitTask<TContext> {
+): PostCommitTask<TContext, TServices> {
   let runPromise: Promise<void> | undefined;
 
   return {
@@ -593,8 +736,6 @@ function createPostCommitTask<
               ctx: input.ctx,
               effect: input.effect,
               mutation: input.mutation,
-              tx: undefined,
-              runWithExecutionContext: (effect) => Effect.runPromise(effect),
             },
             "deferred",
           );
@@ -608,28 +749,35 @@ function createPostCommitTask<
 
 export function createMutationExecutor<
   TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
->(options: CreateMutationExecutorOptions<TMutators, TSchema, TContext, TWrappedTransaction>) {
+  TServices = EffectMutatorServices<TMutators>,
+>(
+  options: CreateMutationExecutorOptions<
+    TMutators,
+    TSchema,
+    TContext,
+    TWrappedTransaction,
+    TServices
+  >,
+) {
   const postCommitScheduler =
-    options.postCommitScheduler ?? createInlinePostCommitScheduler<TContext>();
+    options.postCommitScheduler ?? createInlinePostCommitScheduler<TContext, TServices>();
 
   return async <TResponse>(
     input: MutationExecutorInvocation<TSchema, TWrappedTransaction, TResponse>,
   ): Promise<TResponse> => {
     const ctx = await options.getContext(input.mutation);
-    const deferredEffects: DeferredEffect[] = [];
+    const deferredEffects: DeferredEffect<TServices>[] = [];
 
     const response = await input.runTransaction(
       async (
         tx: ServerTransaction<TSchema, TWrappedTransaction>,
         mutatorName: string,
-        mutatorArgs: ReadonlyJSONValue | undefined,
+        mutatorArgs: MutatorArgs,
       ) => {
-        const serverTx = tx as ServerTransaction<TSchema, TWrappedTransaction>;
-
-        mutationExecutionStateByTransaction.set(tx, {
+        const executionState: MutationExecutionState<TServices> = {
           deferredEffects,
           executeEffect: (effect) =>
             executeEffectWithOptions(
@@ -638,17 +786,18 @@ export function createMutationExecutor<
                 ctx,
                 effect,
                 mutation: input.mutation,
-                tx: serverTx,
-                runWithExecutionContext: createRunWithExecutionContext(serverTx),
+                tx,
               },
               "inline",
             ),
-        });
+        };
+
+        mutationExecutionStateByTransaction.set(tx, executionState);
 
         try {
           const mutator = mustGetMutator(options.mutators as never, mutatorName) as {
             fn(input: {
-              readonly args: ReadonlyJSONValue | undefined;
+              readonly args: MutatorArgs;
               readonly ctx: TContext;
               readonly tx: ServerTransaction<TSchema, TWrappedTransaction>;
             }): Promise<void>;
@@ -658,7 +807,7 @@ export function createMutationExecutor<
             mutator.fn({
               args: mutatorArgs,
               ctx,
-              tx: serverTx,
+              tx,
             });
 
           if (options.instrumentation?.observeMutation) {
@@ -666,7 +815,7 @@ export function createMutationExecutor<
               {
                 ctx,
                 mutation: input.mutation,
-                tx: serverTx,
+                tx,
               },
               runMutation,
             );
@@ -695,38 +844,56 @@ export function createMutationExecutor<
 
 export function createServerMutatorHandler<
   TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
->(options: CreateServerMutatorHandlerOptions<TMutators, TSchema, TContext, TWrappedTransaction>) {
+  TServices = EffectMutatorServices<TMutators>,
+>(
+  options: CreateServerMutatorHandlerOptions<
+    TMutators,
+    TSchema,
+    TContext,
+    TWrappedTransaction,
+    TServices
+  >,
+) {
   const executeMutation = createMutationExecutor(options);
 
   return async <TResponse>(
     transact: (
       execute: (
-        tx: any,
+        tx: ServerTransaction<TSchema, TWrappedTransaction>,
         mutatorName: string,
-        mutatorArgs: ReadonlyJSONValue | undefined,
+        mutatorArgs: MutatorArgs,
       ) => Promise<void>,
     ) => Promise<TResponse>,
     mutation: ServerMutationLike,
   ): Promise<TResponse> => {
     return executeMutation({
       mutation,
-      runTransaction: (execute) => transact((tx, name, args) => execute(tx, name, args)),
+      runTransaction: (execute) => transact(execute),
     });
   };
 }
 
 export function createRestMutatorHandler<
   TMutators,
-  TSchema extends import("@rocicorp/zero").Schema,
+  TSchema extends ZeroSchema,
   TContext,
   TWrappedTransaction,
->(options: CreateServerMutatorHandlerOptions<TMutators, TSchema, TContext, TWrappedTransaction>) {
+  TServices = EffectMutatorServices<TMutators>,
+>(
+  options: CreateServerMutatorHandlerOptions<
+    TMutators,
+    TSchema,
+    TContext,
+    TWrappedTransaction,
+    TServices
+  >,
+) {
   const executeMutation = createMutationExecutor(options);
 
-  return async (input: RestMutatorInvocation) => {
+  return async (input: RestMutatorInvocation<TSchema, TWrappedTransaction>) => {
     const mutation: ServerMutationLike = {
       args: input.mutation.args,
       clientID: input.mutation.clientID ?? "rest",

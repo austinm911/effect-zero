@@ -1,10 +1,11 @@
 import { defineMutatorWithType, defineMutators, type MutatorDefinition } from "@rocicorp/zero";
-import { Effect } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { describe, expect, test } from "vite-plus/test";
 import {
   type CreateMutationExecutorOptions,
   createMutationExecutor,
   createWaitUntilPostCommitScheduler,
+  defineEffectMutatorWithType,
   extendServerMutator,
   type PostCommitScheduler,
   type ServerMutationLike,
@@ -94,6 +95,98 @@ describe("Effect v4 mutation executor", () => {
         requestId: "request-1",
         txLabel: undefined,
       },
+    ]);
+  });
+
+  test("threads typed Effect service requirements into executeEffect", async () => {
+    const tx = createTestTx();
+
+    class TestWorkflow extends Context.Service<
+      TestWorkflow,
+      {
+        readonly record: (event: string) => Effect.Effect<void>;
+      }
+    >()("test/TestWorkflow") {}
+
+    const workflowLayer = Layer.succeed(TestWorkflow)({
+      record: (event) =>
+        Effect.sync(() => {
+          tx.events.push(event);
+        }),
+    });
+    const defineEffectMutator = defineEffectMutatorWithType<
+      any,
+      TestContext,
+      TestWrappedTransaction
+    >();
+    const mutators = defineMutators({
+      cart: {
+        add: defineEffectMutator<{ albumId: string }>(({ args, ctx, defer }) =>
+          Effect.gen(function* () {
+            const workflow = yield* TestWorkflow;
+            yield* workflow.record(`inline:${ctx.userId}:${args.albumId}`);
+            defer(workflow.record(`deferred:${args.albumId}`));
+          }),
+        ),
+      },
+    });
+    const executor = createMutationExecutor<
+      typeof mutators,
+      any,
+      TestContext,
+      TestWrappedTransaction
+    >({
+      executeEffect: ({ effect, runWithExecutionContext }) =>
+        runWithExecutionContext(Effect.provide(effect, workflowLayer)),
+      getContext: (mutation) => ({
+        requestId: `request-${mutation.id}`,
+        userId: "user-1",
+      }),
+      mutators,
+    });
+
+    // @ts-expect-error service-backed Effect mutators require an executor.
+    void createMutationExecutor<typeof mutators, any, TestContext, TestWrappedTransaction>({
+      getContext: (mutation) => ({
+        requestId: `request-${mutation.id}`,
+        userId: "user-1",
+      }),
+      mutators,
+    });
+
+    const deferredOnlyMutators = defineMutators({
+      cart: {
+        add: defineEffectMutator<{ albumId: string }>(({ args, defer }) => {
+          defer(
+            Effect.gen(function* () {
+              const workflow = yield* TestWorkflow;
+              yield* workflow.record(`deferred-only:${args.albumId}`);
+            }),
+          );
+        }),
+      },
+    });
+
+    // @ts-expect-error deferred-only service effects also require an executor.
+    void createMutationExecutor<
+      typeof deferredOnlyMutators,
+      any,
+      TestContext,
+      TestWrappedTransaction
+    >({
+      getContext: (mutation) => ({
+        requestId: `request-${mutation.id}`,
+        userId: "user-1",
+      }),
+      mutators: deferredOnlyMutators,
+    });
+
+    await expect(runExecutor(executor, { tx })).resolves.toEqual({ ok: true });
+    expect(tx.events).toEqual([
+      "transaction:start",
+      "inline:user-1:album-1",
+      "transaction:commit",
+      "deferred:album-1",
     ]);
   });
 
