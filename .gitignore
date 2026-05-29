@@ -36,6 +36,8 @@ dist-ssr
 tmp/
 .local-packs/
 .osgrep
+codedb.snapshot
+prompts/
 .desloppify/
 benchmarks/results/api-*.json
 verification/results/mutation-stress/mutation-stress-*.json
