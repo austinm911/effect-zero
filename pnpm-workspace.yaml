@@ -7,7 +7,7 @@ packages:
 catalog:
   "@cloudflare/vite-plugin": 1.27.0
   "@cloudflare/workers-types": ^4.20260313.1
-  "@rocicorp/zero": 1.5.0
+  "@rocicorp/zero": 1.7.0
   "@tanstack/react-router": 1.166.7
   "@tanstack/react-start": 1.166.7
   "@tanstack/router-cli": 1.166.7
@@ -18,8 +18,8 @@ catalog:
   drizzle-orm: 0.44.1
   drizzle-zero: 0.17.4
   postgres: 3.4.7
-  react: 19.2.3
-  react-dom: 19.2.3
+  react: 19.2.6
+  react-dom: 19.2.6
   sonner: ^2.0.7
   tsdown: ^0.21.2
   typescript: ^5
@@ -31,6 +31,12 @@ catalog:
   zod: ^4.1.5
 
 catalogMode: prefer
+minimumReleaseAgeExclude:
+  - "@rocicorp/zero"
+  - "@effect/platform-node"
+  - "@effect/sql-pg"
+  - "drizzle-orm"
+  - "effect"
 overrides:
   vite: "catalog:"
   vitest: "catalog:"

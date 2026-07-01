@@ -8,8 +8,8 @@ export const adapter = {
   manifest: {
     packageName: "@awstin/effect-zero-v4",
     effectLine: "v4",
-    effectVersion: "4.0.0-beta.59",
-    zeroVersion: "1.5.0",
+    effectVersion: "4.0.0-beta.83",
+    zeroVersion: "1.7.0",
     dbConnectionGoal:
       "Implement a publishable Zero DBConnection against the Effect v4 beta line using Drizzle ORM RC Effect Postgres support rather than Zero's built-in postgres adapter.",
     status: "implemented",
@@ -17,12 +17,12 @@ export const adapter = {
       {
         name: "effect-v4-beta",
         path: ".context/effect-v4-beta",
-        ref: "effect@4.0.0-beta.59",
+        ref: "effect@4.0.0-beta.83",
       },
       {
-        name: "drizzle-orm-v1.0.0-rc.1",
-        path: "npm:drizzle-orm@1.0.0-rc.1",
-        ref: "v1.0.0-rc.1",
+        name: "drizzle-orm-v1.0.0-rc.4",
+        path: "npm:drizzle-orm@1.0.0-rc.4",
+        ref: "v1.0.0-rc.4",
       },
       {
         name: "rocicorp-mono",

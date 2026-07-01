@@ -9,7 +9,8 @@ import {
   ZQLDatabase,
 } from "@rocicorp/zero/server";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
-import type { EffectDrizzlePgConfig, EffectPgDatabase } from "drizzle-orm/effect-postgres";
+import type { EffectPgDatabase } from "drizzle-orm/effect-postgres";
+import type { EffectDrizzlePgConfig } from "drizzle-orm/pg-core/effect/utils";
 import {
   buildRelations,
   extractTablesFromSchema,

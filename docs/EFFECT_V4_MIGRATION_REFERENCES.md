@@ -16,7 +16,7 @@ This file is the canonical starting point for any work in:
   `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/yieldable.md`
   `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/schema.md`
 - Drizzle ORM RC package
-  `drizzle-orm@1.0.0-rc.1`
+  `drizzle-orm@1.0.0-rc.4`
 - Drizzle Effect Postgres entrypoints
   `drizzle-orm/effect-postgres`
   `drizzle-orm/effect-postgres/driver`
@@ -42,7 +42,7 @@ This file is the canonical starting point for any work in:
 
 - Do not model the v4 adapter from the v3 package by string substitution.
 - Do not assume v3 package versions map to v4 by keeping old `0.x` package versions.
-- Use Drizzle `v1.0.0-rc.1` or newer for the v4 Drizzle adapter.
+- Use Drizzle `v1.0.0-rc.4` for the v4 Drizzle adapter.
 - Use matching v4 beta versions across `effect` and `@effect/sql-*`.
 - Treat unstable `effect/unstable/*` modules as unstable inputs if they become necessary.
 - Keep the Zero adapter surface stable even if the Effect runtime construction changes internally.
@@ -56,12 +56,12 @@ This file is the canonical starting point for any work in:
 2. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/MIGRATION.md`
 3. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/runtime.md`
 4. `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/migration/services.md`
-5. `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
-6. `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
+5. `drizzle-orm@1.0.0-rc.4` `effect-postgres/driver`
+6. `drizzle-orm@1.0.0-rc.4` `effect-postgres/session`
 7. `/Users/am/Coding/2026/effect-zero/.context/rocicorp-mono/packages/zero-server/src/adapters/drizzle.ts`
 8. `/Users/am/Coding/2026/effect-zero/.context/rocicorp-mono/packages/zql/src/mutate/custom.ts`
 
 ## Source URLs
 
-- [drizzle-orm `v1.0.0-rc.1`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.1)
+- [drizzle-orm `v1.0.0-rc.4`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.4)
 - [effect-smol `MIGRATION.md`](https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md)

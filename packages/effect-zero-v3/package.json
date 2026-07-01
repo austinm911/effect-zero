@@ -44,7 +44,7 @@
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/tsconfig": "workspace:*",
     "@elysiajs/openapi": "^1.4.15",
-    "@rocicorp/zero": "1.5.0",
+    "@rocicorp/zero": "1.7.0",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",

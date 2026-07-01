@@ -112,8 +112,8 @@ Supporting docs still matter, but they are subordinate:
 - [x] The v4 implementation work references:
   - `/Users/am/Coding/2026/effect-zero/docs/EFFECT_V4_MIGRATION_REFERENCES.md`
   - `/Users/am/Coding/2026/effect-zero/.context/effect-v4-beta/MIGRATION.md`
-  - `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
-  - `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
+  - `drizzle-orm@1.0.0-rc.4` `effect-postgres/driver`
+  - `drizzle-orm@1.0.0-rc.4` `effect-postgres/session`
 - [x] The v4 adapter supports Zero ZQL reads.
 - [x] The v4 adapter supports raw SQL via `tx.dbTransaction.query(...)`.
 - [x] The v4 adapter exposes native Drizzle relational queries through `tx.dbTransaction.wrappedTransaction`.

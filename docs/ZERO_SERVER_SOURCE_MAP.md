@@ -119,11 +119,11 @@ These files are mandatory inputs for the v4 adapter lane.
   Required because runtime ownership changed in v4.
 - `.context/effect-v4-beta/migration/services.md`
   Required because service creation and lookup changed in v4.
-- `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
+- `drizzle-orm@1.0.0-rc.4` `effect-postgres/driver`
   Current Drizzle RC database construction path.
-- `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
+- `drizzle-orm@1.0.0-rc.4` `effect-postgres/session`
   Current Drizzle RC transaction and raw/prepared query path.
-- `drizzle-orm@1.0.0-rc.1` `pg-core/effect/session`
+- `drizzle-orm@1.0.0-rc.4` `pg-core/effect/session`
   Lower-level Effect query/session mechanics under the Drizzle RC implementation.
 
 ## 4. Upstream Tests To Port In Spirit

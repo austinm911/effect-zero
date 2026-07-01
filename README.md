@@ -36,7 +36,7 @@ pnpm add @rocicorp/zero effect
 # Drizzle lane
 pnpm add drizzle-orm@beta
 # Effect v4 Drizzle lane
-pnpm add drizzle-orm@1.0.0-rc.1 @effect/sql-pg@4.0.0-beta
+pnpm add drizzle-orm@1.0.0-rc.4 @effect/sql-pg@4.0.0-beta.83
 
 # node-postgres lane
 pnpm add pg
@@ -138,7 +138,7 @@ route/tool wording in `openapi` for that path.
   Effect v3.
 - Use [`@awstin/effect-zero-v4`](./packages/effect-zero-v4) if your app is on Effect
   v4 beta.
-- For the v4 Drizzle adapter specifically, use Drizzle `v1.0.0-rc.1` or newer
+- For the v4 Drizzle adapter specifically, use Drizzle `v1.0.0-rc.4`
   with native Effect v4 support. The v4 package no longer patches Drizzle at
   runtime and does not require a manual `postinstall` step.
 

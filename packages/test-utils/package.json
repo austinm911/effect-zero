@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@effect-zero/example-data": "workspace:*",
-    "@rocicorp/zero": "1.5.0",
+    "@rocicorp/zero": "1.7.0",
     "pg": "8.20.0"
   },
   "devDependencies": {

@@ -20,23 +20,23 @@ bun add @awstin/effect-zero-v4 @rocicorp/zero effect@4.0.0-beta
 
 Then install the peer dependency for your chosen adapter:
 
-| Adapter      | Peer dep                   | Install                           | Notes  |
-| ------------ | -------------------------- | --------------------------------- | ------ |
-| `postgresjs` | `postgres`                 | `pnpm add postgres`               | Stable |
-| `pg`         | `pg`                       | `pnpm add pg`                     | Stable |
-| `drizzle`    | `drizzle-orm` ≥ 1.0.0-rc.1 | `pnpm add drizzle-orm@1.0.0-rc.1` | Stable |
+| Adapter      | Peer dep                 | Install                           | Notes  |
+| ------------ | ------------------------ | --------------------------------- | ------ |
+| `postgresjs` | `postgres`               | `pnpm add postgres`               | Stable |
+| `pg`         | `pg`                     | `pnpm add pg`                     | Stable |
+| `drizzle`    | `drizzle-orm` 1.0.0-rc.4 | `pnpm add drizzle-orm@1.0.0-rc.4` | Stable |
 
 ### Drizzle Adapter on Effect v4
 
 The `drizzle` adapter uses `drizzle-orm/effect-postgres` from Drizzle
-`v1.0.0-rc.1` or newer. That RC line has native Effect v4 support, so
+`v1.0.0-rc.4`. That RC line has native Effect v4 support, so
 `@awstin/effect-zero-v4` no longer patches Drizzle at runtime and no longer
 ships a postinstall helper.
 
 Install `@effect/sql-pg` alongside Drizzle when you use this adapter:
 
 ```bash
-pnpm add drizzle-orm@1.0.0-rc.1 @effect/sql-pg@4.0.0-beta
+pnpm add drizzle-orm@1.0.0-rc.4 @effect/sql-pg@4.0.0-beta.83
 ```
 
 **The `pg` and `postgresjs` adapters do not need Drizzle or `@effect/sql-pg`.**

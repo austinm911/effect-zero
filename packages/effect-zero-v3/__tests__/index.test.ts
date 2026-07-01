@@ -12,14 +12,14 @@ import * as rootEntryPoint from "../src/index.js";
 test("stable track manifest points at Effect v3", () => {
   expect(manifest.effectLine).toBe("v3");
   expect(manifest.effectVersion).toBe("3.19.19");
-  expect(describePackage()).toContain("1.5.0");
+  expect(describePackage()).toContain("1.7.0");
 });
 
 test("stable track satisfies the shared adapter contract scaffold", () => {
   const report = evaluateAdapterContract(adapter, {
     effectLine: "v3",
     effectVersion: "3.19.19",
-    zeroVersion: "1.5.0",
+    zeroVersion: "1.7.0",
     contextRepoNames: ["effect-v3", "rocicorp-mono", "rocicorp-ztunes", "rocicorp-drizzle-zero"],
     plannedCapabilities: [
       "clientEntryPoint",
@@ -102,7 +102,7 @@ test("stable track keeps Zero and Effect as peers instead of runtime dependencie
   expect(packageJson.dependencies).not.toHaveProperty("@rocicorp/zero");
   expect(packageJson.dependencies).not.toHaveProperty("effect");
   expect(packageJson.devDependencies).toMatchObject({
-    "@rocicorp/zero": "1.5.0",
+    "@rocicorp/zero": "1.7.0",
     effect: "3.21.2",
   });
   expect(packageJson.peerDependencies).toMatchObject({

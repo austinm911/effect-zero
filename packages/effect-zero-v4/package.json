@@ -1,6 +1,6 @@
 {
   "name": "@awstin/effect-zero-v4",
-  "version": "0.2.0-beta.3",
+  "version": "0.2.0-beta.4",
   "description": "Beta-track Zero DBConnection scaffold for Effect v4.",
   "license": "MIT",
   "files": [
@@ -66,8 +66,8 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@effect/platform-node": "4.0.0-beta.59",
-    "@effect/sql-pg": "4.0.0-beta.59",
+    "@effect/platform-node": "4.0.0-beta.83",
+    "@effect/sql-pg": "4.0.0-beta.83",
     "@standard-schema/spec": "^1.1.0"
   },
   "devDependencies": {
@@ -75,13 +75,13 @@
     "@effect-zero/test-utils": "workspace:*",
     "@effect-zero/tsconfig": "workspace:*",
     "@elysiajs/openapi": "^1.4.15",
-    "@rocicorp/zero": "1.5.0",
+    "@rocicorp/zero": "1.7.0",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
     "bumpp": "^11.0.1",
-    "drizzle-orm": "1.0.0-rc.1",
-    "effect": "4.0.0-beta.59",
+    "drizzle-orm": "1.0.0-rc.4",
+    "effect": "4.0.0-beta.83",
     "elysia": "^1.4.28",
     "hono": "^4.12.16",
     "pg": "8.20.0",
@@ -94,8 +94,8 @@
   },
   "peerDependencies": {
     "@rocicorp/zero": ">=1.0.0 <2",
-    "drizzle-orm": "1.0.0-rc.1",
-    "effect": "4.0.0-beta.59",
+    "drizzle-orm": "1.0.0-rc.4",
+    "effect": "4.0.0-beta.83",
     "elysia": "^1.4.28",
     "hono": "^4.12.12",
     "pg": "8.20.0",

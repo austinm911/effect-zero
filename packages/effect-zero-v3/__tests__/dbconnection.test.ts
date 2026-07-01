@@ -1,4 +1,4 @@
-import { builder as zeroBuilder, schema as zeroSchema } from "@effect-zero/example-data/zero";
+import { schema as zeroSchema } from "@effect-zero/example-data/zero";
 import { createMusicFixtureApiFixtures } from "@effect-zero/test-utils/api-fixtures";
 import {
   createTestDatabase,
@@ -11,6 +11,7 @@ import { Pool } from "pg";
 import postgres from "postgres";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { handleMutateRequest, handleQueryRequest, ZQLDatabase } from "@rocicorp/zero/server";
+import { createBuilder } from "@rocicorp/zero";
 import {
   createDbConnection,
   createZeroDbProvider,
@@ -27,6 +28,8 @@ const mockTransactionInput = {
   mutationID: 1,
   upstreamSchema: ZERO_CONTROL_SCHEMA,
 } as const;
+
+const zeroBuilder = createBuilder(zeroSchema);
 
 describe("toIterableRows", () => {
   test("passes through arrays", () => {

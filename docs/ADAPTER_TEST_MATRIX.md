@@ -76,13 +76,13 @@ Purpose:
 
 Implementation requirement:
 
-- use Drizzle `v1.0.0-rc.1` or newer for native Effect v4 `effect-postgres`
+- use Drizzle `v1.0.0-rc.4` for native Effect v4 `effect-postgres`
 - use the pinned Effect v4 migration docs from `effect-smol`
 - do not use Zero's `zeroPostgresJS` adapter for the package implementation
 
 Primary source:
 
-- [drizzle-orm `v1.0.0-rc.1`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.1)
+- [drizzle-orm `v1.0.0-rc.4`](https://github.com/drizzle-team/drizzle-orm/releases/tag/v1.0.0-rc.4)
 - [effect-smol `MIGRATION.md`](https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md)
 - [EFFECT_V4_MIGRATION_REFERENCES.md](/Users/am/Coding/2026/effect-zero/docs/EFFECT_V4_MIGRATION_REFERENCES.md)
 

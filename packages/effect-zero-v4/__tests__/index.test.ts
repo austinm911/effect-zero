@@ -11,18 +11,18 @@ import * as rootEntryPoint from "../src/index.js";
 
 test("beta track manifest points at Effect v4", () => {
   expect(manifest.effectLine).toBe("v4");
-  expect(manifest.effectVersion).toBe("4.0.0-beta.59");
-  expect(describePackage()).toContain("1.5.0");
+  expect(manifest.effectVersion).toBe("4.0.0-beta.83");
+  expect(describePackage()).toContain("1.7.0");
 });
 
 test("beta track satisfies the shared adapter contract scaffold", () => {
   const report = evaluateAdapterContract(adapter, {
     effectLine: "v4",
-    effectVersion: "4.0.0-beta.59",
-    zeroVersion: "1.5.0",
+    effectVersion: "4.0.0-beta.83",
+    zeroVersion: "1.7.0",
     contextRepoNames: [
       "effect-v4-beta",
-      "drizzle-orm-v1.0.0-rc.1",
+      "drizzle-orm-v1.0.0-rc.4",
       "rocicorp-mono",
       "rocicorp-ztunes",
       "rocicorp-drizzle-zero",
@@ -99,11 +99,11 @@ test("beta track keeps Zero and Effect as peers instead of runtime dependencies"
   expect(packageJson.dependencies).not.toHaveProperty("@rocicorp/zero");
   expect(packageJson.dependencies).not.toHaveProperty("effect");
   expect(packageJson.devDependencies).toMatchObject({
-    "@rocicorp/zero": "1.5.0",
-    effect: "4.0.0-beta.59",
+    "@rocicorp/zero": "1.7.0",
+    effect: "4.0.0-beta.83",
   });
   expect(packageJson.peerDependencies).toMatchObject({
     "@rocicorp/zero": ">=1.0.0 <2",
-    effect: "4.0.0-beta.59",
+    effect: "4.0.0-beta.83",
   });
 });

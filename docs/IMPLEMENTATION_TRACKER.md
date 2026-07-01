@@ -308,8 +308,8 @@ Pinned v4 research inputs:
 - `.context/effect-v4-beta/MIGRATION.md`
 - `.context/effect-v4-beta/migration/runtime.md`
 - `.context/effect-v4-beta/migration/services.md`
-- `drizzle-orm@1.0.0-rc.1` `effect-postgres/driver`
-- `drizzle-orm@1.0.0-rc.1` `effect-postgres/session`
+- `drizzle-orm@1.0.0-rc.4` `effect-postgres/driver`
+- `drizzle-orm@1.0.0-rc.4` `effect-postgres/session`
 
 ## 4. Package-Level Test Coverage
 
