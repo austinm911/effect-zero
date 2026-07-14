@@ -27,8 +27,12 @@ function authedCartItems(query: Query<"cartItem">, ctx: MusicFixtureContext) {
   return query.where("userId", ctx?.userId ?? "");
 }
 
-export function buildArtistQuery(args: z.infer<typeof artistArgsSchema>, ctx: MusicFixtureContext) {
-  return zql.artist
+export function buildArtistQuery(
+  args: z.infer<typeof artistArgsSchema>,
+  ctx: MusicFixtureContext,
+  builder: typeof zql = zql,
+) {
+  return builder.artist
     .where("id", args.artistId ?? "")
     .related("albums", (album) =>
       album
@@ -38,14 +42,17 @@ export function buildArtistQuery(args: z.infer<typeof artistArgsSchema>, ctx: Mu
     .one();
 }
 
-export function buildCartItemsQuery(ctx: MusicFixtureContext) {
-  return authedCartItems(zql.cartItem, ctx)
+export function buildCartItemsQuery(ctx: MusicFixtureContext, builder: typeof zql = zql) {
+  return authedCartItems(builder.cartItem, ctx)
     .orderBy("addedAt", "desc")
     .related("album", (album) => album.one().related("artist", (artist) => artist.one()));
 }
 
-export function buildArtistListQuery(args: z.infer<typeof artistListArgsSchema>) {
-  return zql.artist
+export function buildArtistListQuery(
+  args: z.infer<typeof artistListArgsSchema>,
+  builder: typeof zql = zql,
+) {
+  return builder.artist
     .where("name", "ILIKE", `%${args.search?.trim() ?? ""}%`)
     .orderBy("popularity", "desc")
     .limit(args.limit);

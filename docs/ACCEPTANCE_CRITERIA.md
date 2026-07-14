@@ -11,10 +11,10 @@ Use this file to answer:
 
 Supporting docs still matter, but they are subordinate:
 
-- `/Users/am/Coding/2026/effect-zero/docs/IMPLEMENTATION_TRACKER.md`
-  Progress and next steps.
-- `/Users/am/Coding/2026/effect-zero/docs/ADAPTER_TEST_MATRIX.md`
-  Lane split and benchmark labels.
+- `/Users/am/Coding/2026/effect-zero/tools/verify-package-api.mjs`
+  Self-starting package API verifier for the full control/v3/v4 target matrix.
+- `/Users/am/Coding/2026/effect-zero/verification/results/mutation-stress/latest.json`
+  Latest persisted mutation-stress matrix evidence.
 - `/Users/am/Coding/2026/effect-zero/docs/ZERO_SERVER_SOURCE_MAP.md`
   File-level implementation map.
 - `/Users/am/Coding/2026/effect-zero/docs/EFFECT_V4_MIGRATION_REFERENCES.md`
@@ -33,13 +33,12 @@ Supporting docs still matter, but they are subordinate:
 - One shared Zero schema is generated from that Drizzle schema via `drizzle-zero` in:
   `/Users/am/Coding/2026/effect-zero/packages/example-data/src/zero/schema.ts`
 - The shared fixture schema is used consistently by:
-  - `apps/web`
+  - `examples/ztunes`
   - `packages/effect-zero-v3`
   - `packages/effect-zero-v4`
 - Zero internal tables such as `zero_0.clients` and `zero_0.mutations` are not modeled in the shared fixture schema package.
-- `apps/web` is the Promise-control lane only.
-- `apps/web` is the worker-safe request path and must not rely on shared TCP connections across worker requests.
-- `apps/package-api` is allowed to share Node TCP resources because it is a local-only verification and benchmark harness, not the Cloudflare deployment model.
+- `examples/ztunes` is the Promise-control worker path and must not rely on shared TCP connections across worker requests.
+- `examples/api` is allowed to share Node TCP resources because it is a local-only verification and benchmark harness, not the Cloudflare deployment model.
 - `packages/effect-zero-v3` and `packages/effect-zero-v4` must not implement their adapters by calling `zeroPostgresJS`.
 - Both publishable adapter lines must preserve the upstream Drizzle adapter surface:
   - `tx.dbTransaction.query(...)` works for raw SQL
@@ -127,9 +126,21 @@ Supporting docs still matter, but they are subordinate:
   - `zql-read-layer-v4`
 - [ ] Package surface is ready for publish.
 
+### v4 beta.5 prerelease gate
+
+This gate is narrower than stable readiness. Passing it does not close the unchecked
+cross-lane API and transaction-parity criteria above.
+
+- [x] The workspace, manifests, tests, and packed package target Zero 1.8.0 while the public peer range remains Zero 1.x.
+- [x] The v3 compatibility lane and v4 Drizzle, `pg`, and `postgres.js` lanes pass their package and request-level verification.
+- [x] Packed-install checks cover the root, client, server, timestamps, adapters, OpenAPI helpers, and exported package metadata.
+- [x] The beta.5 tarball contains only package metadata, documentation, and `dist` output, has a clean secret scan, and records reusable SHA-256 and SHA-512 digests.
+- [ ] A protected tag and `npm-stage` environment run the GitHub-hosted Node 24/npm 11.15+ workflow with only `contents: read` and `id-token: write` permissions.
+- [ ] npm stages the exact workflow tarball through the package-bound trusted publisher; public approval remains a separate proof-of-presence action.
+
 ## Control-Lane Acceptance Criteria
 
-- [x] `apps/web` boots under the Alchemy-managed local stack.
+- [x] `examples/ztunes` boots under the Alchemy-managed local stack.
 - [x] The control lane can seed and reset fixture state deterministically.
 - [x] Fixture bootstrap/reset is serialized so concurrent first requests do not race.
 - [x] `/api/zero/mutate` works locally.
@@ -176,13 +187,13 @@ These are the concrete API checks that should be used to prove the app path work
 
 - API perf runs should reuse the shared workload fixtures from:
   `/Users/am/Coding/2026/effect-zero/packages/test-utils/src/api-fixtures.ts`
-- Full adapter comparison runs execute against the local Node harness in `apps/package-api`:
+- Full adapter comparison runs execute against the local Node harness in `examples/api`:
   - `pnpm bench:api`
   - `pnpm bench:api:quick`
   - `pnpm bench:api -- --samples 3`
   - `pnpm bench:api -- --fixture zero-query-get-artist`
   - `pnpm bench:api -- --scenario query.warm.parallel.10`
-- Worker-facing route benchmarks execute against `apps/web` with a reduced scenario set:
+- Worker-facing route benchmarks execute against `examples/ztunes` with a reduced scenario set:
   - `pnpm bench:api:web`
   - `pnpm bench:api:web:quick`
 - Measure at least:

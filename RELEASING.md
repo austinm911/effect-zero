@@ -27,13 +27,6 @@ pnpm release:version packages/effect-zero-v4 patch
 pnpm release:version packages/effect-zero-v4 minor
 pnpm release:version packages/effect-zero-v4 prerelease --preid beta
 
-pnpm publish:package -- packages/effect-zero-v3
-pnpm publish:package -- packages/effect-zero-v4
-pnpm publish:package -- packages/effect-zero-v4 --tag beta
-
-pnpm publish:v3
-pnpm publish:v4
-pnpm publish:v4:beta
 ```
 
 `release:version` only updates the target package version and prints the next steps. It does not commit, tag, or publish automatically.
@@ -57,24 +50,41 @@ Use `pnpm pack:all` when you want fresh tarballs for both publishable lines.
 
 ## Recommended Flow
 
-```bash
-pnpm pack:v3
-pnpm release:check
-pnpm release:version packages/effect-zero-v3 patch
-git add packages/effect-zero-v3/package.json
-git commit -m "release(v3): cut 0.x.y"
-git tag effect-zero-v3@0.x.y
-pnpm publish:v3
-```
+Publishing is CI-owned. Do not publish from a workstation or add a long-lived npm token.
+The npm package must bind trusted publishing to this public repository, the exact release
+workflow, and the protected `npm-stage` environment.
 
 For experimental v4 work:
 
 ```bash
-pnpm pack:v4
 pnpm release:check
 pnpm release:version packages/effect-zero-v4 prerelease --preid beta
+candidate_dir="$(mktemp -d)"
+pnpm pack:v4 -- --out-dir "$candidate_dir"
+pnpm release:verify-tarball -- "$candidate_dir"/*.tgz "$candidate_dir/manifest.json"
 git add packages/effect-zero-v4/package.json
 git commit -m "release(v4): cut 0.x.y-beta.z"
 git tag effect-zero-v4@0.x.y-beta.z
-pnpm publish:v4:beta
+git push origin main effect-zero-v4@0.x.y-beta.z
 ```
+
+The protected `effect-zero-v4@0.x.y-beta.z` tag starts
+`.github/workflows/release-v4.yml`. That workflow builds and tests once, packs once, records
+the file manifest and digests, and submits those exact bytes with `npm stage publish`.
+
+Before npm stage approval, download the workflow artifact and prove the same bytes in
+Valterra:
+
+```bash
+gh run download <run-id> --name effect-zero-v4-<release-sha> --dir <candidate-dir>
+node tools/verify-package-tarball.mjs \
+  <candidate-dir>/awstin-effect-zero-v4-0.x.y-beta.z.tgz \
+  <candidate-dir>/verified-manifest.json
+diff -u <candidate-dir>/manifest.json <candidate-dir>/verified-manifest.json
+```
+
+Install that tarball in Valterra's temporary candidate slice, then run the Zero workspace
+doctor, workspace/CRM typechecks, focused provider/handler tests, and authenticated query and
+mutation smoke. Approve npm's proof-of-presence stage only after those checks and the staged
+package digest agree. Tag protection, environment approval, and the npm trusted-publisher
+binding are repository/registry settings and must be verified before a release push.

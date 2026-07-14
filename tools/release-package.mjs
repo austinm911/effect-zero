@@ -99,5 +99,7 @@ console.log(`2. git add ${packageJsonPath}`);
 console.log(`3. git commit -m "release(${releaseScope}): cut ${nextVersion}"`);
 console.log(`4. git tag ${releaseTag}`);
 console.log(
-  `5. ${packageDirName === "effect-zero-v4" && nextVersion.includes("-") ? "pnpm publish:v4:beta" : `pnpm publish:${releaseScope}`}`,
+  packageDirName === "effect-zero-v4" && nextVersion.includes("-")
+    ? `5. git push origin HEAD ${releaseTag} # triggers the protected staging workflow`
+    : `5. STOP: no protected publisher is configured for ${packageName} ${nextVersion}`,
 );

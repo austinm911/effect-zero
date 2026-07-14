@@ -1,55 +1,55 @@
 {
-  "baseUrl": "http://localhost:4311",
-  "durationMs": 7233.13,
-  "generatedAt": "2026-04-13T17:49:17.744Z",
+  "baseUrl": "http://127.0.0.1:4311",
+  "durationMs": 8614.89,
+  "generatedAt": "2026-07-14T02:46:53.746Z",
   "kind": "mutation-stress-verification",
   "targetResults": [
     {
       "scenarioResults": [
         {
-          "durationMs": 133.64,
+          "durationMs": 122.73,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 441.74,
+          "durationMs": 477.5,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 60.13,
+          "durationMs": 93.68,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 365.41,
+          "durationMs": 266.95,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 51.54,
+          "durationMs": 57.17,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 39.89,
+          "durationMs": 139.38,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 85.22,
+          "durationMs": 78.22,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -61,49 +61,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 96.54,
+          "durationMs": 135.14,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 457.85,
+          "durationMs": 518.96,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 56.11,
+          "durationMs": 86.88,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 384.57,
+          "durationMs": 440.96,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 44.47,
+          "durationMs": 75.49,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 37.52,
+          "durationMs": 62.85,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 67.64,
+          "durationMs": 89.55,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -115,49 +115,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 93.46,
+          "durationMs": 107.44,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 311.93,
+          "durationMs": 477.81,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 50.97,
+          "durationMs": 92.35,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 439.56,
+          "durationMs": 381.06,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 41.91,
+          "durationMs": 56.92,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 40.54,
+          "durationMs": 56.37,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 85.69,
+          "durationMs": 79.16,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -169,49 +169,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 82.05,
+          "durationMs": 102.39,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 405.19,
+          "durationMs": 438.32,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 99.61,
+          "durationMs": 84.31,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 388.82,
+          "durationMs": 275.21,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 43.69,
+          "durationMs": 60.72,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 39.49,
+          "durationMs": 61.74,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 53.98,
+          "durationMs": 102.99,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -223,49 +223,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 89.8,
+          "durationMs": 105.02,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 327.21,
+          "durationMs": 432.54,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 54.31,
+          "durationMs": 103.42,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 232.79,
+          "durationMs": 391.62,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 38.18,
+          "durationMs": 74.91,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 35.57,
+          "durationMs": 51.6,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 59.39,
+          "durationMs": 86.03,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -277,49 +277,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 71.76,
+          "durationMs": 119.85,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 244.79,
+          "durationMs": 450.07,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 48.21,
+          "durationMs": 86.59,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 275.1,
+          "durationMs": 413.88,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 43.8,
+          "durationMs": 70.5,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 39.4,
+          "durationMs": 59.07,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 63.02,
+          "durationMs": 75.34,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,
@@ -331,49 +331,49 @@
     {
       "scenarioResults": [
         {
-          "durationMs": 92.62,
+          "durationMs": 97.11,
           "finalCartItemCount": 0,
           "id": "sequential.requests.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 10
         },
         {
-          "durationMs": 318.91,
+          "durationMs": 437.92,
           "finalCartItemCount": 0,
           "id": "sequential.requests.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 100
         },
         {
-          "durationMs": 110.86,
+          "durationMs": 76.79,
           "finalCartItemCount": 0,
           "id": "batched.request.10.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 371.69,
+          "durationMs": 294.85,
           "finalCartItemCount": 0,
           "id": "batched.request.100.alternating",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 49.92,
+          "durationMs": 53.88,
           "finalCartItemCount": 1,
           "id": "duplicate.replay.single",
           "mutationResultCount": 0,
           "requestCount": 2
         },
         {
-          "durationMs": 50.6,
+          "durationMs": 51.15,
           "finalCartItemCount": 0,
           "id": "out-of-order.single",
           "mutationResultCount": 0,
           "requestCount": 1
         },
         {
-          "durationMs": 114.59,
+          "durationMs": 58.94,
           "finalCartItemCount": 1,
           "id": "parallel.clients.10.same-user",
           "mutationResultCount": 0,

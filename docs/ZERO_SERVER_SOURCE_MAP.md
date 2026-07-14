@@ -1,6 +1,6 @@
 # Zero Server Source Map
 
-As of March 13, 2026, this is the file-level map for the Zero server integration work in this repo.
+As of July 13, 2026, this is the file-level map for the Zero server integration work in this repo.
 
 This document exists to answer one question precisely:
 
@@ -18,18 +18,18 @@ It intentionally separates:
 These lanes are intentionally not the same implementation.
 
 - Promise control
-  `apps/web` uses `zeroPostgresJS` and exists to prove the fixture, route wiring, and Zero protocol loop.
+  `examples/ztunes` uses `zeroPostgresJS` and exists to prove the fixture, route wiring, and Zero protocol loop.
 - Effect v3 target
   `packages/effect-zero-v3` must implement a custom Zero `DBConnection` backed by Drizzle Effect Postgres on Effect v3.
 - Effect v4 target
   `packages/effect-zero-v4` must implement a custom Zero `DBConnection` backed by Drizzle RC Effect Postgres support and the pinned Effect v4 migration guidance.
 - Local Node harness
-  `apps/package-api` is the local-only API surface for exercising the v3 and v4 TCP adapters under one process.
+  `examples/api` is the local-only API surface for exercising the complete control/v3/v4 target matrix in one process.
 
 Important runtime boundary:
 
-- `apps/web` is the Cloudflare-style worker path and must stay request-scoped.
-- `apps/package-api` may share TCP resources because it is not the deployment target. It exists to validate and benchmark the publishable adapters locally.
+- `examples/ztunes` is the Cloudflare-style worker path and must stay request-scoped.
+- `examples/api` may share TCP resources because it is not the deployment target. It exists to validate and benchmark the publishable adapters locally.
 
 If a file uses `zeroPostgresJS`, it belongs to the control lane, not the publishable v3/v4 implementation.
 
@@ -220,58 +220,32 @@ Important boundary:
 - Zero runtime tables such as `zero_0.clients` and `zero_0.mutations` are not part of the shared fixture schema package.
 - `zero-server` expects those tables to exist but does not provision them.
 - `zero-cache` provisions them.
-- In the current Promise-control lane, `apps/web` still provisions those tables separately because it calls `handleMutateRequest` directly instead of going through `zero-cache`.
+- In the current Promise-control lane, `examples/ztunes` still provisions those tables separately because it calls `handleMutateRequest` directly instead of going through `zero-cache`.
 
 ### Server and Database Wiring
 
-- `apps/web/src/server/postgres.ts`
-  Local request-scoped Postgres client lifecycle for the TanStack app.
-- `apps/web/src/server/package-api.ts`
-  Worker-safe local proxy for forwarding non-control lanes into the Node harness without changing the public route surface.
-- `apps/web/src/features/music-fixture/server.ts`
-  Local Zero server orchestration. This is the main control-lane file and currently uses `zeroPostgresJS`, the shared fixture migration runner, serialized fixture bootstrap/reset, and a small control-lane-only fallback for Zero state tables.
-- `apps/web/src/routes/api/zero/query.ts`
-  Local POST route for `handleZeroQueryBody`. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
-- `apps/web/src/routes/api/zero/mutate.ts`
-  Local POST route for `handleZeroMutateBody`. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
-- `apps/web/src/routes/api/mutators/$.ts`
-  Local direct mutator endpoint for debugging without the full Zero push protocol. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
-- `apps/web/src/routes/api/demo/state.ts`
-  Local fixture read endpoint for smoke checks. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
-- `apps/web/src/routes/api/demo/reset.ts`
-  Local deterministic reset endpoint for fixture seeding. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
-- `apps/web/src/routes/api/db.ts`
-  Local baseline DB connectivity check. Server-only imports must stay inside the handler because TanStack includes the route module in the client route tree.
+- `examples/ztunes/app/server/promise-handler.ts`
+  Request-scoped Promise-control orchestration using `zeroPostgresJS`.
+- `examples/ztunes/app/server/targets.ts` and `proxy.ts`
+  Worker-safe target selection and forwarding into the local Node harness.
+- `examples/ztunes/app/routes/api/zero/`, `api/zql/`, `api/mutators/`, and `api/demo/`
+  Worker-facing Zero protocol, direct mutator, read, reset, and state routes.
 
 ## 6A. Local Node Harness Files
 
-- `apps/package-api/src/server.ts`
+- `examples/api/src/server.ts` and `examples/api/src/targets.ts`
   Node-only adapter harness that exposes the same demo, mutator, Zero mutate, and Zero query routes for `control`, `v3`, and `v4`.
 - `tools/verify-api-targets.mjs`
   Sequential verifier for the shared route fixtures. Use `pnpm verify:api` for the worker-facing path and `pnpm verify:api:package` for the direct harness.
 - `benchmarks/run-api-benchmarks.mjs`
-  Shared benchmark runner. The full comparison matrix targets `apps/package-api`; the reduced worker-facing matrix targets `apps/web`.
+  Shared benchmark runner. The full comparison matrix targets `examples/api`; the reduced worker-facing matrix targets `examples/ztunes`.
 
 ### Schema, Query, and Mutator Definitions
 
-- `apps/web/src/features/music-fixture/schema.ts`
-  Local wrapper that re-exports the shared generated Zero schema and adds app-specific context typing.
-- `apps/web/src/features/music-fixture/queries.ts`
-  Local query definitions and reusable query builders.
-- `apps/web/src/features/music-fixture/mutators.ts`
-  Local mutator definitions for the cart fixture.
-- `apps/web/src/features/music-fixture/types.ts`
-  Local request context and fixture view types.
-- `apps/web/src/features/music-fixture/mutator-paths.ts`
-  Shared direct-mutator route naming and parsing.
-- `apps/web/src/features/music-fixture/constants.ts`
-  Control-lane protocol constants such as schema and route paths.
-- `apps/web/src/features/music-fixture/data.ts`
-  Deterministic seed dataset.
-- `apps/web/src/features/music-fixture/client.ts`
-  Local client-side request helpers for the demo screen.
-- `apps/web/src/features/music-fixture/demo-screen.tsx`
-  UI verification surface for the query and mutator loop.
+- `packages/example-data/src/zero/`, `queries.ts`, and `mutators/`
+  Shared generated schema, query registry/builders, and cart mutators used by every target.
+- `packages/test-utils/src/api-fixtures.ts`
+  Shared request fixtures and target vocabulary for verification and benchmarks.
 
 ## 7. Package Targets For The Real Adapter Work
 
@@ -302,10 +276,10 @@ Current implementation note:
 
 ## 8. Documentation Files That Define Repo Policy
 
-- `ADAPTER_TEST_MATRIX.md`
-  Hard lane split and benchmark labels.
-- `IMPLEMENTATION_TRACKER.md`
-  Checklist, phased workstreams, and verification ladder.
+- `ACCEPTANCE_CRITERIA.md`
+  Canonical publish gates and parity requirements.
+- `../tools/verify-package-api.mjs`
+  Executable control/v3/v4 package-identity lane split.
 - `README.md`
   Repo overview and lane summary.
 
@@ -344,10 +318,10 @@ If starting fresh, read in this order:
 6. `.context/rocicorp-ztunes/zero/schema.ts`
 7. `.context/rocicorp-ztunes/zero/queries.ts`
 8. `.context/rocicorp-ztunes/zero/mutators.ts`
-9. `apps/web/src/features/music-fixture/schema.ts`
-10. `apps/web/src/features/music-fixture/queries.ts`
-11. `apps/web/src/features/music-fixture/mutators.ts`
-12. `apps/web/src/features/music-fixture/server.ts`
+9. `packages/example-data/src/zero/schema.ts`
+10. `packages/example-data/src/queries.ts`
+11. `packages/example-data/src/mutators/`
+12. `examples/api/src/targets.ts`
 13. `packages/effect-zero-v3/src/index.ts`
 14. `packages/effect-zero-v3/tests/dbconnection.test.ts`
 15. `EFFECT_V4_MIGRATION_REFERENCES.md`

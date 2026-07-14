@@ -14,6 +14,8 @@ maintaining separate changelog files in each package directory.
 
 ### Repo
 
+- Replace local npm publish helpers with a protected trusted-publishing workflow that stages one verified tarball before public approval.
+- Update compatible harness dependencies, including patch releases of React, Postgres.js, Zod, Hono, and Elysia.
 - Wire up Vite+ CI, commit hooks, release helpers, and repo publishing docs.
 - Add a release workflow for package-specific version bumps and publish commands.
 - Add repo-local Desloppify setup and queue helpers.
@@ -33,6 +35,12 @@ maintaining separate changelog files in each package directory.
 - Add a reusable mutation execution core with pluggable post-commit schedulers.
 - Restore Drizzle query-builder Effect semantics from the follow-up v4 patch work.
 - Keep runtime Drizzle patching inside the adapter and document the manual fallback helper.
+
+## `@awstin/effect-zero-v4` 0.2.0-beta.5 - 2026-07-13
+
+- Verify the v4 Drizzle, `pg`, and `postgres.js` lanes against Zero 1.8.0 while retaining the Zero 1.x peer range.
+- Cover root, client, server, timestamp, adapter, OpenAPI, and package metadata exports from the exact packed artifact.
+- Add a protected npm staged-publishing workflow with OIDC provenance, an allowlisted file manifest, digest evidence, and secret scanning.
 
 ### Examples and Harness
 

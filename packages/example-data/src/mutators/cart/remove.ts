@@ -1,4 +1,3 @@
-import { zql } from "../../zero/schema.ts";
 import { z } from "zod";
 import { defineMusicFixtureMutator } from "../context.ts";
 
@@ -11,16 +10,8 @@ export const remove = defineMusicFixtureMutator(removeCartItemArgs, async ({ arg
     throw new Error("Missing demo context");
   }
 
-  const cartItem = await tx.run(
-    zql.cartItem.where("userId", ctx.userId).where("albumId", args.albumId).one(),
-  );
-
-  if (!cartItem) {
-    return;
-  }
-
   await tx.mutate.cartItem.delete({
-    albumId: cartItem.albumId,
-    userId: cartItem.userId,
+    albumId: args.albumId,
+    userId: ctx.userId,
   });
 });

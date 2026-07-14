@@ -4,8 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const rawArgs = process.argv.slice(2);
-const args = rawArgs[0] === "--" ? rawArgs.slice(1) : rawArgs;
+const args = process.argv.slice(2).filter((arg) => arg !== "--");
 
 const outDirFlagIndex = args.indexOf("--out-dir");
 const outDir =
@@ -35,10 +34,10 @@ for (const packageDirArg of packageDirArgs) {
   const packageDir = resolve(repoRoot, packageDirArg);
   const packageJsonPath = join(packageDir, "package.json");
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-  const packagePrefix = `${sanitizePackageName(packageJson.name)}-`;
+  const packageFileName = `${sanitizePackageName(packageJson.name)}-${packageJson.version}.tgz`;
 
   for (const fileName of readdirSync(outDir)) {
-    if (fileName.startsWith(packagePrefix) && fileName.endsWith(".tgz")) {
+    if (fileName === packageFileName) {
       rmSync(join(outDir, fileName), { force: true });
     }
   }
@@ -48,10 +47,7 @@ for (const packageDirArg of packageDirArgs) {
     stdio: "pipe",
   });
 
-  const tarball = readdirSync(outDir)
-    .filter((fileName) => fileName.startsWith(packagePrefix) && fileName.endsWith(".tgz"))
-    .sort()
-    .at(-1);
+  const tarball = readdirSync(outDir).find((fileName) => fileName === packageFileName);
 
   if (!tarball) {
     throw new Error(`Failed to pack ${packageJson.name}`);

@@ -30,10 +30,10 @@
     "prepublishOnly": "vp pack"
   },
   "dependencies": {
-    "@rocicorp/zero": "1.7.0",
+    "@rocicorp/zero": "1.8.0",
     "drizzle-orm": "0.45.2",
-    "postgres": "3.4.7",
-    "zod": "4.4.2"
+    "postgres": "3.4.9",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@effect-zero/tsconfig": "workspace:*",

@@ -185,7 +185,12 @@ function assertZeroMutatePayload(payload, target) {
 }
 
 function assertZeroQueryPayload(payload, target, queryName) {
-  if (!Array.isArray(payload) || payload[0] !== "transformed" || !Array.isArray(payload[1])) {
+  if (
+    !isObject(payload) ||
+    payload.kind !== "QueryResponse" ||
+    !Array.isArray(payload.queries) ||
+    !payload.queries.some((query) => isObject(query) && query.name === queryName)
+  ) {
     throw new Error(
       `Unexpected zero query payload for ${target}/${queryName}: ${formatPayload(payload)}`,
     );
@@ -193,7 +198,17 @@ function assertZeroQueryPayload(payload, target, queryName) {
 }
 
 function assertZqlReadPayload(payload, queryName) {
-  if (payload === undefined) {
+  const valid =
+    queryName === "getArtist"
+      ? isObject(payload) && payload.id === MUSIC_FIXTURE_API_DEFAULTS.artistId
+      : Array.isArray(payload) &&
+        (queryName === "getCartItems"
+          ? payload.some(
+              (item) => isObject(item) && item.albumId === MUSIC_FIXTURE_API_DEFAULTS.albumId,
+            )
+          : payload.length > 0 && payload.length <= 50 && payload.every(isObject));
+
+  if (!valid) {
     throw new Error(`Unexpected zql read payload for ${queryName}: ${formatPayload(payload)}`);
   }
 }

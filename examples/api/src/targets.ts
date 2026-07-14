@@ -3,7 +3,12 @@ import {
   cartMutatorDefinitions,
   mutators as baseMutators,
 } from "@effect-zero/example-data/mutators";
-import { queries } from "@effect-zero/example-data/queries";
+import {
+  buildArtistListQuery,
+  buildArtistQuery,
+  buildCartItemsQuery,
+  queries,
+} from "@effect-zero/example-data/queries";
 import { schema as zeroSchema } from "@effect-zero/example-data/zero";
 import {
   MUSIC_FIXTURE_API_DEFAULTS,
@@ -42,6 +47,8 @@ import * as EffectV4 from "effect-v4/Effect";
 import * as LayerV4 from "effect-v4/Layer";
 import { getDatabaseUrl } from "./config.ts";
 import { getSharedSqlClient } from "./shared-resources.ts";
+import { createV3TestingQueryBuilder } from "../../../packages/effect-zero-v3/src/testing-query-builder.ts";
+import { createV4TestingQueryBuilder } from "../../../packages/effect-zero-v4/src/testing-query-builder.ts";
 
 type TargetRuntime = {
   readonly authoringMode: "raw-sql" | "service-workflow" | "shared-client-mutator";
@@ -309,7 +316,7 @@ const getV4PostgresJsProvider = createCachedValue(async () =>
 function createV3DrizzleMutators(target: "v3-drizzle") {
   return defineMutators(baseMutators, {
     cart: {
-      add: extendV3ServerMutator(cartMutatorDefinitions.add, (input) => {
+      add: extendV3ServerMutator(cartMutatorDefinitions.add, ((input: any) => {
         const ctx = input.ctx;
 
         if (!ctx) {
@@ -330,8 +337,8 @@ function createV3DrizzleMutators(target: "v3-drizzle") {
             input.defer(effect);
           }
         });
-      }),
-      remove: extendV3ServerMutator(cartMutatorDefinitions.remove, (input) => {
+      }) as any),
+      remove: extendV3ServerMutator(cartMutatorDefinitions.remove, ((input: any) => {
         const ctx = input.ctx;
 
         if (!ctx) {
@@ -352,7 +359,7 @@ function createV3DrizzleMutators(target: "v3-drizzle") {
             input.defer(effect);
           }
         });
-      }),
+      }) as any),
     },
   });
 }
@@ -491,6 +498,9 @@ const executeV3DrizzleEffect = <A, E, R>(input: { readonly effect: Effect.Effect
 const executeV4DrizzleEffect = <A>(input: { readonly effect: any }) =>
   EffectV4.runPromise(EffectV4.provide(input.effect, V4DrizzleWorkflow.layer) as any) as Promise<A>;
 
+const executeV3Effect = (({ effect }: any) => Effect.runPromise(effect)) as any;
+const executeV4Effect = (({ effect }: any) => EffectV4.runPromise(effect)) as any;
+
 const v3DrizzleHandler = createV3ServerMutatorHandler({
   executeEffect: executeV3DrizzleEffect,
   getContext: (mutation) => getMutationContext(mutation.args),
@@ -504,21 +514,25 @@ const v3DrizzleDirectHandler = createV3RestMutatorHandler({
 });
 
 const v3PgHandler = createV3ServerMutatorHandler({
+  executeEffect: executeV3Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v3PgMutators,
 });
 
 const v3PgDirectHandler = createV3RestMutatorHandler({
+  executeEffect: executeV3Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v3PgMutators,
 });
 
 const v3PostgresJsHandler = createV3ServerMutatorHandler({
+  executeEffect: executeV3Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v3PostgresJsMutators,
 });
 
 const v3PostgresJsDirectHandler = createV3RestMutatorHandler({
+  executeEffect: executeV3Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v3PostgresJsMutators,
 });
@@ -536,21 +550,25 @@ const v4DrizzleDirectHandler = createV4RestMutatorHandler({
 });
 
 const v4PgHandler = createV4ServerMutatorHandler({
+  executeEffect: executeV4Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v4PgMutators,
 });
 
 const v4PgDirectHandler = createV4RestMutatorHandler({
+  executeEffect: executeV4Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v4PgMutators,
 });
 
 const v4PostgresJsHandler = createV4ServerMutatorHandler({
+  executeEffect: executeV4Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v4PostgresJsMutators,
 });
 
 const v4PostgresJsDirectHandler = createV4RestMutatorHandler({
+  executeEffect: executeV4Effect,
   getContext: (mutation) => getMutationContext(mutation.args),
   mutators: v4PostgresJsMutators,
 });
@@ -609,6 +627,7 @@ function createPackageRuntime(options: {
   }) => Promise<void>;
   readonly handler: any;
   readonly provider: CachedValue<ZeroProviderLike>;
+  readonly queryBuilder: any;
   readonly serverDbApi: TargetRuntime["serverDbApi"];
 }): TargetRuntime {
   return {
@@ -643,8 +662,7 @@ function createPackageRuntime(options: {
     },
     async zqlRead(body) {
       const provider = await options.provider.get();
-      const query = mustGetQuery(queries, body.name);
-      return provider.zql.run(query.fn({ args: body.args, ctx: getDemoContext() }) as never);
+      return provider.zql.run(buildPackageQuery(options.queryBuilder, body) as never);
     },
     async dispose() {
       const cachedProvider = options.provider.peek();
@@ -659,6 +677,25 @@ function createPackageRuntime(options: {
   };
 }
 
+function buildPackageQuery(
+  builder: any,
+  body: { readonly args?: ReadonlyJSONValue; readonly name: string },
+) {
+  switch (body.name) {
+    case "getArtist":
+      return buildArtistQuery((body.args ?? {}) as never, getDemoContext(), builder);
+    case "getCartItems":
+      return buildCartItemsQuery(getDemoContext(), builder);
+    case "listArtists":
+      return buildArtistListQuery((body.args ?? {}) as never, builder);
+    default:
+      throw new Error(`Unknown package query: ${body.name}`);
+  }
+}
+
+const v3QueryBuilder = createV3TestingQueryBuilder(zeroSchema);
+const v4QueryBuilder = createV4TestingQueryBuilder(zeroSchema);
+
 const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
   control: createControlRuntime(),
   "v3-drizzle": createPackageRuntime({
@@ -666,6 +703,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v3DrizzleDirectHandler,
     handler: v3DrizzleHandler,
     provider: getV3DrizzleProvider,
+    queryBuilder: v3QueryBuilder,
     serverDbApi: "wrapped-transaction",
   }),
   "v3-pg": createPackageRuntime({
@@ -673,6 +711,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v3PgDirectHandler,
     handler: v3PgHandler,
     provider: getV3PgProvider,
+    queryBuilder: v3QueryBuilder,
     serverDbApi: "raw-sql",
   }),
   "v3-postgresjs": createPackageRuntime({
@@ -680,6 +719,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v3PostgresJsDirectHandler,
     handler: v3PostgresJsHandler,
     provider: getV3PostgresJsProvider,
+    queryBuilder: v3QueryBuilder,
     serverDbApi: "raw-sql",
   }),
   "v4-drizzle": createPackageRuntime({
@@ -687,6 +727,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v4DrizzleDirectHandler,
     handler: v4DrizzleHandler,
     provider: getV4DrizzleProvider,
+    queryBuilder: v4QueryBuilder,
     serverDbApi: "wrapped-transaction",
   }),
   "v4-pg": createPackageRuntime({
@@ -694,6 +735,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v4PgDirectHandler,
     handler: v4PgHandler,
     provider: getV4PgProvider,
+    queryBuilder: v4QueryBuilder,
     serverDbApi: "raw-sql",
   }),
   "v4-postgresjs": createPackageRuntime({
@@ -701,6 +743,7 @@ const runtimes: Record<MusicFixtureApiTargetId, TargetRuntime> = {
     directHandler: v4PostgresJsDirectHandler,
     handler: v4PostgresJsHandler,
     provider: getV4PostgresJsProvider,
+    queryBuilder: v4QueryBuilder,
     serverDbApi: "raw-sql",
   }),
 };

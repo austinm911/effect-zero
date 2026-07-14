@@ -12,7 +12,7 @@
     "catalog": {
       "@cloudflare/vite-plugin": "1.27.0",
       "@cloudflare/workers-types": "^4.20260313.1",
-      "@rocicorp/zero": "1.7.0",
+      "@rocicorp/zero": "1.8.0",
       "@tanstack/react-router": "1.166.7",
       "@tanstack/react-start": "1.166.7",
       "@tanstack/router-cli": "1.166.7",
@@ -22,9 +22,9 @@
       "drizzle-kit": "0.31.1",
       "drizzle-orm": "0.44.1",
       "drizzle-zero": "0.17.4",
-      "postgres": "3.4.7",
-      "react": "19.2.6",
-      "react-dom": "19.2.6",
+      "postgres": "3.4.9",
+      "react": "19.2.7",
+      "react-dom": "19.2.7",
       "sonner": "^2.0.7",
       "tsdown": "^0.21.2",
       "typescript": "^5",
@@ -33,7 +33,7 @@
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "npm:@voidzero-dev/vite-plus-test@latest",
       "wrangler": "^4.72.0",
-      "zod": "^4.1.5"
+      "zod": "^4.4.3"
     }
   },
   "type": "module",
@@ -58,26 +58,24 @@
     "pack:v4": "node tools/pack-package.mjs packages/effect-zero-v4",
     "pack:all": "node tools/pack-package.mjs packages/effect-zero-v3 packages/effect-zero-v4",
     "ready": "pnpm check && vp run test -r && vp run build -r",
-    "release:check": "pnpm ready && vp run verify:client-entrypoints && node tools/check-package-installs.mjs",
+    "release:check": "pnpm ready && vp run verify:client-entrypoints && pnpm verify:release-tools && node tools/check-package-installs.mjs",
+    "release:verify-tarball": "node tools/verify-package-tarball.mjs",
     "release:version": "node tools/release-package.mjs",
     "seed:ztunes": "node tools/load-ztunes-seed.mjs",
-    "publish:package": "node tools/publish-package.mjs",
-    "publish:v3": "node tools/publish-package.mjs packages/effect-zero-v3",
-    "publish:v4": "node tools/publish-package.mjs packages/effect-zero-v4",
-    "publish:v4:beta": "node tools/publish-package.mjs packages/effect-zero-v4 --tag beta",
     "test": "vp run test -r",
     "verify:client-entrypoints": "node tools/check-client-entrypoints.mjs",
     "verify:api": "pnpm exec tsx tools/verify-api-targets.mjs",
-    "verify:api:package": "VERIFY_API_BASE_URL=http://localhost:4311 pnpm exec tsx tools/verify-api-targets.mjs --target control,v3-drizzle,v3-pg,v3-postgresjs,v4-drizzle,v4-pg,v4-postgresjs",
+    "verify:api:package": "node tools/verify-package-api.mjs api",
     "verify:mutation-stress": "pnpm exec tsx tools/verify-mutation-stress.mjs",
-    "verify:mutation-stress:package": "VERIFY_API_BASE_URL=http://localhost:4311 pnpm exec tsx tools/verify-mutation-stress.mjs --target control,v3-drizzle,v3-pg,v3-postgresjs,v4-drizzle,v4-pg,v4-postgresjs"
+    "verify:mutation-stress:package": "node tools/verify-package-api.mjs mutation-stress",
+    "verify:release-tools": "node --test tools/release-tools.test.mjs"
   },
   "dependencies": {},
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.35.0",
     "@cloudflare/workers-types": "4.20260503.1",
     "@effect-zero/tsconfig": "workspace:*",
-    "tsx": "^4.20.5",
+    "tsx": "^4.23.0",
     "vite-plus": "0.1.20"
   },
   "overrides": {
