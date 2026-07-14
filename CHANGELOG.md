@@ -36,11 +36,12 @@ maintaining separate changelog files in each package directory.
 - Restore Drizzle query-builder Effect semantics from the follow-up v4 patch work.
 - Keep runtime Drizzle patching inside the adapter and document the manual fallback helper.
 
-## `@awstin/effect-zero-v4` 0.2.0-beta.5 - 2026-07-13
+## `@awstin/effect-zero-v4` 0.2.0-beta.6 - 2026-07-13
 
 - Verify the v4 Drizzle, `pg`, and `postgres.js` lanes against Zero 1.8.0 while retaining the Zero 1.x peer range.
 - Cover root, client, server, timestamp, adapter, OpenAPI, and package metadata exports from the exact packed artifact.
 - Add a protected npm staged-publishing workflow with OIDC provenance, an allowlisted file manifest, digest evidence, and secret scanning.
+- Submit the exact packed tarball to npm staged publishing from the protected workflow.
 
 ### Examples and Harness
 

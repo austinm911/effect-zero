@@ -131,4 +131,4 @@ jobs:
           set -- candidate/*.tgz
           test "$#" -eq 1
           test -f "$1"
-          npm stage publish "$1" --access public --tag beta
+          npm stage publish "$PWD/$1" --access public --tag beta
